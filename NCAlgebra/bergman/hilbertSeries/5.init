@@ -1,5 +1,0 @@
-(setf (getenv "bmload") "~/bergman/lap/clisp/unix")
-(ncpbh "6.bi" "7.bpb" "8.bhs")
-(calctolimit (getmaxdeg))
-(tdegreehseriesout(getmaxdeg))
-(quit)
