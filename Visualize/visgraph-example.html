@@ -14,7 +14,9 @@
             var color = d3.scale.category10();
 
             
-            var data = [[0, 1, 0, 1, 1, 0], [1, 0, 0, 1, 0, 0], [0, 0, 0, 1, 0, 0], [1, 1, 1, 0, 0, 0], [1, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
+            var data = [[0,1,1,0,0,0],[1,0,0,1,1,1],[1,0,0,1,1,0],[0,1,1,0,0,0],[0,1,1,0,0,1],[0,1,0,0,1,0]];
+
+//            [[0, 1, 0, 1, 1, 0], [1, 0, 0, 1, 0, 0], [0, 0, 0, 1, 0, 0], [1, 1, 1, 0, 0, 0], [1, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
             
             //convert adjacency matrix into edge pairs for d3 to process
             var nodeList = [];
@@ -51,6 +53,7 @@
                         .links(dataset.edges)
                         .size([w, h])
                         .gravity(.1)
+                        .linkStrength([1])
                         .linkDistance([150])
                         .charge([-1000])
                         .start();
