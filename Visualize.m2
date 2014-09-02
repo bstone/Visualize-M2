@@ -79,6 +79,7 @@ installMethod(getCurrPath, () -> (local currPath; currPath = get "!pwd"; substri
 --output: an array of arrays
 --
 -- would be nice if we could use this on any nesting of lists/seq
+-- we could make the input a BasicList
 --
 toArray = method() 
 toArray(List) := L -> (
