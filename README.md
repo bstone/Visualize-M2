@@ -53,4 +53,19 @@ visGraph( G, Path => "./temp-files/" )
 ```
 
 
+Javascript Packages Used
+----
+
+Built on the shoulders of giants, this package utilizes a variety of existing javascript packages
+
+* [D3.js](http://d3js.org/)
+* [three.js](http://threejs.org/)
+* [Three.OrbitControls](https://gist.github.com/mrflix/8351020)
+* [requestAnimationFrame](http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/)
+* [THREEx.FullScreen.js](http://learningthreejs.com/data/THREEx/docs/THREEx.FullScreen.html)
+* [THREEx.KeyboardState.js](http://learningthreejs.com/data/THREEx/docs/THREEx.KeyboardState.html)
+* [THREEx.WindowResize.js](https://github.com/jeromeetienne/threex.windowresize)
+* [Underscore.js](http://underscorejs.org/)
+* [Detector.js](https://code.google.com/p/webgl-globe/source/browse/globe/Three/Detector.js?r=167cd00544424b26d90f76d56ea22d53aa02bb1a)
+
 
