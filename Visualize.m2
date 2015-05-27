@@ -30,6 +30,7 @@ newPackage(
 	     },
     	Headline => "Visualize",
     	DebuggingMode => true,
+	PackageExports => {"Graphs"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
     	)
@@ -57,7 +58,7 @@ export {
 
 }
 
-needsPackage"Graphs"
+-- needsPackage"Graphs"
 
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
