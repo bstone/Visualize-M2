@@ -704,8 +704,15 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
-function exportTikz() {
-  alert("export tikkkzzz");
+function exportTikz(nodeSet,edgeSet) {
+  var points = [];
+for(var i = 0; i < nodeSet.length; i++){
+    points[i] = [nodeSet[i].x,nodeSet[i].y];
+}
+
+console.log(points);
+
+  alert(points);
 }
 
 function stopForce() {
