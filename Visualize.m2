@@ -274,8 +274,10 @@ visGraph(Graph) := opts -> G -> (
     
     -- Add this back in when we figure out how to deal with the old
     -- Graphs package not knowing what G.vertexSet means.
-    
-    if value((options Graphs).Version) == 0.1 then (
+
+-- !!!! Need to deal with version numbers here    
+--  if value((options Graphs).Version) == 0.3.1 then (
+    if .1 == 1 then (	
 	 vertexString = toString new Array from apply(keys(G#graph), i -> "\""|toString(i)|"\""); -- Create a string containing an ordered list of the vertices in the older Graphs package.
     ) else (
     
