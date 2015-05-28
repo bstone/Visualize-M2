@@ -407,8 +407,6 @@ visPoset(Poset) := opts -> P -> (
     if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
     relList = coveringRelations P;
     numNodes = #labelList;
-    nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
-    relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
     
     if opts.FixExtremeElements == true then (
 	    groupList = relHeightFunction P;
@@ -416,8 +414,9 @@ visPoset(Poset) := opts -> P -> (
 	    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
     );
 
-    print groupList;
-    
+    nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
+    relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
+
     if opts.VisPath =!= null 
     then (
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visPoset template to a temporary directory.
@@ -581,6 +580,12 @@ visPoset P
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visPoset P2
 visPoset(P2,FixExtremeElements => true)
+R = QQ[x,y,z]
+I = ideal(x*y^2,x^2*z,y*z^2)
+P = lcmLattice I
+visPoset P
+
+
 ----------------
 
 -----------------------------
