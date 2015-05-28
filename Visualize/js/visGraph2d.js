@@ -704,26 +704,25 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
-function exportTikz (nodeSet, edgeSet){
+function pointsArray (nodeSet){
   var points = [];
   for(var i = 0; i < nodeSet.length; i++){
     points[i] = [nodeSet[i].x,nodeSet[i].y];
   }
 
+  return points;
+}
+
+function edgesArray (edgeSet){
   var edges = [];
   for(var j = 0; j < edgeSet.length; j++){
     edges[j] = [ edgeSet[j].source.id , edgeSet[j].target.id ];
   }
 
-console.log(points);
-console.log(links[0].source.id);
-console.log(links.length);
-console.log(edgeSet);
-console.log(links);
-console.log(points);
-
-  alert(edges);
+  return edges;
 }
+
+
 
 function stopForce() {
   force.stop();
