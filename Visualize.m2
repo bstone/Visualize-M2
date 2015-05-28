@@ -435,7 +435,6 @@ visPoset(Poset) := opts -> P -> (
     return visTemp;
 )
 
-
 --input: a String of a path to a directory
 --output: Copies the js library to path
 --
@@ -584,6 +583,10 @@ R = QQ[x,y,z]
 I = ideal(x*y^2,x^2*z,y*z^2)
 P = lcmLattice I
 visPoset P
+
+-- Simplicial Complexes
+
+
 
 
 ----------------
