@@ -30,7 +30,7 @@ newPackage(
 	     },
     	Headline => "Visualize",
     	DebuggingMode => true,
-	PackageExports => {"Graphs"},
+	PackageExports => {"Graphs", "Posets"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
     	)
@@ -47,6 +47,7 @@ export {
      "visIdeal",
      "visGraph",
      "visDigraph",
+     "visPoset",
      "copyJS",
      
     -- Helpers 
@@ -54,7 +55,8 @@ export {
      "toArray", 
      "getCurrPath", 
      "copyTemplate",
-     "replaceInFile"     
+     "replaceInFile",
+     "heightFunction"
 
 }
 
@@ -122,9 +124,6 @@ replaceInFile(String, String, String) := (patt, repl, fileName) -> (
 		
 		return fileName;
 )	
-
-
-
 
 
 --input: Three Stings. The first is a key word to look for.  The second
@@ -201,6 +200,17 @@ searchReplace(String,String,String) := opts -> (oldString,newString,visSrc) -> (
     )
 
 
+heightFunction = method()
+heightFunction(Poset) := P -> (
+    local F; local G; local tempList;
+    F = filtration P;
+    G = P.GroundSet;
+    tempList = new MutableList from apply(#G,i -> null);
+    -- The next line creates a list in which the ith entry is the
+    -- height of the ith element in P.GroundSet.
+    scan(#F, i -> scan(F#i, j -> (tempList#(position(G, k -> k == j)) = i)));
+    return toList tempList;
+)
 
 
 --input: A monomial ideal of a polynomial ring in 2 or 3 variables.
@@ -318,7 +328,6 @@ visGraph(Graph) := opts -> G -> (
     return visTemp;
 )
 
-
 visDigraph = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory()|"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true})
 visDigraph(Digraph) := opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
@@ -362,6 +371,42 @@ visDigraph(Digraph) := opts -> G -> (
 
     searchReplace("visArray",arrayString, visTemp); -- Replace visArray in the visDigraph html file by the adjacency matrix.
     searchReplace("visLabels",vertexString, visTemp); -- Replace visLabels in the visDigraph html file by the ordered list of vertices.
+    
+    show new URL from { "file://"|visTemp };
+    
+    return visTemp;
+)
+
+
+--input: A poset
+--output: The poset in the browswer
+--
+visPoset = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true})
+visPoset(Poset) := opts -> P -> (
+    
+    -- Get P.GroundSet and convert it to a string the form:
+    -- [ { name: "label1" , group: 3 } , { name: "label2" , group: 2 } , ... ]
+    
+    -- To find group:
+    -- 1. Check if P is ranked: isRanked(P)
+    -- 2. If so, then use rankFunction to determine the group.
+    -- 3. If not, then use heightFunction to determine the group.
+    
+    -- Also create a string that lists the minimal covering relations in the form:
+    -- [ source: index of source , target: index of target ]
+    
+    if opts.VisPath =!= null 
+    then (
+	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visGraph template to a temporary directory.
+    	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+      )
+    else (
+	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visGraph template to a temporary directory.
+    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+      );
+    
+    searchReplace("visNodes",nodeString, visTemp); -- Replace visLabels in the visGraph html file by the ordered list of vertices.
+    searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
     
     show new URL from { "file://"|visTemp };
     
