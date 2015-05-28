@@ -18,7 +18,9 @@
 <script>
 
 var width = 960,
-     height = 500;
+    height = 500,
+    hPadding = 20,
+    vPadding = 20;
 
 var color = d3.scale.category20();
 
@@ -32,56 +34,46 @@ var svg = d3.select("body").append("svg")
     .attr("height", height);
 
 d3.json("D6.json", function(error, graph) {
-  var maxGroup = d3.max(graph.nodes, function(d) {return d.group;});
-  var rowSep = height/maxGroup;
-  var groupFreq = [ ];
-  var groupCount = [ ];
-  for (var i=0; i<maxGroup+1; i++){
+    var maxGroup = d3.max(graph.nodes, function(d) {return d.group;});
+    var rowSep = (height-2*vPadding)/maxGroup;
+    var groupFreq = [];
+    var groupCount = [];
+    for (var i=0; i<maxGroup+1; i++){
       groupFreq.push(0);
       groupCount.push(0);
-  }
-graph.nodes.forEach(function(d) {groupFreq[d.group]=groupFreq[d.group]+1;});
-console.log(groupFreq);
-console.log(groupCount);
+    }
 
-  for(var i=0; i<graph.nodes.length;i++){
+    graph.nodes.forEach(function(d) {groupFreq[d.group]=groupFreq[d.group]+1;});
+
+    for(var i=0; i<graph.nodes.length;i++){
 	  graph.nodes[i].fixed = true;
-	  graph.nodes[i].y = height-graph.nodes[i].group*rowSep;
-          groupCount[graph.nodes[i].group]=groupCount[graph.nodes[i].group]+1; 
-          graph.nodes[i].x = groupCount[graph.nodes[i].group]*(width/(groupFreq[graph.nodes[i].group]+1));
-         
-      console.log(groupCount);
-           
-  
-	  }
+	  graph.nodes[i].y = height-vPadding-graph.nodes[i].group*rowSep;
+      groupCount[graph.nodes[i].group]=groupCount[graph.nodes[i].group]+1; 
+      graph.nodes[i].x = groupCount[graph.nodes[i].group]*((width-2*hPadding)/(groupFreq[graph.nodes[i].group]+1));
+    }
  
-
-  
-     
-
   force
       .nodes(graph.nodes)
       .links(graph.links)
       .start();
-
-  var link = svg.selectAll(".link")
-      .data(graph.links)
-    .enter().append("line")
-      .attr("class", "link")
-      .attr("y1", function(d) {return height-d.source.group*rowSep;})
-      .attr("y2", function(d) {return height-d.target.group*rowSep;})
-      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
   var node = svg.selectAll(".node")
       .data(graph.nodes)
     .enter().append("circle")
       .attr("class", "node")
       .attr("r", 5)
+      .attr("cx", function(d) {return d.x;})
       .attr("cy", function(d) {return d.y;})
       .style("fill", function(d) { return color(d.group); })
-      .attr("cx", function(d) {return d.x;})
       .call(force.drag);
-  //console.log(groupFreq);
+    
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .attr("y1", function(d) {return height-vPadding-d.source.y;})
+      .attr("y2", function(d) {return height-vPadding-d.target.y;})
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
   
   node.append("title")
       .text(function(d) { return d.name; });
