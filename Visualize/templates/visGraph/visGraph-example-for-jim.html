@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<!-- saved from url=(0083)file:///var/folders/8c/1xc183753rn4bmz1l7_47w7x1h7nh5/T/M2-2596-0/0/1432758214.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <title>Macaulay2: visGraph</title>
     <style>
@@ -186,34 +186,34 @@
       curEdit = false;
   	  curView = "2d";
       menuOpen = false;
-      dataData = visArray;
-      labelData = visLabels;
+      dataData = [[0, 1, 1, 1, 0, 0], [1, 0, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
+      labelData = ["x_0", "x_1", "x_3", "x_4", "x_2", "x_5"];
       forceOn = true;
     </script>
   </head>
   
   <body>
-  	    <a id= "tdToggle"> switch to 3d</a>
-        <a id= "editToggle"> enable editing</a>
-        <a id= "moreOptions"> more</a>
+  	    <a id="tdToggle"> switch to 3d</a>
+        <a id="editToggle"> enable editing</a>
+        <a id="moreOptions"> more</a>
         <div id="popupMenu"> 
-          <button id = "resetButton" onclick="resetGraph();">reset nodes</button>
-          <button id = "forceToggle" onclick="toggleForce();">turn off force</button>
-          <button id = "exportToggle" onclick="exportTikz(nodes,links);">export tikz</button>
+          <button id="resetButton" onclick="resetGraph();">reset nodes</button>
+          <button id="forceToggle" onclick="toggleForce();">turn off force</button>
+          <button id="exportToggle" onclick="exportTikz();">export tikz</button>
         </div>
-        <div id="canvasElement3d"></div>
+        <div id="canvasElement3d"><canvas width="1440" height="588" style="width: 1440px; height: 588px;"></canvas></div>
 
 
-  <script src="js/d3.v3.js"></script>
-  <script src="js/visGraph2d.js"></script>
-  <script src="js/three.min.js"></script>
-  <script src="js/Detectors.js"></script>
-  <script src="js/OrbitControls.js"></script>
-  <script src="js/THREEx.KeyboardState.js"></script>
-  <script src="js/THREEx.FullScreen.js"></script>
-  <script src="js/THREEx.WindowResize.js"></script>
-  <script src="js/RequestAnimationFrame.js"></script>
-  <script src="js/GraphBuilder3d.js"></script>
+  <script src="./visGraph-example-for-jim_files/d3.v3.js"></script>
+  <script src="./visGraph-example-for-jim_files/visGraph2d.js"></script>
+  <script src="./visGraph-example-for-jim_files/three.min.js"></script>
+  <script src="./visGraph-example-for-jim_files/Detectors.js"></script>
+  <script src="./visGraph-example-for-jim_files/OrbitControls.js"></script>
+  <script src="./visGraph-example-for-jim_files/THREEx.KeyboardState.js"></script>
+  <script src="./visGraph-example-for-jim_files/THREEx.FullScreen.js"></script>
+  <script src="./visGraph-example-for-jim_files/THREEx.WindowResize.js"></script>
+  <script src="./visGraph-example-for-jim_files/RequestAnimationFrame.js"></script>
+  <script src="./visGraph-example-for-jim_files/GraphBuilder3d.js"></script>
 
   <script type="text/javascript">
     document.getElementById("canvasElement3d").style.width = window.innerWidth;
@@ -311,7 +311,8 @@
   	window.addEventListener('resize', updateWindowSize2d, false);
     </script>
 
-  </body>
+  
 
 
-</html>
+
+<svg width="1440" height="632" id="canvasElement2d" class="" style="width: 1440px; height: 588px;"><path class="link dragline hidden" d="M0,0L0,0"></path><g><path class="link" d="M697.5735154082704,404.55484546927306L813.5244682814296,349.97251024554924"></path><path class="link" d="M706.7782782964338,263.40076775184826L814.5170597945487,338.02866382931035"></path><path class="link" d="M696.1161514373938,268.5412723107375L687.5138246959607,397.69225745912973"></path><path class="link" d="M786.9218770797992,212.68565836830086L821.1096384496135,333.31633573710764"></path><path class="link" d="M587.5117217611578,333.1899836033992L687.0846054893703,263.45181210641056"></path></g><g><g transform="translate(824.381672823664,344.86162876305684)"><circle class="node" r="12" style="fill: rgb(31, 119, 180); stroke: rgb(21, 83, 125);"></circle><text x="0" y="4" class="id">x_0</text></g><g transform="translate(686.716310866036,409.66572695176546)"><circle class="node" r="12" style="fill: rgb(255, 127, 14); stroke: rgb(178, 88, 9);"></circle><text x="0" y="4" class="id">x_1</text></g><g transform="translate(696.9136652673185,256.56780281810177)"><circle class="node" r="12" style="fill: rgb(44, 160, 44); stroke: rgb(30, 112, 30);"></circle><text x="0" y="4" class="id">x_3</text></g><g transform="translate(783.6498427057487,201.14036534235163)"><circle class="node" r="12" style="fill: rgb(214, 39, 40); stroke: rgb(149, 27, 28);"></circle><text x="0" y="4" class="id">x_4</text></g><g transform="translate(577.6826619832096,340.073992891708)"><circle class="node" r="12" style="fill: rgb(148, 103, 189); stroke: rgb(103, 72, 132);"></circle><text x="0" y="4" class="id">x_2</text></g><g transform="translate(741.1246965178792,348.3092748258286)"><circle class="node" r="12" style="fill: rgb(140, 86, 75); stroke: rgb(98, 60, 52);"></circle><text x="0" y="4" class="id">x_5</text></g></g></svg><p id="constructorString">Macaulay2 Constructor: graph({{x_1, x_0}, {x_3, x_0}, {x_3, x_1}, {x_4, x_0}, {x_2, x_3}}, Singletons =&gt; {x_5})</p><p id="incString">Incidence Matrix: matrix{{1,1,0,1,0},{1,0,1,0,0},{0,1,1,0,1},{0,0,0,1,0},{0,0,0,0,1},{0,0,0,0,0}}</p><p id="adjString">Adjacency Matrix: matrix{{0,1,1,1,0,0},{1,0,1,0,0,0},{1,1,0,0,1,0},{1,0,0,0,0,0},{0,0,1,0,0,0},{0,0,0,0,0,0}}</p></body></html>

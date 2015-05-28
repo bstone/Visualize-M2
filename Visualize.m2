@@ -30,6 +30,7 @@ newPackage(
 	     },
     	Headline => "Visualize",
     	DebuggingMode => true,
+	PackageExports => {"Graphs"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
     	)
@@ -57,7 +58,7 @@ export {
 
 }
 
-needsPackage"Graphs"
+-- needsPackage"Graphs"
 
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
@@ -173,10 +174,15 @@ copyTemplate(String,String) := (src,dst) -> (
 --    dirPath = temporaryFileName();
 --    makeDirectory dirPath;
     dirPath = concatenate(dst,fileName);
-    
-    copyFile( src, dirPath);
-    
-    return dirPath;
+
+-- test to see if users directory exists    
+    if (fileExists dst) 
+    then (
+	copyFile( src, dirPath);
+	return dirPath;
+	)
+    else error "Path does not exist. Please check the path and try again.";
+
 )
 
 -- input:
@@ -274,8 +280,10 @@ visGraph(Graph) := opts -> G -> (
     
     -- Add this back in when we figure out how to deal with the old
     -- Graphs package not knowing what G.vertexSet means.
-    
-    if value((options Graphs).Version) == 0.1 then (
+
+-- !!!! Need to deal with version numbers here    
+--  if value((options Graphs).Version) == 0.3.1 then (
+    if .1 == 1 then (	
 	 vertexString = toString new Array from apply(keys(G#graph), i -> "\""|toString(i)|"\""); -- Create a string containing an ordered list of the vertices in the older Graphs package.
     ) else (
     
@@ -506,17 +514,19 @@ visDigraph G
 
 -- branden
 restart
-loadPackage"Graphs"
+-- loadPackage"Graphs"
 loadPackage"Visualize"
 
 (options Visualize).Configuration
 
-
 -- Old Graphs
 restart
-loadPackage"Graphs"
 loadPackage"Visualize"
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
+visGraph( G, VisPath => "/Users/bstone/Desktop/Test/")
+y
+visGraph( G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
+y
 visGraph G
 H = graph({{x_1, x_0}, {x_3, x_0}, {x_3, x_1}, {x_4, x_0}}, Singletons => {x_2, x_5, 6, cat_sandwich})
 visGraph H
@@ -527,7 +537,7 @@ visGraph L
 G = graph(toList(0..5),{{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5},EntryMode => "edges")
 G = graph(toList(0..5),{0,{1,2,3,4}},Singletons => {5})--,EntryMode => "edges")
 visGraph G
-visGraph( G, VisPath => "/Users/bstone/Desktop/Test/")
+visGraph( G, VisPath => "/Users/bstone/Desktop/Test/H/B/")
 y
 visGraph( G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 y
@@ -541,7 +551,9 @@ A = symbol vertexSet
 
 viewHelp ideal
 
-
+-- ideal tests
+restart
+loadPackage"Visualize"
 R = QQ[a,b,c]
 I = ideal"a2,ab,b2c,c5,b4"
 -- I = ideal"x4,xyz3,yz,xz,z6,y5"
