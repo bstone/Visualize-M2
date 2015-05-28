@@ -17,7 +17,7 @@
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
- var nodes = [
+ /* var nodes = [
 		{"name": "1", "group":0},
 		{"name": "2", "group":1},
 		{"name": "3", "group":1},
@@ -33,6 +33,9 @@
 		{"source":2,"target":5,"value":2},
         {"source":4,"target":3,"value":1}
 	];
+*/
+    var nodes = visNodes ,
+        links = visRelations ;
     
 var width = 960,
     height = 500,
@@ -43,7 +46,7 @@ var color = d3.scale.category20();
 
 var force = d3.layout.force()
     .charge(-700)
-    .linkDistance(230)
+    .linkDistance(240)
     .size([width, height]);
 
 var svg = d3.select("body").append("svg")
@@ -62,7 +65,7 @@ var svg = d3.select("body").append("svg")
     nodes.forEach(function(d) {groupFreq[d.group]=groupFreq[d.group]+1;});
 
     for(var i=0; i<nodes.length;i++){
-	//  nodes[i].fixed = true;
+      nodes[i].fixed = true;
 	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
       groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
       nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));

@@ -41,6 +41,7 @@ export {
      "VisPath",
      "VisTemplate",
      "Warning",
+     "FixExtremeElements",
     
     -- Methods
      "visIntegralClosure",
@@ -56,7 +57,8 @@ export {
      "getCurrPath", 
      "copyTemplate",
      "replaceInFile",
-     "heightFunction"
+     "heightFunction",
+     "relHeightFunction"
 
 }
 
@@ -212,6 +214,21 @@ heightFunction(Poset) := P -> (
     return toList tempList;
 )
 
+relHeightFunction = method()
+relHeightFunction(Poset) := P -> (
+    local nodes; local maxChains;
+    local heightList; local maxChainList; local chainLengthList;
+    local relHeightList; local totalHeight;
+    
+    nodes = P_*;
+    maxChains = maximalChains P;
+    heightList = heightFunction P;
+    maxChainList = apply(nodes, j -> delete(null,apply(maxChains, L -> (if any(L, i -> i == j) == true then L else null))));
+    chainLengthList = apply(maxChainList, i -> apply(i, j -> #j));
+    relHeightList = apply(chainLengthList, i -> max i - 1);
+    totalHeight = lcm relHeightList;
+    return apply(#nodes, i -> (totalHeight / relHeightList#i) * heightList#i);    
+)
 
 --input: A monomial ideal of a polynomial ring in 2 or 3 variables.
 --output: The newton polytope of the of the ideal.
@@ -381,31 +398,37 @@ visDigraph(Digraph) := opts -> G -> (
 --input: A poset
 --output: The poset in the browswer
 --
-visPoset = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true})
+visPoset = method(Options => {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true})
 visPoset(Poset) := opts -> P -> (
+    local labelList; local groupList; local relList; local visTemp;
+    local numNodes; local nodeString; local relationString;
     
-    -- Get P.GroundSet and convert it to a string the form:
-    -- [ { name: "label1" , group: 3 } , { name: "label2" , group: 2 } , ... ]
+    labelList = P_*;
+    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
+    relList = coveringRelations P;
+    numNodes = #labelList;
+    nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
+    relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
     
-    -- To find group:
-    -- 1. Check if P is ranked: isRanked(P)
-    -- 2. If so, then use rankFunction to determine the group.
-    -- 3. If not, then use heightFunction to determine the group.
-    
-    -- Also create a string that lists the minimal covering relations in the form:
-    -- [ source: index of source , target: index of target ]
+    if opts.FixExtremeElements == true then (
+	    groupList = relHeightFunction P;
+    ) else (
+	    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
+    );
+
+    print groupList;
     
     if opts.VisPath =!= null 
     then (
-	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visGraph template to a temporary directory.
+	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visPoset template to a temporary directory.
     	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
       )
     else (
-	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visGraph template to a temporary directory.
+	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visPoset template to a temporary directory.
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
-      );
+    );
     
-    searchReplace("visNodes",nodeString, visTemp); -- Replace visLabels in the visGraph html file by the ordered list of vertices.
+    searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
     searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
     
     show new URL from { "file://"|visTemp };
@@ -534,7 +557,7 @@ end
 
 -----------------------------
 -----------------------------
--- UnStable Tests
+-- Tests
 -----------------------------
 -----------------------------
 
@@ -549,6 +572,15 @@ A = adjacencyMatrix G
 keys(G#graph)
 visDigraph G
 
+-- Posets
+restart
+loadPackage "Posets"
+loadPackage "Visualize"
+P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
+visPoset P
+P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
+visPoset P2
+visPoset(P2,FixExtremeElements => true)
 ----------------
 
 -----------------------------

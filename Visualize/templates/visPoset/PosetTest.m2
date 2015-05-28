@@ -12,7 +12,19 @@ filtration P
 P.GroundSet
 texPoset P
 
-code texPoset
+P = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
+nodes = P_*
+maxChains = maximalChains P
+heightList = heightFunction P
+maxChainList = apply(nodes, j -> delete(null,apply(maxChains, L -> (if any(L, i -> i == j) == true then L else null))))
+chainLengthList = apply(maxChainList, i -> apply(i, j -> #j))
+relHeightList = apply(chainLengthList, i -> max i - 1)
+totalHeight = lcm relHeightList
+apply(#nodes, i -> (totalHeight / relHeightList#i) * heightList#i)
+
+P = poset {{1,2},{2,3},{3,4},{5,6},{6,7}}
+heightFunction P
+relHeightFunction P
 
 heightFunction = method()
 heightFunction(Poset) := P -> (
@@ -26,3 +38,18 @@ heightFunction(Poset) := P -> (
     return toList tempList;
 )
 
+relHeightFunction = method()
+relHeightFunction(Poset) := P -> (
+    local nodes; local maxChains;
+    local heightList; local maxChainList; local chainLengthList;
+    local relHeightList; local totalHeight;
+    
+    nodes = P_*;
+    maxChains = maximalChains P;
+    heightList = heightFunction P;
+    maxChainList = apply(nodes, j -> delete(null,apply(maxChains, L -> (if any(L, i -> i == j) == true then L else null))));
+    chainLengthList = apply(maxChainList, i -> apply(i, j -> #j));
+    relHeightList = apply(chainLengthList, i -> max i - 1);
+    totalHeight = lcm relHeightList;
+    return apply(#nodes, i -> (totalHeight / relHeightList#i) * heightList#i);    
+)
