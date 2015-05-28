@@ -13,6 +13,6 @@
 		{"source":0,"target":4,"value":3},
 		{"source":1,"target":3,"value":1},
 		{"source":2,"target":5,"value":2},
-	        {"source":4,"target":3,"value":1}
+        {"source":4,"target":3,"value":1}
 	]
 }
