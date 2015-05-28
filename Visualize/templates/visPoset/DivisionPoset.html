@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+      stroke: #fff;
+      stroke-width: 1.5px;
+}
+
+.link {
+      stroke: #999;
+      stroke-opacity: .6;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var width = 960,
+     height = 500;
+
+var color = d3.scale.category20();
+
+var force = d3.layout.force()
+    .charge(-1000)
+    .linkDistance(300)
+    .size([width, height]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+d3.json("D6.json", function(error, graph) {
+  var maxGroup = d3.max(graph.nodes, function(d) {return d.group;});
+  var rowSep = height/maxGroup;
+  var groupFreq = [ ];
+  var groupCount = [ ];
+  for (var i=0; i<maxGroup+1; i++){
+      groupFreq.push(0);
+      groupCount.push(0);
+  }
+graph.nodes.forEach(function(d) {groupFreq[d.group]=groupFreq[d.group]+1;});
+console.log(groupFreq);
+console.log(groupCount);
+
+  for(var i=0; i<graph.nodes.length;i++){
+	  graph.nodes[i].fixed = true;
+	  graph.nodes[i].y = height-graph.nodes[i].group*rowSep;
+          groupCount[graph.nodes[i].group]=groupCount[graph.nodes[i].group]+1; 
+          graph.nodes[i].x = groupCount[graph.nodes[i].group]*(width/(groupFreq[graph.nodes[i].group]+1));
+         
+      console.log(groupCount);
+           
+  
+	  }
+ 
+
+  
+     
+
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .attr("y1", function(d) {return height-d.source.group*rowSep;})
+      .attr("y2", function(d) {return height-d.target.group*rowSep;})
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", 5)
+      .attr("cy", function(d) {return d.y;})
+      .style("fill", function(d) { return color(d.group); })
+      .attr("cx", function(d) {return d.x;})
+      .call(force.drag);
+  //console.log(groupFreq);
+  
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("x2", function(d) { return d.target.x; });
+    
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y =  height-d.group*rowSep;});
+  });
+});
+
+</script>
