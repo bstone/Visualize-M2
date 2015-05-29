@@ -722,6 +722,21 @@ function edgesArray (edgeSet){
   return edges;
 }
 
+function exportTikz(){
+  var points = [];
+  points = pointsArray(nodes);
+
+  var edges = [];
+  edges = edgesArray(links);
+
+  console.log(edges[0]);
+  console.log(points[0]);
+
+  var tikzCode = "";
+  tikzCode = points; //"Brett's mom has got it going on!";
+
+  return alert(tikzCode);
+}
 
 
 function stopForce() {
