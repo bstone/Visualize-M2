@@ -765,16 +765,17 @@ function exportTikz (){
   for(var i = 0; i < nodes.length; i++){
     points[i] = [nodes[i].x.toString()+"/"+nodes[i].y.toString()+"/"+nodes[i].id+"/"+nodes[i].name];
   }
-console.log(points);
-console.log(nodes[0].id);
 
   var edges = [];
   for(var j = 0; j < links.length; j++){
     edges[j] = [ links[j].source.id.toString()+"/"+links[j].target.id.toString() ];
   }
 
-  alert(points);
-  alert(edges);
+  var tikzTex = "";
+
+  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates egdes\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
+
+  alert(tikzTex);
 }
 
 function stopForce() {
