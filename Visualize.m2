@@ -440,20 +440,20 @@ visPoset(Poset) := opts -> P -> (
 --
 visSimplicialComplex = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex-template.html", Warning => true})
 visSimplicialComplex(SimplicialComplex) := opts -> D -> (
-    local vertexSet; local edges; local faces;
+    local vertexSet; local edgeSet; local faceSet; local visTemp;
     local vertexList; local edgeList; local faceList;
     local vertexString; local edgeString; local faceString;    
     
     vertexSet = flatten entries faces(0,D);
-    edges = flatten entries faces(1,D);
-    faces = flatten entries faces(2,D);
+    edgeSet = flatten entries faces(1,D);
+    faceSet = flatten entries faces(2,D);
     vertexList = apply(vertexSet, v -> apply(new List from factor v, i -> i#0));
-    edgeList = apply(edges, e -> apply(new List from factor e, i -> i#0));
-    faceList = apply(faces, f -> apply(new List from factor f, i -> i#0));
+    edgeList = apply(edgeSet, e -> apply(new List from factor e, i -> i#0));
+    faceList = apply(faceSet, f -> apply(new List from factor f, i -> i#0));
 
     vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
     edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
-    faceString = toString new Array from apply(#faceList, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == faceList#i#1))|",\"v2\": "|toString(position(vertices, j -> j == faceList#i#1))|",\"v3\": "|toString(position(vertices, j -> j == faceList#i#0))});
+    faceString = toString new Array from apply(#faceList, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == faceList#i#2))|",\"v2\": "|toString(position(vertexSet, j -> j == faceList#i#1))|",\"v3\": "|toString(position(vertexSet, j -> j == faceList#i#0))});
 
     if opts.VisPath =!= null 
     then (
@@ -624,14 +624,12 @@ P = lcmLattice I
 visPoset P
 
 -- Simplicial Complexes
+restart
 loadPackage "SimplicialComplexes"
 loadPackage "Visualize"
-
 R = ZZ[a..f]
 D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
 visSimplicialComplex D
-
-
 
 ----------------
 
