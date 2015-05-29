@@ -760,24 +760,20 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
-function exportTikz (nodeSet, edgeSet){
+function exportTikz (){
   var points = [];
-  for(var i = 0; i < nodeSet.length; i++){
-    points[i] = [nodeSet[i].x,nodeSet[i].y];
+  for(var i = 0; i < nodes.length; i++){
+    points[i] = [nodes[i].x.toString()+"/"+nodes[i].y.toString()+"/"+nodes[i].id+"/"+nodes[i].name];
   }
+console.log(points);
+console.log(nodes[0].id);
 
   var edges = [];
-  for(var j = 0; j < edgeSet.length; j++){
-    edges[j] = [ edgeSet[j].source.id , edgeSet[j].target.id ];
+  for(var j = 0; j < links.length; j++){
+    edges[j] = [ links[j].source.id.toString()+"/"+links[j].target.id.toString() ];
   }
 
-console.log(points);
-console.log(links[0].source.id);
-console.log(links.length);
-console.log(edgeSet);
-console.log(links);
-console.log(points);
-
+  alert(points);
   alert(edges);
 }
 
