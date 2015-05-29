@@ -30,7 +30,7 @@ newPackage(
 	     },
     	Headline => "Visualize",
     	DebuggingMode => true,
-	PackageExports => {"Graphs", "SimplicialComplexes"},
+	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
     	)
@@ -785,7 +785,9 @@ I = ideal"x4,xy3,y5"
 visIdeal I
 visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
 
-
+testhere
+restart
+loadPackage"Visualize"
 copyJS("/Users/bstone/Desktop/Test/", Warning => false)
 n
 
