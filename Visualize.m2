@@ -485,20 +485,33 @@ visSimplicialComplex(SimplicialComplex) := opts -> D -> (
 copyJS = method(Options => {Warning => true} )
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
+    local cssdir; local fontdir;
     
-    dst = dst|"js/";    
+    -- Brett: I removed this so that we can add all three
+    -- folders (js, css, and fonts) in the one method.
+    -- dst = dst|"js/";    
     
     -- get list of filenames in js/
     jsdir = delete("..",delete(".",
 	    readDirectory(currentDirectory()|"Visualize/js/")
 	    ));
     
+    -- get list of filenames in js/
+    cssdir = delete("..",delete(".",
+	    readDirectory(currentDirectory()|"Visualize/css/")
+	    ));
+    
+    -- get list of filenames in js/
+    fontdir = delete("..",delete(".",
+	    readDirectory(currentDirectory()|"Visualize/fonts/")
+	    ));
+    
     if opts.Warning == true
     then(
     -- test to see if files exist in target
-    if (scan(jsdir, j -> if fileExists(concatenate(dst,j)) then break true) === true)
+    if (scan(jsdir, j -> if fileExists(dst|"js/"|concatenate(dst,j)) then break true) === true) or (scan(cssdir, j -> if fileExists(dst|"css/"|concatenate(dst,j)) then break true) === true) or (scan(fontdir, j -> if fileExists(dst|"fonts/"|concatenate(dst,j)) then break true) === true)
     then (
-    	   quest = concatenate(" -- Some JS files in ",dst," will be overwritten.\n -- This action cannot be undone.");
+    	   quest = concatenate(" -- Some files in ",dst," will be overwritten.\n -- This action cannot be undone.");
 	   print quest;
 	   ans = read "Would you like to continue? (y or n):  ";
 	   while (ans != "y" and ans != "n") do (
@@ -510,9 +523,11 @@ copyJS(String) := opts -> dst -> (
     	);
     );
     
-    copyDirectory(currentDirectory()|"Visualize/js/",dst);
+    copyDirectory(currentDirectory()|"Visualize/js/",dst|"js/");
+    copyDirectory(currentDirectory()|"Visualize/css/",dst|"css/");
+    copyDirectory(currentDirectory()|"Visualize/fonts/",dst|"fonts/");
     
-    return "Created directory "|dst;
+    return "Created directories at "|dst;
 )
 
 --input: a String of a path to a directory

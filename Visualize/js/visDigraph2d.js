@@ -47,8 +47,8 @@ function initializeBuilder() {
   //  - nodes are known by 'id', not by index in array.
   //  - reflexive edges are indicated on the node (as a bold black circle).
   //  - links are always source < target; edge directions are set by 'left' and 'right'.
-  var data = dataData;
-  var names = labelData;
+  var data = visArray,
+      names = visLabels;
 
   lastNodeId = data.length;
   nodes = [];
