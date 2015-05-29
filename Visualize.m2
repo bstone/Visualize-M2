@@ -51,6 +51,8 @@ export {
      "visPoset",
      "visSimplicialComplex2d",
      "copyJS",
+     "copyCSS",
+     "copyFonts",
      
     -- Helpers 
      "runServer",
