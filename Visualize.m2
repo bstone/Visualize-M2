@@ -49,7 +49,7 @@ export {
      "visGraph",
      "visDigraph",
      "visPoset",
-     "visSimplicialComplex",
+     "visSimplicialComplex2d",
      "copyJS",
      
     -- Helpers 
