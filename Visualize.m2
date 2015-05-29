@@ -485,7 +485,7 @@ visSimplicialComplex(SimplicialComplex) := opts -> D -> (
 	face3List = apply(face3Set, f -> apply(new List from factor f, i -> i#0));
        	face3String = toString new Array from apply(#face3List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face3List#i#3))|",\"v2\": "|toString(position(vertexSet, j -> j == face3List#i#2))|",\"v3\": "|toString(position(vertexSet, j -> j == face3List#i#1))|",\"v4\": "|toString(position(vertexSet, j -> j == face3List#i#0))});
 	searchReplace("vis3Faces",face3String, visTemp); -- Replace vis3Faces in the visSimplicialComplex html file by the list of faces. 
-    )
+    );
     show new URL from { "file://"|visTemp };
     
     return visTemp;
