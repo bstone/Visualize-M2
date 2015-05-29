@@ -112,8 +112,10 @@
       curEdit = false;
   	  curView = "2d";
       menuOpen = false;
-      dataData = [[0, 1, 1, 1, 0, 0], [1, 0, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
-      labelData = ["x_0", "x_1", "x_3", "x_4", "x_2", "x_5"];
+//      dataData = [[0, 1, 1, 1, 0, 0], [1, 0, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
+      dataData = visArray;
+//      labelData = ["x_0", "x_1", "x_3", "x_4", "x_2", "x_5"];
+      labelData = visLabels;
       forceOn = true;
     </script>
   </head>
@@ -126,7 +128,7 @@
             <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn off force</a>
-            <a id="exportToggle" href="#" class="list-group-item">Export TikZ</a>
+            <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
           </div>
         </div>
 
