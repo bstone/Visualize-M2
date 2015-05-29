@@ -30,7 +30,7 @@ newPackage(
 	     },
     	Headline => "Visualize",
     	DebuggingMode => true,
-	PackageExports => {"Graphs", "Posets"},
+	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
     	)
@@ -49,6 +49,7 @@ export {
      "visGraph",
      "visDigraph",
      "visPoset",
+     "visSimplicialComplex",
      "copyJS",
      
     -- Helpers 
@@ -434,6 +435,44 @@ visPoset(Poset) := opts -> P -> (
     
     return visTemp;
 )
+--input: A SimplicialComplex
+--output: The SimplicialComplex in the browswer
+--
+visSimplicialComplex = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex-template.html", Warning => true})
+visSimplicialComplex(SimplicialComplex) := opts -> D -> (
+    local vertexSet; local edges; local faces;
+    local vertexList; local edgeList; local faceList;
+    local vertexString; local edgeString; local faceString;    
+    
+    vertexSet = flatten entries faces(0,D);
+    edges = flatten entries faces(1,D);
+    faces = flatten entries faces(2,D);
+    vertexList = apply(vertexSet, v -> apply(new List from factor v, i -> i#0));
+    edgeList = apply(edges, e -> apply(new List from factor e, i -> i#0));
+    faceList = apply(faces, f -> apply(new List from factor f, i -> i#0));
+
+    vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
+    edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
+    faceString = toString new Array from apply(#faceList, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == faceList#i#1))|",\"v2\": "|toString(position(vertices, j -> j == faceList#i#1))|",\"v3\": "|toString(position(vertices, j -> j == faceList#i#0))});
+
+    if opts.VisPath =!= null 
+    then (
+	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visSimplicialComplex template to a temporary directory.
+    	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+      )
+    else (
+	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visSimplicialComplex template to a temporary directory.
+    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+    );
+    
+    searchReplace("visNodes",vertexString, visTemp); -- Replace visNodes in the visSimplicialComplex html file by the ordered list of vertices.
+    searchReplace("visEdges",edgeString, visTemp); -- Replace visEdges in the visSimplicialComplex html file by the list of edges.
+    searchReplace("visFaces",faceString, visTemp); -- Replace visFaces in the visSimplicialComplex html file by the list of faces. 
+    
+    show new URL from { "file://"|visTemp };
+    
+    return visTemp;
+)
 
 --input: a String of a path to a directory
 --output: Copies the js library to path
@@ -585,7 +624,12 @@ P = lcmLattice I
 visPoset P
 
 -- Simplicial Complexes
+loadPackage "SimplicialComplexes"
+loadPackage "Visualize"
 
+R = ZZ[a..f]
+D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
+visSimplicialComplex D
 
 
 
