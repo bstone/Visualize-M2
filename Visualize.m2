@@ -30,7 +30,7 @@ newPackage(
 	     },
     	Headline => "Visualize",
     	DebuggingMode => true,
-	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
+	PackageExports => {"Graphs", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
     	)
@@ -49,7 +49,7 @@ export {
      "visGraph",
      "visDigraph",
      "visPoset",
-     "visSimplicialComplex2d",
+     "visSimplicialComplex",
      "copyJS",
      
     -- Helpers 
@@ -438,8 +438,8 @@ visPoset(Poset) := opts -> P -> (
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
-visSimplicialComplex2d = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true})
-visSimplicialComplex2d(SimplicialComplex) := opts -> D -> (
+visSimplicialComplex = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true})
+visSimplicialComplex(SimplicialComplex) := opts -> D -> (
     local vertexSet; local edgeSet; local faceSet; local visTemp;
     local vertexList; local edgeList; local faceList;
     local vertexString; local edgeString; local faceString;    
@@ -636,7 +636,11 @@ loadPackage "SimplicialComplexes"
 loadPackage "Visualize"
 R = ZZ[a..f]
 D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
-visSimplicialComplex2d D
+visSimplicialComplex D
+
+R = ZZ[a..g]
+D2 = simplicialComplex monomialIdeal(a*b*c,a*b*d,a*e*f,a*g)
+visSimplicialComplex D2
 
 ----------------
 
