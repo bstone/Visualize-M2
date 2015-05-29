@@ -496,7 +496,7 @@ copyJS(String) := opts -> dst -> (
     -- test to see if files exist in target
     if (scan(jsdir, j -> if fileExists(concatenate(dst,j)) then break true) === true)
     then (
-    	   quest = concatenate(" -- Some files in ",dst," will be overwritten.\n -- This action cannot be undone.");
+    	   quest = concatenate(" -- Some JS files in ",dst," will be overwritten.\n -- This action cannot be undone.");
 	   print quest;
 	   ans = read "Would you like to continue? (y or n):  ";
 	   while (ans != "y" and ans != "n") do (
@@ -513,6 +513,83 @@ copyJS(String) := opts -> dst -> (
     return "Created directory "|dst;
 )
 
+--input: a String of a path to a directory
+--output: Copies the js library to path
+--
+--caveat: Checks to see if files exist. If they do exist, the user
+--        must give permission to continue. Continuing will overwrite
+--        current files and cannont be undone.
+copyCSS = method(Options => {Warning => true} )
+copyCSS(String) := opts -> dst -> (
+    local jsdir; local ans; local quest;
+    
+    dst = dst|"css/";    
+    
+    -- get list of filenames in css/
+    jsdir = delete("..",delete(".",
+	    readDirectory(currentDirectory()|"Visualize/css/")
+	    ));
+    
+    if opts.Warning == true
+    then(
+    -- test to see if files exist in target
+    if (scan(jsdir, j -> if fileExists(concatenate(dst,j)) then break true) === true)
+    then (
+    	   quest = concatenate(" -- Some CSS files in ",dst," will be overwritten.\n -- This action cannot be undone.");
+	   print quest;
+	   ans = read "Would you like to continue? (y or n):  ";
+	   while (ans != "y" and ans != "n") do (
+	       ans = read "Would you like to continue? (y or n):  ";
+	       );  
+	   if ans == "n" then (
+	       error "Process was aborted."
+	       );
+    	);
+    );
+    
+    copyDirectory(currentDirectory()|"Visualize/css/",dst);
+    
+    return "Created directory "|dst;
+)
+
+--input: a String of a path to a directory
+--output: Copies the js library to path
+--
+--caveat: Checks to see if files exist. If they do exist, the user
+--        must give permission to continue. Continuing will overwrite
+--        current files and cannont be undone.
+copyFonts = method(Options => {Warning => true} )
+copyFonts(String) := opts -> dst -> (
+    local jsdir; local ans; local quest;
+    
+    dst = dst|"fonts/";    
+    
+    -- get list of filenames in fonts/
+    jsdir = delete("..",delete(".",
+	    readDirectory(currentDirectory()|"Visualize/fonts/")
+	    ));
+    
+    if opts.Warning == true
+    then(
+    -- test to see if files exist in target
+    if (scan(jsdir, j -> if fileExists(concatenate(dst,j)) then break true) === true)
+    then (
+    	   quest = concatenate(" -- Some font files in ",dst," will be overwritten.\n -- This action cannot be undone.");
+	   print quest;
+	   ans = read "Would you like to continue? (y or n):  ";
+	   while (ans != "y" and ans != "n") do (
+	       ans = read "Would you like to continue? (y or n):  ";
+	       );  
+	   if ans == "n" then (
+	       error "Process was aborted."
+	       );
+    	);
+    );
+    
+    copyDirectory(currentDirectory()|"Visualize/fonts/",dst);
+    
+    return "Created directory "|dst;
+)
 
 --------------------------------------------------
 -- DOCUMENTATION
