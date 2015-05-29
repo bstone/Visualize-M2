@@ -1,4 +1,5 @@
-var width  = null,
+  // Initialize variables.
+  var width  = null,
       height = null,
       colors = null;
 
@@ -41,7 +42,6 @@ function initializeBuilder() {
     .attr('width', width)
     .attr('height', height)
     .attr('id', 'canvasElement2d');
-
 
   // set up initial nodes and links
   //  - nodes are known by 'id', not by index in array.

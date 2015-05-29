@@ -1,4 +1,5 @@
-var width  = null,
+  // Initialize variables.
+  var width  = null,
       height = null,
       colors = null;
 
@@ -17,11 +18,11 @@ var width  = null,
 
   var drag_line = null;
 
-  // handles to link and node element groups
+  // Handles to link and node element groups.
   var path = null,
       circle = null;
 
-  // mouse event vars
+  // Mouse event variables.
   var selected_node = null,
       selected_link = null,
       mousedown_link = null,
@@ -31,7 +32,7 @@ var width  = null,
   var drag = null;
 
 function initializeBuilder() {
-  // set up SVG for D3
+  // Set up SVG for D3.
   width  = window.innerWidth;
   height = window.innerHeight-150;
   colors = d3.scale.category10();
@@ -42,8 +43,7 @@ function initializeBuilder() {
     .attr('height', height)
     .attr('id', 'canvasElement2d');
 
-
-  // set up initial nodes and links
+  // Set up initial nodes and links
   //  - nodes are known by 'id', not by index in array.
   //  - reflexive edges are indicated on the node (as a bold black circle).
   //  - links are always source < target; edge directions are set by 'left' and 'right'.
@@ -68,38 +68,40 @@ function initializeBuilder() {
 
   // Brett: Need to fix this.
 
-  var maxLength = d3.max(nodes, function(d) {
-    return d.name.length;
-    console.log("name length: " + d.name.length + "\n");
-  });
+  var maxLength = d3.max(nodes, function(d) { return d.name.length; });
 
   console.log("maxLength: " + maxLength + "\n");
 
   if(maxLength < 4){
-    d3.selectAll("text").classed("fill", 0xfefcff);
+    d3.selectAll("text").classed("fill", "White");
   } else {
-    d3.selectAll("text").classed("fill", 0x000000 );
+    d3.selectAll("text").classed("fill", "White");
   }
 
   constrString = graph2M2Constructor(nodes,links);
-  incMatrix = getIncidenceMatrix(nodes,links);
+    
+  // (Brett) Removing incidence and adjacency matrices.
+  /*incMatrix = getIncidenceMatrix(nodes,links);
   adjMatrix = getAdjacencyMatrix(nodes,links);
   incMatrixString = arraytoM2Matrix(incMatrix);
-  adjMatrixString = arraytoM2Matrix(adjMatrix);
+  adjMatrixString = arraytoM2Matrix(adjMatrix);*/
 
+  // Add a paragraph containing the Macaulay2 graph constructor string below the svg.
   d3.select("body").append("p")
   	.text("Macaulay2 Constructor: " + constrString)
   	.attr("id","constructorString");
 
-  d3.select("body").append("p")
+  // (Brett) Removing incidence and adjacency matrices.
+    
+/*  d3.select("body").append("p")
   	.text("Incidence Matrix: " + incMatrixString)
   	.attr("id","incString");
 
   d3.select("body").append("p")
   	.text("Adjacency Matrix: " + adjMatrixString)
-  	.attr("id","adjString");
+  	.attr("id","adjString");*/
 
-  // init D3 force layout
+  // Initialize D3 force layout.
   force = d3.layout.force()
       .nodes(nodes)
       .links(links)
@@ -108,35 +110,42 @@ function initializeBuilder() {
       .charge(-500)
       .on('tick', tick);
 
+  // When a node begins to be dragged by the user, call the function dragstart.
   drag = force.drag()
     .on("dragstart", dragstart);
 
-  // line displayed when dragging new nodes
+  // Line displayed when dragging new nodes.
   drag_line = svg.append('svg:path')
     .attr('class', 'link dragline hidden')
     .attr('d', 'M0,0L0,0');
 
-  // handles to link and node element groups
+  // Handles to link and node element groups.
   path = svg.append('svg:g').selectAll('path');
   circle = svg.append('svg:g').selectAll('g');
 
-  // mouse event vars
+  // Mouse event variables.
   selected_node = null;
   selected_link = null;
   mousedown_link = null;
   mousedown_node = null;
   mouseup_node = null;
-      // app starts here
+    
+  // Define which functions should be called for various mouse events on the svg.
   svg.on('mousedown', mousedown)
     .on('mousemove', mousemove)
     .on('mouseup', mouseup);
+
+  // Define which functions should be called when a key is pressed and released.
   d3.select(window)
     .on('keydown', keydown)
     .on('keyup', keyup);
+    
+  // The restart() function updates the graph.
   restart();
 }
 
 function resetGraph() {
+  // Set the 'fixed' attribute to false for all nodes and then restart the force layout.
   for( var i = 0; i < nodes.length; i++ ){
     nodes[i].fixed = false;
   }
@@ -144,30 +153,42 @@ function resetGraph() {
 }
 
 function dragstart(d) {
+  // When dragging a node, set it to be fixed so that the user can give it a static position.
   d3.select(this).classed(d.fixed = true);
 }
 
 function resetMouseVars() {
+  // Reset all mouse variables.
   mousedown_node = null;
   mouseup_node = null;
   mousedown_link = null;
 }
 
-// update force layout (called automatically each iteration)
+// Update force layout (called automatically by the force layout simulation each iteration).
 function tick() {
-  // draw directed edges with proper padding from node centers
+  // Draw directed edges with proper padding from node centers.
   path.attr('d', function(d) {
+    // For each edge, calculate the distance from the source to the target
+    // then normalize the x- and y-distances between the source and target.
     var deltaX = d.target.x - d.source.x,
         deltaY = d.target.y - d.source.y,
         dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
         normX = deltaX / dist,
         normY = deltaY / dist,
+        // If the edge is directed towards the source, then create extra padding (17) away from the source node to show the arrow,
+        // else set the sourcePadding to 12.
         sourcePadding = d.left ? 17 : 12,
+        // If the edge is directed towards the target, then create extra padding (17) away from the target node to show the arrow,
+        // else set the targetPadding to 12.
         targetPadding = d.right ? 17 : 12,
+        // Create new x and y coordinates for the source and the target based on whether extra padding was needed
+        // to account for directed edges.
         sourceX = d.source.x + (sourcePadding * normX),
         sourceY = d.source.y + (sourcePadding * normY),
         targetX = d.target.x - (targetPadding * normX),
         targetY = d.target.y - (targetPadding * normY);
+    
+    // Restrict the padded x and y coordinates of the source and target to be within a 15 pixel margin around the svg.
     if (sourceX > width - 15) {
       sourceX = width - 15;
     }
@@ -192,9 +213,13 @@ function tick() {
     else if (targetY  < 15) {
       targetY = 15;
     }
+    // For each edge, set the attribute 'd' to have the form "MsourcexCoord,sourceyCoord LtargetxCoord,targetyCoord".
+    // Then the appropriate coordinates to use for padding the directed edges away from the nodes can be obtained by
+    // the 'd' attribute.
     return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
   });
 
+  // Restrict the nodes to be contained within a 15 pixel margin around the svg.
   circle.attr('transform', function(d) {
     if (d.x > width - 15) {
       d.x = width - 15;
@@ -208,53 +233,71 @@ function tick() {
     else if (d.y < 15) {
       d.y = 15;
     }
-
+    
+    // Visually update the locations of the nodes based on the force simulation.
     return 'translate(' + d.x + ',' + d.y + ')';
   });
 }
 
-// update graph (called when needed)
+// Update graph (called when needed).
 function restart() {
-  // path (link) group
+  // Construct the group of edges from the 'links' array.
   path = path.data(links);
 
-  // update existing links
+  // Update existing links.
+  // If a link is currently selected, set 'selected: true'.
   path.classed('selected', function(d) { return d === selected_link; })
+    // If the edge is directed towards the source or target, attach an arrow.
     .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
 
-
-  // add new links
+  // Add new links.
   path.enter().append('svg:path')
     .attr('class', 'link')
+    // If a link is currently selected, set 'selected: true'.
     .classed('selected', function(d) { return d === selected_link; })
+    // If the edge is directed towards the source or target, attach an arrow.
     .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
     .on('mousedown', function(d) {
+      // If the user clicks on a path while either the shift key is pressed or curEdit is false, do nothing.
       if(d3.event.shiftKey || !curEdit) return;
 
-      // select link
+      // If the user clicks on a path while the shift key is not pressed and curEdit is true, set mousedown_link
+      // to be the path that the user clicked on.
       mousedown_link = d;
+      
+      // If the link was already selected, then unselect it.
       if(mousedown_link === selected_link) selected_link = null;
-      else if (curEdit) selected_link = mousedown_link;
+      
+      // (Brett) Isn't 'if (curEdit)' redundant since we already checked it above?  Remove this line?
+//      else if (curEdit) selected_link = mousedown_link;
+      
+      // If the link was not already selected, then select it.
+      else selected_link = mousedown_link;
+      
+      // Since we selected or unselected a link, set all nodes to be unselected.
       selected_node = null;
+      
+      // Update all properties of the graph.
       restart();
     });
 
-  // remove old links
+  // Remove old links.
   path.exit().remove();
 
-
-  // circle (node) group
-  // NB: the function arg is crucial here! nodes are known by id, not by index!
+  // Create the circle (node) group.
+  // Note: the function argument is crucial here!  Nodes are known by id, not by index!
   circle = circle.data(nodes, function(d) { return d.id; });
 
-  // update existing nodes (reflexive & selected visual states)
+  // Update existing nodes (reflexive & selected visual states).
   circle.selectAll('circle')
+    // If a node is currently selected, then make it brighter.
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+    // Set the 'reflexive' attribute to true for all reflexive nodes.
     .classed('reflexive', function(d) { return d.reflexive; });
 
-  // add new nodes
+  // Add new nodes.
   var g = circle.enter().append('svg:g');
 
   g.append('svg:circle')
@@ -264,20 +307,27 @@ function restart() {
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
     .on('mouseover', function(d) {
-      if(!mousedown_node || d === mousedown_node) return;
-      // enlarge target node
+      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
+      // then do nothing.
+      if (!mousedown_node || d === mousedown_node) return;
+      // Otherwise enlarge the target node.
       d3.select(this).attr('transform', 'scale(1.1)');
     })
     .on('mouseout', function(d) {
-      if(!mousedown_node || d === mousedown_node) return;
-      // unenlarge target node
+      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
+      // then do nothing.
+      if (!mousedown_node || d === mousedown_node) return;
+      // Otherwise unenlarge the target node.  (The user has chosen to not create an edge to this node and has moved the cursor elsewhere.)
       d3.select(this).attr('transform', '');
     })
     .on('mousedown', function(d) {
+      // If either the shift key is held down or editing is disabled, do nothing.
       if(d3.event.shiftKey || !curEdit) return;
 
-      // select node
+      // Otherwise, select node.
       mousedown_node = d;
+      
+      // If the node that the user clicked was already selected, then unselect it.
       if(mousedown_node === selected_node) selected_node = null;
       else if(curEdit) selected_node = mousedown_node;
       selected_link = null;
@@ -333,8 +383,10 @@ function restart() {
       }
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-      document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));
+      
+      // (Brett) Removing incidence and adjacency matrices for now.
+      /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
+      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
 
       // select new link
       if (curEdit) selected_link = link;
@@ -427,8 +479,10 @@ function mousedown() {
   nodes.push(node);
 
   document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-  document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-  document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));
+    
+  // (Brett) Removing incidence and adjacency matrices for now.
+  /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
+  document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
 
   restart();
 }
@@ -499,8 +553,9 @@ function keydown() {
       selected_node = null;
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-      document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));
+      // (Brett) Removing incidence and adjacency matrices for now.
+      /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
+      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
 
       restart();
       break;

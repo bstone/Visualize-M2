@@ -1,4 +1,5 @@
-var width  = null,
+  // Initialize variables.
+  var width  = null,
       height = null,
       colors = null;
 
@@ -559,7 +560,6 @@ function setAllNodesFixed() {
 }
 
 function updateWindowSize2d() {
-
         var svg = document.getElementById("canvasElement2d");
         svg.style.width = window.innerWidth;
         svg.style.height = window.innerHeight - 150;

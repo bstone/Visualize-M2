@@ -6,7 +6,8 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/BootSideMenu.css" rel="stylesheet">
     <style>
-
+        
+      <!-- Makes sure that other window elements are not selected when the user clicks and drags nodes. -->
       .noselect {
         -webkit-touch-callout: none;
         -webkit-user-select: none;
@@ -80,7 +81,7 @@
         z-index: 0;
         padding-bottom: 10px;
       }
-
+        
       #constructorString {
         -o-user-select: text;
         -moz-user-select: text;
@@ -98,6 +99,7 @@
         z-index: 100;
         padding-bottom: 5px;
       }
+        
       #adjString {
         -o-user-select: text;
         -moz-user-select: text;
@@ -106,20 +108,25 @@
         z-index: 100;
         padding-bottom: 5px;
       }
+        
     </style>
+      
     <script type="text/javascript">
-      //global variables
+      // Global variables.
+      // Initialize the canvas to not be editable and the side menu to be closed.
       curEdit = false;
-  	  curView = "2d";
+      curView = "2d";
       menuOpen = false;
+      // The graph data is given as the adjacency matrix when copied from Macaulay2.
       dataData = [[0, 1, 1, 1, 0, 0], [1, 0, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
       labelData = ["x_0", "x_1", "x_3", "x_4", "x_2", "x_5"];
+      // Initialize the force layout to be active.
       forceOn = true;
     </script>
   </head>
 
   <body>
-
+        <!-- Create the menu items. -->
         <div id="side">
           <h2>Menu</h2>
           <div class="list-group">
@@ -130,10 +137,10 @@
           </div>
         </div>
 
+        <!-- Create a container for the canvas. -->
         <div class="container">
           <div id="canvasElement3d"></div>
         </div>
-
 
   <script src="js/jquery-1.11.3.min.js"></script>
   <script src="js/BootSideMenu.js"></script>
@@ -143,11 +150,14 @@
   <script type="text/javascript">
     $('#side').BootSideMenu({side:"right"});
 
+    // Set the canvas width and height relative to the width and height of the active window.
+    // TODO: Update these attributes on window resize.
     document.getElementById("canvasElement3d").style.width = window.innerWidth;
     document.getElementById("canvasElement3d").style.width = window.innerHeight - 125;
 
     $(document).ready(function(){
-
+        
+      // If the user clicks the editing toggle link then change the text and toggle the editability.
       $("#editToggle").on("click", function(){
         if(curEdit) {
           $(this).html("Enable editing");
@@ -160,33 +170,49 @@
         }
       });
 
+      // If the user clicks "Reset nodes" then call the function resetGraph to remove the .fixed attribute from all nodes and restart
+      // the force layout.
       $("#reset").on("click", resetGraph);
+        
+      // If the user clicks "Toggle force" then toggle the force layout.
       $("#forceToggle").on("click", toggleForce);
-      $("#exportTikz").on("click", function() {
-        exportTikz(nodes,links);
+    
+      // If the user clicks "Export TikZ" then export the TikZ code for the graph for the user to copy.
+      $("#exportTikz").on("click", function () {
+          exportTikz(nodes,links);
       })
-
+      
+      // Call the function in visGraph.js to initialize the nodes and links and start the force layout.
       initializeBuilder();
+        
+      // Intialize editing to be off by default.
       disableEditing();
     });
 
 
     function toggleForce() {
       if (forceOn) {
+        // If the force was on, fix all nodes and update the force toggle text in the menu.
         setAllNodesFixed();
         document.getElementById("forceToggle").innerHTML = "Turn on force";
       }
       else {
+        // If the force was off, remove the .fixed attribute from all nodes, restart the force layout, and update the force toggle
+        // text in the menu.
         resetGraph();
         document.getElementById("forceToggle").innerHTML = "Turn off force";
       }
       forceOn = !forceOn;
     }
 
+    // The following code seems to make the text elements in the svg not be selected when clicking and dragging nodes and edges.
     window.addEventListener("mousedown", function(e) {
 
+      // If the user clicks in the window and the menu is not open, do nothing.
       if (!menuOpen) return;
       tempMenu = document.getElementById("popupMenu");
+        
+      // If the user clicks in the window 
       if ( (e.clientX < tempMenu.offsetLeft) || (e.clientY > tempMenu.offsetTop + tempMenu.offsetHeight) ) {
         tempMenu.style.display = "none";
         tempMenu.style.visibility = "hidden";
@@ -194,6 +220,8 @@
       }
 
     }, false);
+    
+    // If the user resizes the window, call the function to update the window and svg size.
   	window.addEventListener('resize', updateWindowSize2d, false);
     </script>
 
