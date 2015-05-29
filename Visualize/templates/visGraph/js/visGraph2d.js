@@ -27,7 +27,7 @@ var width  = null,
       mousedown_link = null,
       mousedown_node = null,
       mouseup_node = null;
-  
+
   var drag = null;
 
 function initializeBuilder() {
@@ -62,7 +62,7 @@ function initializeBuilder() {
       for (var j = 0; j < i ; j++) {
           if (data[i][j] != 0) {
               links.push( { source: nodes[i], target: nodes[j], left: false, right: false} );
-          }    
+          }
       }
   }
 
@@ -77,7 +77,7 @@ function initializeBuilder() {
 
   if(maxLength < 4){
     d3.selectAll("text").classed("fill", 0xfefcff);
-  } else { 
+  } else {
     d3.selectAll("text").classed("fill", 0x000000 );
   }
 
@@ -364,10 +364,10 @@ function restart() {
       var maxLength = d3.max(nodes, function(d) {
         return d.name.length;
       });
-      
+
       if(maxLength < 4){
         d3.selectAll("text").classed("fill", 0xfefcff);
-      } else { 
+      } else {
         d3.selectAll("text").classed("fill", 0x000000);
       }
 
@@ -377,7 +377,8 @@ function restart() {
   g.append('svg:text')
       .attr('x', 0)
       .attr('y', 4)
-      .attr('class', 'id')
+      .attr('class', 'id noselect')
+      .attr("pointer-events", "none")
       .text(function(d) { return d.name; });
 
   // remove old nodes
@@ -403,7 +404,7 @@ function getNextAlpha(alpha) {
 function mousedown() {
   // prevent I-bar on drag
   //d3.event.preventDefault();
-  
+
   // because :active only works in WebKit?
   svg.classed('active', true);
 
@@ -524,7 +525,7 @@ function disableEditing() {
   svg.classed('shift', true);
   selected_node = null;
   selected_link = null;
-  
+
   /*
   for (var i = 0; i<nodes.length; i++) {
     nodes[i].selected = false;
@@ -578,7 +579,7 @@ function graph2M2Constructor( nodeSet, edgeSet ){
     }
     else{
       strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}}";
-    } 
+    }
   }
   // determine if the singleton set is empty
         var card = 0
@@ -605,7 +606,7 @@ function graph2M2Constructor( nodeSet, edgeSet ){
 
 // determines if a graph contains singletons, if it does it returns an array containing their id, if not returns empty array
 function singletons(nodeSet, edgeSet){
-  
+
   var singSet = [];
   var n = nodeSet.length;
         var e = edgeSet.length;
@@ -622,8 +623,8 @@ function singletons(nodeSet, edgeSet){
     if (occur == 0){
       singSet.push(curNodeName); // add node id to singleton set
     }
-    occur = 0; //reset occurrences for next node id     
-  } 
+    occur = 0; //reset occurrences for next node id
+  }
   return singSet;
 }
 
@@ -700,7 +701,7 @@ function arraytoM2Matrix (arr){
       str = str + "}";
     }
   }
-  
+
   return str;
 }
 

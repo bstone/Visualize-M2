@@ -3,96 +3,20 @@
   <head>
     <meta charset="utf-8">
     <title>Macaulay2: visGraph</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/BootSideMenu.css" rel="stylesheet">
     <style>
-      #tdToggle
-      {
-        color:#0000FF;
-        vertical-align: middle;
-        position:relative;
-        left:15%;
-        top:0px;
-        z-index:1;
-      }
-      #tdToggle:hover {
-          text-decoration:underline;
-      }
-      #tdToggle:active {
-          text-decoration:underline;
-          color:#800080;
-      }
 
-      #editToggle
-      {
-        color:#0000FF;
-        vertical-align: middle;
-        position:relative;
-        left:35%;
-        top:0px;
-        z-index:1;
-      }
-      #editToggle:hover {
-          text-decoration:underline;
-      }
-      #editToggle:active {
-          text-decoration:underline;
-          color:#800080;
-      }
-
-      #moreOptions
-      {
-        color:#0000FF;
-        vertical-align: middle;
-        position:relative;
-        left:50%;
-        top:0px;
-        z-index:1;
-      }
-      #moreOptions:hover {
-          text-decoration:underline;
-      }
-      #moreOptions:active {
-          text-decoration:underline;
-          color:#800080;
+      .noselect {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
 
       a { cursor: pointer; cursor: hand; }
-
-
-      #popupMenu {
-        display:none;
-        visibility:hidden;
-        position:absolute;
-        left:69%;
-        top:4%;
-        width:135px;
-        height:220px;
-        background-color:#000000;
-        opacity:.6;
-        z-index:6;
-        padding-bottom: 30px;
-
-      }
-
-      #resetButton {
-        position:relative;
-        vertical-align: middle;
-        left: 5%;
-        top: 5%;
-      }
-      #forceToggle {
-        position:relative;
-        vertical-align: middle;
-        left: 5%;
-        top: 15%;
-      }
-      #exportToggle
-      {
-        vertical-align: middle;
-        position:relative;
-        left:5%;
-        top:25%;
-      }
-
 
       #canvasElement2d {
         background-color: #FFF;
@@ -156,6 +80,7 @@
         z-index: 0;
         padding-bottom: 10px;
       }
+
       #constructorString {
         -o-user-select: text;
         -moz-user-select: text;
@@ -164,6 +89,7 @@
         z-index: 100;
         padding-bottom: 5px;
       }
+
       #incString {
         -o-user-select: text;
         -moz-user-select: text;
@@ -191,100 +117,62 @@
       forceOn = true;
     </script>
   </head>
-  
+
   <body>
-  	    <a id= "tdToggle"> switch to 3d</a>
-        <a id= "editToggle"> enable editing</a>
-        <a id= "moreOptions"> more</a>
-        <div id="popupMenu"> 
-          <button id = "resetButton" onclick="resetGraph();">reset nodes</button>
+          <!-- <button id = "resetButton" onclick="resetGraph();">reset nodes</button>
           <button id = "forceToggle" onclick="toggleForce();">turn off force</button>
-          <button id = "exportToggle" onclick="exportTikz(nodes,links);">export tikz</button>
+          <button id = "exportToggle" onclick="exportTikz(nodes,links);">export tikz</button> -->
+        <div id="side">
+          <h2>Menu</h2>
+          <div class="list-group">
+            <a id="editToggle" href="#" class="list-group-item">enable editing</a>
+            <a id="reset" href="#" class="list-group-item">reset nodes</a>
+            <a id="forceToggle" href="#" class="list-group-item">toggle force</a>
+            <a id="exportToggle" href="#" class="list-group-item">export tikz</a>
+          </div>
         </div>
-        <div id="canvasElement3d"></div>
+
+        <div class="container">
+          <div id="canvasElement3d"></div>
+        </div>
 
 
+  <script src="js/jquery-1.11.3.min.js"></script>
+  <script src="js/BootSideMenu.js"></script>
   <script src="js/d3.v3.js"></script>
   <script src="js/visGraph2d.js"></script>
-  <script src="js/three.min.js"></script>
-  <script src="js/Detectors.js"></script>
-  <script src="js/OrbitControls.js"></script>
-  <script src="js/THREEx.KeyboardState.js"></script>
-  <script src="js/THREEx.FullScreen.js"></script>
-  <script src="js/THREEx.WindowResize.js"></script>
-  <script src="js/RequestAnimationFrame.js"></script>
-  <script src="js/GraphBuilder3d.js"></script>
 
   <script type="text/javascript">
+    $('#side').BootSideMenu({side:"right"});
+
     document.getElementById("canvasElement3d").style.width = window.innerWidth;
     document.getElementById("canvasElement3d").style.width = window.innerHeight - 125;
-    window.onload = function() {
-                var a = document.getElementById("tdToggle");
-                a.onclick = function() {
-                  if (curView=="2d") {
-                    switchTo3d();
-                    curView = "3d";
-                  }
-                  else {
-                    switchTo2d();
-                    curView = "2d";
-                  }
-                }
-                var b = document.getElementById("editToggle");
-                b.onclick = function() {
 
-                	if (curEdit) {
-                		b.innerHTML = "enable editing";
-                		curEdit = !curEdit;
-                		disableEditing();
-                	}
-                	else {
-                		b.innerHTML = "disable editing";
-                		curEdit = !curEdit;
-                		enableEditing();
-                	}
-                    
-                }
-                var c = document.getElementById("moreOptions");
-                c.onclick = function() {
-                    document.getElementById("popupMenu").style.display = "inline";
-                    document.getElementById("popupMenu").style.visibility = "visible";
-                    menuOpen = true;
-                }
+    $(document).ready(function(){
 
-                //load both 2d and 3d canvas, start with 2d
-                initializeBuilder();
-                disableEditing();
-                initializeBuilder3d();
-                generateGraph();
-            }
+      $("#editToggle").on("click", function(){
+        if(curEdit) {
+          $(this).html("enable editing");
+          curEdit = !curEdit;
+          disableEditing();
+        } else {
+          $(this).html("disable editing");
+          curEdit = !curEdit;
+          enableEditing();
+        }
+      });
 
-    function switchTo2d() {
-      stopThree();
-      
-      document.getElementById("canvasElement3d").style.display = "none";
-      document.getElementById("canvasElement3d").style.zIndex = 0;
-      document.getElementById("canvasElement2d").style.display = "inline";
-      document.getElementById("canvasElement2d").style.zIndex = 2;
-      document.getElementById("tdToggle").innerHTML = "switch to 3d";
+      $("#reset").on("click", resetGraph);
+      $("#forceToggle").on("click", toggleForce);
+      $("#exportTikz").on("click", function() {
+        exportTikz(nodes,links);
+      })
 
-      startForce();
+      initializeBuilder();
+      disableEditing();
+    });
 
 
-    }
-    function switchTo3d() {
-
-      stopForce();
-      document.getElementById("canvasElement2d").style.display = "none";
-      document.getElementById("canvasElement2d").style.zIndex = 0;
-      document.getElementById("canvasElement3d").style.display = "inline";
-      document.getElementById("canvasElement3d").style.zIndex = 2;
-      document.getElementById("tdToggle").innerHTML = "switch to 2d";
-
-      startThree();
-
-      
-    }
     function toggleForce() {
       if (forceOn) {
         setAllNodesFixed();
