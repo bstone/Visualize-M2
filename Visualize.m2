@@ -804,6 +804,8 @@ testhere
 restart
 loadPackage"Visualize"
 copyJS("/Users/bstone/Desktop/Test/", Warning => false)
+copyCSS("/Users/bstone/Desktop/Test/", Warning => false)
+copyFonts("/Users/bstone/Desktop/Test/", Warning => false)
 n
 
 
