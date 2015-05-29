@@ -772,10 +772,20 @@ function exportTikz (){
   }
 
   var tikzTex = "";
-
   tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates egdes\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
 
-  alert(tikzTex);
+// <textarea id = "tikzTextArea">tikzTex</textarea>;
+
+//  var tikzTextArea = document.getElementById(tikzTex);
+//  tikzTextArea.select().focus();
+//  $('#container').append('To copy emails to clipboard, press: Ctrl+C, then Enter <br />  <textarea id="tikzTex">'+tikzTex+'</textarea>');
+//  $('#tikzTex').select().focus();
+console.log(tikzTex.length);
+  if (tikzTex.length < 2001){
+    window.prompt("Copy this text the best way you can.", tikzTex );
+  } else {
+    alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
+  }
 }
 
 function stopForce() {
