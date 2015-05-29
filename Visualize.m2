@@ -442,35 +442,50 @@ visPoset(Poset) := opts -> P -> (
 --
 visSimplicialComplex = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true})
 visSimplicialComplex(SimplicialComplex) := opts -> D -> (
-    local vertexSet; local edgeSet; local faceSet; local visTemp;
-    local vertexList; local edgeList; local faceList;
-    local vertexString; local edgeString; local faceString;    
+    local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
+    local vertexList; local edgeList; local face2List; local face3List;
+    local vertexString; local edgeString; local face2String; local face3String;
+    local visTemplate;
+    
     
     vertexSet = flatten entries faces(0,D);
     edgeSet = flatten entries faces(1,D);
-    faceSet = flatten entries faces(2,D);
+    face2Set = flatten entries faces(2,D);
     vertexList = apply(vertexSet, v -> apply(new List from factor v, i -> i#0));
     edgeList = apply(edgeSet, e -> apply(new List from factor e, i -> i#0));
-    faceList = apply(faceSet, f -> apply(new List from factor f, i -> i#0));
+    face2List = apply(face2Set, f -> apply(new List from factor f, i -> i#0));
 
     vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
     edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
-    faceString = toString new Array from apply(#faceList, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == faceList#i#2))|",\"v2\": "|toString(position(vertexSet, j -> j == faceList#i#1))|",\"v3\": "|toString(position(vertexSet, j -> j == faceList#i#0))});
+    face2String = toString new Array from apply(#face2List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face2List#i#2))|",\"v2\": "|toString(position(vertexSet, j -> j == face2List#i#1))|",\"v3\": "|toString(position(vertexSet, j -> j == face2List#i#0))});
 
+    if dim D>2 then (
+	 visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
+    )
+    else (
+	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"
+    );
+   
     if opts.VisPath =!= null 
     then (
-	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visSimplicialComplex template to a temporary directory.
+	visTemp = copyTemplate(visTemplate, opts.VisPath); -- Copy the visSimplicialComplex template to a temporary directory.
     	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
       )
     else (
-	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visSimplicialComplex template to a temporary directory.
+	visTemp = copyTemplate(visTemplate); -- Copy the visSimplicialComplex template to a temporary directory.
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
     );
     
     searchReplace("visNodes",vertexString, visTemp); -- Replace visNodes in the visSimplicialComplex html file by the ordered list of vertices.
     searchReplace("visEdges",edgeString, visTemp); -- Replace visEdges in the visSimplicialComplex html file by the list of edges.
-    searchReplace("visFaces",faceString, visTemp); -- Replace visFaces in the visSimplicialComplex html file by the list of faces. 
+    searchReplace("vis2Faces",face2String, visTemp); -- Replace vis2Faces in the visSimplicialComplex html file by the list of faces. 
     
+    if dim D>2 then (
+	face3Set = flatten entries faces(3,D);
+	face3List = apply(face3Set, f -> apply(new List from factor f, i -> i#0));
+       	face3String = toString new Array from apply(#face3List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face3List#i#3))|",\"v2\": "|toString(position(vertexSet, j -> j == face3List#i#2))|",\"v3\": "|toString(position(vertexSet, j -> j == face3List#i#1))|",\"v4\": "|toString(position(vertexSet, j -> j == face3List#i#0))});
+	searchReplace("vis3Faces",face3String, visTemp); -- Replace vis3Faces in the visSimplicialComplex html file by the list of faces. 
+    )
     show new URL from { "file://"|visTemp };
     
     return visTemp;
