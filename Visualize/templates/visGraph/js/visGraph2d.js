@@ -798,6 +798,8 @@ function createCORSRequest(method, url) {
     // CORS not supported.
     xhr = null;
   }
+  console.log("here");
+  console.log(xhr);
   return xhr;
 }
  

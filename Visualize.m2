@@ -589,7 +589,7 @@ server = () -> (
             )
 	  else if match("^GET /fcn2/(.*) ",r) then (
 --	       s = first select("^GET /fcn2/(.*) ", "\\1", r);
-    	    	s = "Here is some super cool data yo! Why is this not being displayed?\n";
+    	    	s = "I am trying to do really cool things and I don't know why I am getting a truncations error?"|"12345678901";
 	       fun = fcn2;
 	       )
 	  else if match("^GET /end/(.*) ",r) then (
