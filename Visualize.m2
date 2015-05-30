@@ -539,7 +539,7 @@ copyJS(String) := opts -> dst -> (
 
 
 openServer = method()
-openServer String := S -> (
+openServer File := S -> (
  
 local listener; local verbose; local hexdigits; local hext; 
 local hex1; local hex2; local toHex1; local toHex;
@@ -547,14 +547,11 @@ local server; local fun; local s;
 local ev; local fcn1; local fcn2; local httpHeader;
 local testKey; local cmTest; local cmTestOut;
 
+testKey = " ";
 
-print("here");
-
-
-listener = openListener ("$:"|S);
+listener = S;
+--listener = openListener ("$:"|S);
 verbose = true;
-
-print"here";
 
 hexdigits = "0123456789ABCDEF";
 hext = new HashTable from for i from 0 to 15 list hexdigits#i => i;
@@ -579,9 +576,10 @@ server = () -> (
 --	<< "------------------------" << endl;	
 --	<< "r1 " << r << endl;
         r = lines r;
---	<< "r2 " << r << endl;	
+	<< "r2 " << r << endl;	
         if #r == 0 then (close g; continue);
 	data := last r;
+	<< "here is 1 data " << data << endl;
 --	<< "r3 " << r << endl;	
 --	<< "data=" << data << endl;
         r = first r;
@@ -594,8 +592,9 @@ server = () -> (
     	    	s = "I can answer all of your questions!"|"12345678901";
 	       fun = fcn2;
 	       )
-	  else if match("^GET /isCM/(.*) ",r) then (
---    	    	s = "isCM stuff."|"12345678901";
+	  else if match("^POST /isCM/(.*) ",r) then (
+   	    	s = "isCM stuff."|"12345678901";
+	<< "here is 2 data " << data << endl;
                testKey = "isCM";
 	       fun = cmTestOut;
 	       )	   
@@ -627,7 +626,13 @@ server = () -> (
 	  t := select(".|%[0-9A-F]{2,2}", s); --data);
 	  u := apply(t, x -> if #x == 1 then x else ascii hex2(x#1, x#2));
 	  u = concatenate u;
---	  if (testKey == "isCM") then ( u = toString( cmTest u ) );
+	  << u << endl;
+	<< "here is 3 data " << data << endl;
+	<< "here is 3 data " << value data << endl;
+	<< "here is 3 data " << cmTest value data << endl;		
+	  if (testKey == "isCM") then ( u = toString( cmTest value data ) );
+	  << "here is u " << u << endl;
+	  << "here is fun u" << fun u << endl;
 	  send := httpHeader fun u; 
 	  << send << endl;
       	  g << send << close;
@@ -654,7 +659,7 @@ httpHeader = ss -> concatenate(
 Server: Macaulay2
 Access-Control-Allow-Origin: *
 Connection: close
-Content-Length: ", toString length s, "
+Content-Length: ", toString length ss, "
 Content-type: text/html; charset=utf-8
 
 ", ss);
@@ -846,9 +851,10 @@ get "!netstat"
 
 restart
 loadPackage"Visualize"
-openServer("8000")
-server()
-close "$:8000"
+listener = openListener ("$:8000");
+openServer(listener)
+close listener
+
 loadPackage"EdgeIdeals"
 code methods httpHeaders
 
