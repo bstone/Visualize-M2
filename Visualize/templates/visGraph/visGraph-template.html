@@ -130,6 +130,7 @@
             <a id="forceToggle" href="#" class="list-group-item">Turn off force</a>
             <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
             <a id="m2Session" href="#" class="list-group-item">M2 Talky</a>                        
+            <a id="isCM" href="#" class="list-group-item">isCM</a>                                    
             <a id="endSession" href="#" class="list-group-item">End Session</a>            
           </div>
         </div>
@@ -174,6 +175,11 @@
       $("#m2Session").on("click", function() {
         console.log("look at me");
         makeCorsRequest('GET','http://localhost:8000/fcn2/', null);
+      });      
+
+      $("#isCM").on("click", function() {
+        console.log("isCM");
+        makeCorsRequest('GET','http://localhost:8000/isCM/', graph2M2Constructor(nodes,links));
       });      
 
       $("#endSession").on("click", function() {
