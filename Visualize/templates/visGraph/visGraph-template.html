@@ -112,10 +112,10 @@
       curEdit = false;
   	  curView = "2d";
       menuOpen = false;
-//      dataData = [[0, 1, 1, 1, 0, 0], [1, 0, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
-      dataData = visArray;
-//      labelData = ["x_0", "x_1", "x_3", "x_4", "x_2", "x_5"];
-      labelData = visLabels;
+      dataData = [[0, 1, 1, 1, 0, 0], [1, 0, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
+//      dataData = visArray;
+      labelData = ["x_0", "x_1", "x_3", "x_4", "x_2", "x_5"];
+//      labelData = visLabels;
       forceOn = true;
     </script>
   </head>
@@ -129,6 +129,8 @@
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn off force</a>
             <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
+            <a id="m2Session" href="#" class="list-group-item">M2 Talky</a>                        
+            <a id="endSession" href="#" class="list-group-item">End Session</a>            
           </div>
         </div>
 
@@ -167,7 +169,17 @@
       $("#forceToggle").on("click", toggleForce);
       $("#exportTikz").on("click", function() {
         exportTikz();
-      })
+      });
+
+      $("#m2Session").on("click", function() {
+        console.log("look at me");
+        makeCorsRequest('http://localhost:8000/fcn2/');
+      });      
+
+      $("#endSession").on("click", function() {
+        console.log("look at me");
+        makeCorsRequest('http://localhost:8000/end/');
+      });            
 
       initializeBuilder();
       disableEditing();

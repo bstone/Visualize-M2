@@ -42,6 +42,7 @@ server = () -> (
 	       fun = fcn2;
 	       )
 	  else if match("^GET /end/(.*) ",r) then (
+	       close listener;
     	       return;
 	       )
 --	  else if match("^GET / ",r) then (
@@ -65,33 +66,18 @@ server = () -> (
 	       s = "";
 	       fun = identity;
 	       );
---	<< "s " << s << endl;	
 	  t := select(".|%[0-9A-F]{2,2}", s); --data);
---	<< "t " << t << endl;		  
 	  u := apply(t, x -> if #x == 1 then x else ascii hex2(x#1, x#2));
 	  u = concatenate u;
---	  << "this is a test of functioning" << endl;
---	  << u << endl;
---	  << fun u << endl;
---	<< "------------------------" << endl;
---  	  << httpHeader fun u << endl;
 	  send := httpHeader fun u; 
 	  << send << endl;
---	<< "------------------------" << endl;
---    	print(peek g);
---	print(describe g);
-      g << send << close;
---      print "I wish this would work";
---      R := read g;
---        if verbose then stderr << "in g: " << stack lines R << endl;      
---	close g;
---      print "I wish this would work even more";	
+      	  g << send << close;
 	  )
      )
 
 ev = x -> "called POST ev on " | x
 fcn1 = x -> "called fcn1 on " | x
-fcn2 = x -> "called fcn2 on " | x
+fcn2 = x -> "Hey Brett! " | x
 
 -- getJSfile = get "graph-test.html"
 
@@ -100,7 +86,7 @@ fcn2 = x -> "called fcn2 on " | x
 httpHeader = s -> concatenate(
      -- for documentation of http protocol see http://www.w3.org/Protocols/rfc2616/rfc2616.html
      "HTTP/1.1 200 OK
-Server: Macaulay2/1.7.0.1
+Server: Macaulay2
 Access-Control-Allow-Origin: *
 Connection: close
 Content-Length: ", toString length s, "
