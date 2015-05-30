@@ -734,7 +734,6 @@ end
 restart
 loadPackage "Graphs"
 loadPackage"Visualize"
-loadPackage "EdgeIdeals"
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visualize G
 G2 = cocktailParty 10
@@ -750,8 +749,6 @@ restart
 loadPackage"Graphs"
 loadPackage"Visualize"
 G = digraph({ {1,{2,3}} , {2,{3}} , {3,{1}}})
-A = adjacencyMatrix G
-keys(G#graph)
 visualize G
 
 D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
@@ -967,3 +964,13 @@ visGraph G
 M = 
 A = graph M
 visGraph A
+
+
+--isCM 
+loadPackage "Graphs"
+G = graph({{x_1,x_2},{x_1,x_3},{x_1,x_4},{x_2,x_5},{x_5,x_3},{x_3,x_2}})
+E = apply (edges G, i->toList i)
+varList = unique flatten E
+E1 = apply(E, i->apply(i,j->position(varList,k -> k===j)))
+G1 = graph (E1) 
+isCM G1
