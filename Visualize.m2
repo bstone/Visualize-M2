@@ -549,7 +549,7 @@ local ev; local fcn1; local fcn2; local httpHeader;
 print("here");
 
 
-listener = openListener "$:"|S;
+listener = openListener ("$:"|S);
 verbose = true;
 
 print"here";
@@ -598,6 +598,8 @@ server = () -> (
 	       )
 	  else if match("^POST /end/(.*) ",r) then (
 	       close listener;
+	       print"end tesst";
+	       print data;
     	       return data;
 	       )	   
 	  else if match("^POST /eval/(.*) ",r) then (
@@ -639,9 +641,11 @@ Content-type: text/html; charset=utf-8
 
 ", ss);
 
-server();
+H := server();
 
-return "returned value";
+print"the end";
+
+return H;
 )
 
 
