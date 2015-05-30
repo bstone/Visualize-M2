@@ -734,7 +734,6 @@ end
 restart
 loadPackage "Graphs"
 loadPackage"Visualize"
-
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visualize G
 G2 = cocktailParty 10
@@ -985,3 +984,13 @@ visGraph G
 M = 
 A = graph M
 visGraph A
+
+
+--isCM 
+loadPackage "Graphs"
+G = graph({{x_1,x_2},{x_1,x_3},{x_1,x_4},{x_2,x_5},{x_5,x_3},{x_3,x_2}})
+E = apply (edges G, i->toList i)
+varList = unique flatten E
+E1 = apply(E, i->apply(i,j->position(varList,k -> k===j)))
+G1 = graph (E1) 
+isCM G1
