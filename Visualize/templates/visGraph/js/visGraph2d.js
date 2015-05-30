@@ -806,7 +806,7 @@ function makeCorsRequest(url) {
   // All HTML5 Rocks properties support CORS.
   // var url ='http://localhost:8000/fcn2/';
  
-  var xhr = createCORSRequest('GET', url);
+  var xhr = createCORSRequest('POST', url);
   if (!xhr) {
     alert('CORS not supported');
     return;
@@ -821,7 +821,7 @@ function makeCorsRequest(url) {
   xhr.onerror = function() {
     alert('Woops, there was an error making the request.');
   };
-  xhr.send();
+  xhr.send("Here is your mom");
 }
 // End Server Stuff
 // -------------------

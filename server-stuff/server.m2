@@ -38,21 +38,16 @@ server = () -> (
 	  else if match("^GET /fcn2/(.*) ",r) then (
 --	       s = first select("^GET /fcn2/(.*) ", "\\1", r);
     	    	s = "Here is some super cool data yo!";
---	       << "this is s" << s << endl;
 	       fun = fcn2;
 	       )
 	  else if match("^GET /end/(.*) ",r) then (
 	       close listener;
     	       return;
 	       )
---	  else if match("^GET / ",r) then (
---    	       s = getJSfile; 
---	       fun = identity;
---	       )
-	  else if match("^GET /js/(.*) ",r) then (
---    	       s = getJSfile; 
-	       fun = identity;
-	       )
+	  else if match("^POST /end/(.*) ",r) then (
+	       close listener;
+    	       return data;
+	       )	   
 	  else if match("^POST /eval/(.*) ",r) then (
 	       s = data; 
 	       -- s = first select("^POST /eval/(.*) ", "\\1", r);
