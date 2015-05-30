@@ -449,7 +449,8 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
     face2String = toString new Array from apply(#face2List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face2List#i#2))|",\"v2\": "|toString(position(vertexSet, j -> j == face2List#i#1))|",\"v3\": "|toString(position(vertexSet, j -> j == face2List#i#0))});
 
     if dim D>2 then (
-	 visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
+	error "3-dimensional simplicial complexes not implemented yet.";
+ 	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
     )
     else (
 	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"
@@ -470,11 +471,40 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
     searchReplace("vis2Faces",face2String, visTemp); -- Replace vis2Faces in the visSimplicialComplex html file by the list of faces. 
     
     if dim D>2 then (
+	error "3-dimensional simplicial complexes not implemented yet.";
 	face3Set = flatten entries faces(3,D);
 	face3List = apply(face3Set, f -> apply(new List from factor f, i -> i#0));
        	face3String = toString new Array from apply(#face3List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face3List#i#3))|",\"v2\": "|toString(position(vertexSet, j -> j == face3List#i#2))|",\"v3\": "|toString(position(vertexSet, j -> j == face3List#i#1))|",\"v4\": "|toString(position(vertexSet, j -> j == face3List#i#0))});
 	searchReplace("vis3Faces",face3String, visTemp); -- Replace vis3Faces in the visSimplicialComplex html file by the list of faces. 
     );
+    show new URL from { "file://"|visTemp };
+    
+    return visTemp;
+)
+
+
+--input: A parameterized surface in RR^3
+--output: The surface in the browswer
+--
+visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
+    local visTemp; local stringList;
+        
+    if opts.VisPath =!= null 
+    then (
+	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visSimplicialComplex template to a temporary directory.
+    	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+      )
+    else (
+	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visSimplicialComplex template to a temporary directory.
+    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+    );
+    
+    stringList = apply(P, i -> "\""|toString i|"\"");
+
+    searchReplace("visP1", stringList#0, visTemp); -- Replace visNodes in the visSimplicialComplex html file by the ordered list of vertices.
+    searchReplace("visP2", stringList#1, visTemp); -- Replace visEdges in the visSimplicialComplex html file by the list of edges.
+    searchReplace("visP3", stringList#2, visTemp); -- Replace vis2Faces in the visSimplicialComplex html file by the list of faces. 
+    
     show new URL from { "file://"|visTemp };
     
     return visTemp;
@@ -489,7 +519,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 copyJS = method(Options => {Warning => true} )
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
-    local cssdir; local fontdir;
+    local cssdir; local fontdir; local imagedir;
     
     -- Brett: I removed this so that we can add all three
     -- folders (js, css, and fonts) in the one method.
@@ -508,6 +538,10 @@ copyJS(String) := opts -> dst -> (
     -- get list of filenames in js/
     fontdir = delete("..",delete(".",
 	    readDirectory(currentDirectory()|"Visualize/fonts/")
+	    ));
+    
+    imagedir = delete("..",delete(".",
+	    readDirectory(currentDirectory()|"Visualize/images/")
 	    ));
     
     if opts.Warning == true
@@ -530,6 +564,7 @@ copyJS(String) := opts -> dst -> (
     copyDirectory(currentDirectory()|"Visualize/js/",dst|"js/");
     copyDirectory(currentDirectory()|"Visualize/css/",dst|"css/");
     copyDirectory(currentDirectory()|"Visualize/fonts/",dst|"fonts/");
+    copyDirectory(currentDirectory()|"Visualize/images/",dst|"images/");
     
     return "Created directories at "|dst;
 )
@@ -754,9 +789,22 @@ R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
 visualize D2
 
+<<<<<<< HEAD
 R = ZZ[a..f]
 L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
 visualize L
+=======
+-- Parameterized Surfaces
+restart
+loadPackage "Visualize"
+R = ZZ[u,v]
+S = {u,v,u^2+v^2}
+visualize S
+
+S = {"u^2 + sin(v)","u^2 + sin(v)","u^2 + sin(v)"}
+visualize S
+
+>>>>>>> 77284b95de1f02e03be6d342eb40c2f512be27ca
 ----------------
 
 -----------------------------
