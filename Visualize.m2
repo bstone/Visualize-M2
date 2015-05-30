@@ -705,6 +705,11 @@ visualize G
 G2 = cocktailParty 10
 visualize G2
 
+G1 = barbellGraph 6
+visualize G1
+G3 = barycenter completeGraph 6
+visualize G3
+
 -- Digraphs
 restart
 loadPackage"Graphs"
@@ -713,6 +718,11 @@ G = digraph({ {1,{2,3}} , {2,{3}} , {3,{1}}})
 A = adjacencyMatrix G
 keys(G#graph)
 visualize G
+
+D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
+visualize D1
+D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
+visualize D2
 
 -- Posets
 restart
@@ -728,6 +738,10 @@ I = ideal(x*y^2,x^2*z,y*z^2)
 P = lcmLattice I
 visualize P
 
+P = diamondProduct(chain 4, chain 4)
+visualize P
+
+
 -- Simplicial Complexes
 restart
 loadPackage "SimplicialComplexes"
@@ -740,6 +754,9 @@ R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
 visualize D2
 
+R = ZZ[a..f]
+L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
+visualize L
 ----------------
 
 -----------------------------
