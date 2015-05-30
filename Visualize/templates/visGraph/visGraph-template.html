@@ -179,15 +179,7 @@
 
       $("#isCM").on("click", function() {
         console.log("isCM");
-        if(curEdit) {
-          $(this).html("isCM");
-          curEdit = !curEdit;
-        } else {
-          $(this).html("isCM :: "+makeCorsRequest('POST','http://localhost:8000/isCM/', graph2M2Constructor(nodes,links)));
-          curEdit = !curEdit;
-        }
-        
-        console.log("m2Response temp"+m2Response);
+        makeCorsRequest('POST','http://localhost:8000/isCM/', graph2M2Constructor(nodes,links));
       });      
 
       $("#endSession").on("click", function() {

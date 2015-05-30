@@ -382,12 +382,14 @@ function restart() {
         return (l.source === source && l.target === target);
       })[0];
 
+      // Graph Changed :: adding new links
       if(link) {
         link[direction] = false;
       } else {
         link = {source: source, target: target, left: false, right: false};
         link[direction] = false;
         links.push(link);
+        d3.select("#isCM").html("isCM");
       }
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
@@ -481,10 +483,13 @@ function mousedown() {
     curName = curName.substring(0, curName.length - 1) + getNextAlpha(curName.slice(-1));
   }
 
+  // Graph Changed :: adding nodes
   node = {id: lastNodeId++, name: curName, reflexive: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
+  // Graph is updated here so we change isCM to default
+  d3.select("#isCM").html("isCM");
 
   document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
     
@@ -559,6 +564,9 @@ function keydown() {
       }
       selected_link = null;
       selected_node = null;
+
+      // Graph Changed :: deleted nodes and links
+      d3.select("#isCM").html("isCM");      
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
       // (Brett) Removing incidence and adjacency matrices for now.
@@ -829,12 +837,12 @@ function makeCorsRequest(method,url,browserData) {
     var responseText = xhr.responseText;
     console.log(xhr.responseText);    
     console.log(responseText);
-    m2Response = responseText;
+//    m2Response = responseText;
 //    console.log("m2Response"+m2Response);
 //    console.log(m2Response+"onload");
-//    d3.select("#isCM").append("b").text(" :: "+responseText);
-//    alert(responseText);   
-  return;
+   d3.select("#isCM").html("isCM :: <b>"+responseText+"</b>");
+///   alert(responseText);   
+ // return;
   };
  
   //xhr.onerror = function() {
@@ -843,7 +851,6 @@ function makeCorsRequest(method,url,browserData) {
   console.log(constrString);
   console.log(graph2M2Constructor(nodes,links));
   xhr.send(browserData);
-  return m2Response;
 }
 // End Server Stuff
 // -------------------
