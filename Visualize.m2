@@ -44,15 +44,7 @@ export {
      "FixExtremeElements",
     
     -- Methods
-     "visIntegralClosure",
-     "visIdeal",
-     "visGraph",
-     "visDigraph",
-     "visPoset",
-     "visSimplicialComplex",
-     "copyJS",
-     "copyCSS",
-     "copyFonts",
+     "visualize",
      
     -- Helpers 
      "runServer",
@@ -66,7 +58,6 @@ export {
 }
 
 -- needsPackage"Graphs"
-
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
 
@@ -236,8 +227,9 @@ relHeightFunction(Poset) := P -> (
 --input: A monomial ideal of a polynomial ring in 2 or 3 variables.
 --output: The newton polytope of the of the ideal.
 --
-visIdeal = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal", Warning => true})
-visIdeal(Ideal) := opts -> J -> (
+visualize = method(Options => true)
+
+visualize(Ideal) := {VisPath => defaultPath, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal", Warning => true} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList;
     -- local A;
@@ -300,8 +292,7 @@ visIdeal(Ideal) := opts -> J -> (
 --input: A graph
 --output: the graph in the browswer
 --
-visGraph = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", Warning => true})
-visGraph(Graph) := opts -> G -> (
+visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet;
     
@@ -348,8 +339,7 @@ visGraph(Graph) := opts -> G -> (
     return visTemp;
 )
 
-visDigraph = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory()|"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true})
-visDigraph(Digraph) := opts -> G -> (
+visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()|"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet;
     
@@ -401,8 +391,7 @@ visDigraph(Digraph) := opts -> G -> (
 --input: A poset
 --output: The poset in the browswer
 --
-visPoset = method(Options => {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true})
-visPoset(Poset) := opts -> P -> (
+visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local nodeString; local relationString;
     
@@ -440,8 +429,7 @@ visPoset(Poset) := opts -> P -> (
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
-visSimplicialComplex = method(Options => {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true})
-visSimplicialComplex(SimplicialComplex) := opts -> D -> (
+visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
@@ -645,10 +633,7 @@ multidoc ///
      	 Let's see.
   Node
     Key
-       [visIdeal,VisPath]
-       [visIdeal,VisTemplate]
-       (visIdeal, Ideal)
-       visIdeal
+       visualize
     Headline
        Creates staircase diagram for an ideal
     Usage
@@ -714,7 +699,9 @@ restart
 loadPackage "Graphs"
 loadPackage"Visualize"
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
-visGraph G
+visualize G
+G2 = cocktailParty 10
+visualize G2
 
 -- Digraphs
 restart
@@ -730,14 +717,14 @@ restart
 loadPackage "Posets"
 loadPackage "Visualize"
 P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
-visPoset P
+visualize P
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
-visPoset P2
-visPoset(P2,FixExtremeElements => true)
+visualize P2
+visualize(P2,FixExtremeElements => true)
 R = QQ[x,y,z]
 I = ideal(x*y^2,x^2*z,y*z^2)
 P = lcmLattice I
-visPoset P
+visualize P
 
 -- Simplicial Complexes
 restart
@@ -745,11 +732,11 @@ loadPackage "SimplicialComplexes"
 loadPackage "Visualize"
 R = ZZ[a..f]
 D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
-visSimplicialComplex D
+visualize D
 
 R = ZZ[a..g]
-D2 = simplicialComplex monomialIdeal(a*b*c,a*b*d,a*e*f,a*g)
-visSimplicialComplex D2
+D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
+visualize D2
 
 ----------------
 
