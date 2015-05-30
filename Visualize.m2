@@ -734,7 +734,7 @@ end
 restart
 loadPackage "Graphs"
 loadPackage"Visualize"
-loadPackage "EdgeIdeals"
+
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visualize G
 G2 = cocktailParty 10
@@ -750,8 +750,6 @@ restart
 loadPackage"Graphs"
 loadPackage"Visualize"
 G = digraph({ {1,{2,3}} , {2,{3}} , {3,{1}}})
-A = adjacencyMatrix G
-keys(G#graph)
 visualize G
 
 D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
@@ -776,7 +774,6 @@ visualize P
 P = diamondProduct(chain 4, chain 4)
 visualize P
 
-
 -- Simplicial Complexes
 restart
 loadPackage "SimplicialComplexes"
@@ -789,11 +786,33 @@ R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
 visualize D2
 
-<<<<<<< HEAD
 R = ZZ[a..f]
 L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
 visualize L
-=======
+
+-- Splines
+restart
+loadPackage "Splines"
+loadPackage "QuillenSuslin"
+loadPackage "Visualize"
+-- 2D Star of Vertex Example
+V = {{0,0},{1,0},{1,1},{-1,1},{-2,-1},{0,-1}};
+F = {{0,2,1},{0,2,3},{0,3,4},{0,4,5},{0,1,5}};
+E = {{0,1},{0,2},{0,3},{0,4},{0,5},{1,2},{2,3},{3,4},{4,5},{1,5}};
+M1 = splineModule(V,F,E,1)
+syz gens M -- Already gives free generating set.
+
+-- Schlegel Diagram Triangular Prism (nonsimplicial)
+V={{-1,-1},{0,1},{1,-1},{-2,-2},{0,2},{2,-2}};
+F={{0,1,2},{0,1,3,4},{1,2,4,5},{0,2,3,5}};
+E={{0,1},{0,2},{1,2},{0,3},{1,4},{2,5},{3,4},{4,5},{3,5}};
+M2 = splineModule(V,F,E,1)
+isProjective M2 -- M2 is projective.
+syz gens M2 -- Already gives free generating set.
+
+isProjective M
+computeFreeBasis M
+
 -- Parameterized Surfaces
 restart
 loadPackage "Visualize"
@@ -804,7 +823,6 @@ visualize S
 S = {"u^2 + sin(v)","u^2 + sin(v)","u^2 + sin(v)"}
 visualize S
 
->>>>>>> 77284b95de1f02e03be6d342eb40c2f512be27ca
 ----------------
 
 -----------------------------
