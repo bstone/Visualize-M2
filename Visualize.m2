@@ -349,7 +349,8 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()
     -- Add this back in when we figure out how to deal with the old
     -- Graphs package not knowing what G.vertexSet means.
     
-    if value((options Graphs).Version) == 0.1 then (
+    --if value((options Graphs).Version) == 0.1 then (
+    if 1 == .1 then (
 	 vertexString = toString new Array from apply(keys(G#graph), i -> "\""|toString(i)|"\""); -- Create a string containing an ordered list of the vertices in the older Graphs package.
     ) else (
     
@@ -698,6 +699,7 @@ end
 restart
 loadPackage "Graphs"
 loadPackage"Visualize"
+loadPackage "EdgeIdeals"
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visualize G
 G2 = cocktailParty 10
@@ -710,7 +712,7 @@ loadPackage"Visualize"
 G = digraph({ {1,{2,3}} , {2,{3}} , {3,{1}}})
 A = adjacencyMatrix G
 keys(G#graph)
-visDigraph G
+visualize G
 
 -- Posets
 restart
