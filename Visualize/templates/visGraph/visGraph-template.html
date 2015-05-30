@@ -173,12 +173,12 @@
 
       $("#m2Session").on("click", function() {
         console.log("look at me");
-        makeCorsRequest('http://localhost:8000/fcn2/');
+        makeCorsRequest('GET','http://localhost:8000/fcn2/', null);
       });      
 
       $("#endSession").on("click", function() {
         console.log("look at me");
-        makeCorsRequest('http://localhost:8000/end/');
+        makeCorsRequest('POST','http://localhost:8000/end/',graph2M2Constructor(nodes,links));
       });            
 
       initializeBuilder();

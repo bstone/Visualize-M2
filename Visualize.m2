@@ -24,7 +24,7 @@ newPackage(
      	     {Name => "Brett Barwick", Email => "Brett@barwick.edu", HomePage => "http://math.bard.edu/~bstone/"},	     
 	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
 	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
-	     {Name => "Branden Stone", Email => "bstone@bard.edu", HomePage => "http://math.bard.edu/~bstone/"},
+	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
 	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
 	     {Name => "Jim Vallandingham", Email => "vlandham@gmail.com", HomePage => "http://vallandingham.me/"}
 	     },
@@ -589,7 +589,7 @@ server = () -> (
             )
 	  else if match("^GET /fcn2/(.*) ",r) then (
 --	       s = first select("^GET /fcn2/(.*) ", "\\1", r);
-    	    	s = "Here is some super cool data yo!";
+    	    	s = "Here is some super cool data yo! Why is this not being displayed?\n";
 	       fun = fcn2;
 	       )
 	  else if match("^GET /end/(.*) ",r) then (
@@ -597,10 +597,12 @@ server = () -> (
     	       return;
 	       )
 	  else if match("^POST /end/(.*) ",r) then (
-	       close listener;
+--	       close listener;
 	       print"end tesst";
-	       print data;
-    	       return data;
+--	       print data;
+--	       value "QQ[x]"
+	       R := value data;
+    	       return R;
 	       )	   
 	  else if match("^POST /eval/(.*) ",r) then (
 	       s = data; 
@@ -824,13 +826,14 @@ visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
 
 -- Server Tests
 
+get "!netstat"
 
 restart
 loadPackage"Visualize"
 openServer("8000")
 server()
-close listener
-
+close "$:8000"
+loadPackage"EdgeIdeals"
 code methods httpHeaders
 
 viewHelp openInOut
