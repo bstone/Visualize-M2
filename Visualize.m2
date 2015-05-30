@@ -553,12 +553,12 @@ listener = S;
 --listener = openListener ("$:"|S);
 verbose = true;
 
-hexdigits = "0123456789ABCDEF";
-hext = new HashTable from for i from 0 to 15 list hexdigits#i => i;
-hex1 = c -> if hext#?c then hext#c else 0;
-hex2 = (c,d) -> 16 * hex1 c + hex1 d;
-toHex1 = asc -> ("%",hexdigits#(asc>>4),hexdigits#(asc&15));
-toHex = str -> concatenate apply(ascii str, toHex1);
+-- hexdigits = "0123456789ABCDEF";
+-- hext = new HashTable from for i from 0 to 15 list hexdigits#i => i;
+-- hex1 = c -> if hext#?c then hext#c else 0;
+-- hex2 = (c,d) -> 16 * hex1 c + hex1 d;
+-- toHex1 = asc -> ("%",hexdigits#(asc>>4),hexdigits#(asc&15));
+-- toHex = str -> concatenate apply(ascii str, toHex1);
 
 server = () -> (
     stderr << "listening:" << endl;
@@ -596,7 +596,7 @@ server = () -> (
    	    	s = "isCM stuff."|"12345678901";
 	<< "here is 2 data " << data << endl;
                testKey = "isCM";
-	       fun = cmTestOut;
+	       fun = identity;
 	       )	   
 	  else if match("^GET /end/(.*) ",r) then (
 	       close listener;
@@ -623,16 +623,16 @@ server = () -> (
 	       s = "";
 	       fun = identity;
 	       );
-	  t := select(".|%[0-9A-F]{2,2}", s); --data);
-	  u := apply(t, x -> if #x == 1 then x else ascii hex2(x#1, x#2));
-	  u = concatenate u;
-	  << u << endl;
+--	  t := select(".|%[0-9A-F]{2,2}", s); --data);
+--	  u := apply(t, x -> if #x == 1 then x else ascii hex2(x#1, x#2));
+--	  u = concatenate u;
+--	  << u << endl;
 	<< "here is 3 data " << data << endl;
-	<< "here is 3 data " << value data << endl;
-	<< "here is 3 data " << cmTest value data << endl;		
-	  if (testKey == "isCM") then ( u = toString( cmTest value data ) );
+	<< "here is 3 value data " << value data << endl;
+	<< "here is 3 cmTest value data " << cmTest value data << endl;		
+	  if (testKey == "isCM") then ( u := toString( cmTest value data ) );
 	  << "here is u " << u << endl;
-	  << "here is fun u" << fun u << endl;
+	  << "here is fun u " << fun u << endl;
 	  send := httpHeader fun u; 
 	  << send << endl;
       	  g << send << close;
@@ -642,8 +642,8 @@ server = () -> (
 ev = x -> "called POST ev on " | x;
 fcn1 = x -> "called fcn1 on " | x;
 fcn2 = x -> "Hey Brett! " | x;
-cmTestOut = x -> "Is the ring CM? " | x;
-cmTest = G -> (
+cmTestOut = x -> "Is the graph CM? " | x;
+cmTest = G -> ( -- fix so this takes any graph with any lable.
     	if (class(G.vertexSet)_0 === ZZ) then (isCM G) else (
 	    R := QQ[G.vertexSet];
 	    H := G;

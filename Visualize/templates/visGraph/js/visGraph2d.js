@@ -18,6 +18,10 @@
 
   var drag_line = null;
 
+  var m2Response = null;
+  m2Response = "I want this to work m2Response";
+  console.log(m2Response);
+
   // Handles to link and node element groups.
   var path = null,
       circle = null;
@@ -79,6 +83,8 @@ function initializeBuilder() {
   }
 
   constrString = graph2M2Constructor(nodes,links);
+
+
     
   // (Brett) Removing incidence and adjacency matrices.
   /*incMatrix = getIncidenceMatrix(nodes,links);
@@ -88,8 +94,10 @@ function initializeBuilder() {
 
   // Add a paragraph containing the Macaulay2 graph constructor string below the svg.
   d3.select("body").append("p")
-  	.text("Macaulay2 Constructor: " + constrString)
-  	.attr("id","constructorString");
+    .text("Macaulay2 Constructor: " + constrString)
+    .attr("id","constructorString");
+
+//    .attr("id","isCM");
 
   // (Brett) Removing incidence and adjacency matrices.
     
@@ -784,6 +792,8 @@ console.log(points);
 // --------------------
 // Begin Server Stuff
 
+
+
 // Create the XHR object.
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();                    
@@ -819,7 +829,12 @@ function makeCorsRequest(method,url,browserData) {
     var responseText = xhr.responseText;
     console.log(xhr.responseText);    
     console.log(responseText);
-    alert(responseText);   
+    m2Response = responseText;
+//    console.log("m2Response"+m2Response);
+//    console.log(m2Response+"onload");
+//    d3.select("#isCM").append("b").text(" :: "+responseText);
+//    alert(responseText);   
+  return;
   };
  
   //xhr.onerror = function() {
@@ -828,9 +843,14 @@ function makeCorsRequest(method,url,browserData) {
   console.log(constrString);
   console.log(graph2M2Constructor(nodes,links));
   xhr.send(browserData);
+  return m2Response;
 }
 // End Server Stuff
 // -------------------
+
+
+
+
 
 
 function stopForce() {
