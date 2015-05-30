@@ -1,108 +1,231 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Macaulay2: visPoset</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/BootSideMenu.css" rel="stylesheet">
+    <style>
 
-.node {
-      stroke: #fff;
-      stroke-width: 1.5px;
-}
+      .noselect {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
 
-.link {
-      stroke: #999;
-      stroke-opacity: .6;
-}
+      a { cursor: pointer; cursor: hand; }
 
-</style>
-<body>
-<script src="js/d3.v3.js"></script>
-<script>
+      #canvasElement2d {
+        background-color: #FFF;
+        cursor: default;
+        display:inline;
+        z-index:2;
+        padding-bottom: 10px;
+      }
 
- /* var nodes = [
+      #canvasElement2d:not(.active):not(.shift) {
+        cursor: crosshair;
+      }
+
+      path.link {
+        fill: none;
+        stroke: #B6B6B6;
+        stroke-width: 2px;
+        cursor: default;
+      }
+
+      #canvasElement2d:not(.active):not(.shift) path.link {
+        cursor: pointer;
+      }
+
+      path.link.selected {
+        stroke-dasharray: 10,2;
+      }
+
+      path.link.dragline {
+        pointer-events: none;
+      }
+
+      path.link.hidden {
+        stroke-width: 0;
+      }
+    
+      .node {
+          stroke: #fff;
+          stroke-width: 1.5px;
+      }
+
+      .link {
+          stroke: #999;
+          stroke-opacity: .6;
+      }
+
+      circle.node {
+        stroke-width: 0px;
+        cursor: pointer;
+      }
+
+      circle.node.reflexive {
+        stroke: #000 !important;
+        stroke-width: 2.5px;
+      }
+
+      text {
+        font: 12px sans-serif;
+        pointer-events: none;
+      }
+
+      text.id {
+        text-anchor: middle;
+        font-weight: bold;
+      }
+
+      #canvasElement3d {
+        background-color: #FFF;
+        cursor: default;
+        display:none;
+        z-index: 0;
+        padding-bottom: 10px;
+      }
+
+      #constructorString {
+        -o-user-select: text;
+        -moz-user-select: text;
+        -webkit-user-select: text;
+        user-select: text;
+        z-index: 100;
+        padding-bottom: 5px;
+      }
+
+      #incString {
+        -o-user-select: text;
+        -moz-user-select: text;
+        -webkit-user-select: text;
+        user-select: text;
+        z-index: 100;
+        padding-bottom: 5px;
+      }
+      #adjString {
+        -o-user-select: text;
+        -moz-user-select: text;
+        -webkit-user-select: text;
+        user-select: text;
+        z-index: 100;
+        padding-bottom: 5px;
+      }
+    </style>
+    <script type="text/javascript">
+      //global variables
+      curEdit = false;
+  	  curView = "2d";
+      menuOpen = false;
+      dataNodes = [
 		{"name": "1", "group":0},
 		{"name": "2", "group":1},
 		{"name": "3", "group":1},
 		{"name": "4", "group":2},
 		{"name": "5", "group":1},
 		{"name": "6", "group":2}
-	],
-	links = [
+	   ];
+//      dataNodes = visNodes;
+      dataLinks = [
 		{"source":0,"target":1,"value":1},
 		{"source":0,"target":2,"value":2},
 		{"source":0,"target":4,"value":3},
 		{"source":1,"target":3,"value":1},
 		{"source":2,"target":5,"value":2},
         {"source":4,"target":3,"value":1}
-	];
-*/
-    var nodes = visNodes ,
-        links = visRelations ;
-    
-var width = 960,
-    height = 500,
-    hPadding = 20,
-    vPadding = 20;
+	   ];
+//      dataLinks = visRelations;
+      forceOn = false;
+    </script>
+  </head>
 
-var color = d3.scale.category20();
+  <body>
 
-var force = d3.layout.force()
-    .charge(-700)
-    .linkDistance(240)
-    .size([width, height]);
+        <div id="side">
+          <h2>Menu</h2>
+          <div class="list-group">
+            <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
+            <a id="reset" href="#" class="list-group-item">Reset nodes</a>
+            <a id="forceToggle" href="#" class="list-group-item">Turn on force</a>
+            <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
+          </div>
+        </div>
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
+        <div class="container">
+          <div id="canvasElement3d"></div>
+        </div>
 
-    var maxGroup = d3.max(nodes, function(d) {return d.group;});
-    var rowSep = (height-2*vPadding)/maxGroup;
-    var groupFreq = [];
-    var groupCount = [];
-    for (var i=0; i<maxGroup+1; i++){
-      groupFreq.push(0);
-      groupCount.push(0);
+
+  <script src="js/jquery-1.11.3.min.js"></script>
+  <script src="js/BootSideMenu.js"></script>
+  <script src="js/d3.v3.js"></script>
+  <script src="js/visPoset.js"></script>
+
+  <script type="text/javascript">
+//    $('#side').BootSideMenu({side:"right"});
+    $('#side').BootSideMenu({side:"right", autoClose: false});
+
+    document.getElementById("canvasElement3d").style.width = window.innerWidth;
+    document.getElementById("canvasElement3d").style.width = window.innerHeight - 125;
+
+    $(document).ready(function(){
+
+      $("#editToggle").on("click", function(){
+        if(curEdit) {
+          $(this).html("Enable editing");
+          curEdit = !curEdit;
+          disableEditing();
+        } else {
+          $(this).html("Disable editing");
+          curEdit = !curEdit;
+          enableEditing();
+        }
+      });
+
+      $("#reset").on("click", resetGraph);
+      $("#forceToggle").on("click", toggleForce);
+      $("#exportTikz").on("click", function() {
+        exportTikz();
+      })
+
+      initializeBuilder();
+      disableEditing();
+    });
+
+
+    function toggleForce() {
+      if (forceOn) {
+        setAllNodesFixed();
+        document.getElementById("forceToggle").innerHTML = "Turn on force";
+      }
+      else {
+        resetGraph();
+        document.getElementById("forceToggle").innerHTML = "Turn off force";
+      }
+      forceOn = !forceOn;
     }
 
-    nodes.forEach(function(d) {groupFreq[d.group]=groupFreq[d.group]+1;});
+    window.addEventListener("mousedown", function(e) {
 
-    for(var i=0; i<nodes.length;i++){
-      nodes[i].fixed = true;
-	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
-      groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
-      nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
-    }
- 
-  force
-      .nodes(nodes)
-      .links(links)
-      .start();
-    
-  var link = svg.selectAll(".link")
-      .data(links)
-    .enter().append("line")
-      .attr("class", "link")
-      .attr("y1", function(d) {return d.source.y;})
-      .attr("y2", function(d) {return d.target.y;})
-      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-  
-  var node = svg.selectAll(".node")
-      .data(nodes)
-    .enter().append("circle")
-      .attr("class", "node")
-      .attr("r", 10)
-      .attr("cx", function(d) {return d.x;})
-      .attr("cy", function(d) {return d.y;})
-      .style("fill", function(d) { return color(d.group); })
-      .call(force.drag);
-    
-  node.append("title")
-      .text(function(d) { return d.name; });
+      if (!menuOpen) return;
+      tempMenu = document.getElementById("popupMenu");
+      if ( (e.clientX < tempMenu.offsetLeft) || (e.clientY > tempMenu.offsetTop + tempMenu.offsetHeight) ) {
+        tempMenu.style.display = "none";
+        tempMenu.style.visibility = "hidden";
+        menuOpen = false;
+      }
 
-  force.on("tick", function() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("x2", function(d) { return d.target.x; });
-    
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y =  height-vPadding-d.group*rowSep;});
-  });
+    }, false);
+  	window.addEventListener('resize', updateWindowSize2d, false);
+    //window.onresize = updateWindowSize2d;
+    </script>
 
-</script>
+  </body>
+
+
+</html>
