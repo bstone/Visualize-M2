@@ -755,6 +755,7 @@ loadPackage"Visualize"
 restart
 loadPackage"Visualize"
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
+visualize G
 visGraph G
 visGraph( G, VisPath => "/Users/bstone/Desktop/Test/")
 y
