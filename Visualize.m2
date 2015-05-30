@@ -545,7 +545,7 @@ local listener; local verbose; local hexdigits; local hext;
 local hex1; local hex2; local toHex1; local toHex;
 local server; local fun; local s;
 local ev; local fcn1; local fcn2; local httpHeader;
-local testKey;
+local testKey; local cmTest; local cmTestOut;
 
 
 print("here");
@@ -591,7 +591,7 @@ server = () -> (
             )
 	  else if match("^GET /fcn2/(.*) ",r) then (
 --	       s = first select("^GET /fcn2/(.*) ", "\\1", r);
-    	    	s = "I am trying to do really cool things and I don't know why I am getting a truncations error?"|"12345678901";
+    	    	s = "I can answer all of your questions!"|"12345678901";
 	       fun = fcn2;
 	       )
 	  else if match("^GET /isCM/(.*) ",r) then (
@@ -627,7 +627,7 @@ server = () -> (
 	  t := select(".|%[0-9A-F]{2,2}", s); --data);
 	  u := apply(t, x -> if #x == 1 then x else ascii hex2(x#1, x#2));
 	  u = concatenate u;
-	  if (testKey == "isCM") then ( u = toString( cmTest u ) );
+--	  if (testKey == "isCM") then ( u = toString( cmTest u ) );
 	  send := httpHeader fun u; 
 	  << send << endl;
       	  g << send << close;
@@ -640,9 +640,9 @@ fcn2 = x -> "Hey Brett! " | x;
 cmTestOut = x -> "Is the ring CM? " | x;
 cmTest = G -> (
     	if (class(G.vertexSet)_0 === ZZ) then (isCM G) else (
-	    R = QQ[G.vertexSet];
-	    G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5});
-	    isCM G
+	    R := QQ[G.vertexSet];
+	    H := G;
+	    isCM H
 	    )    
     );
 
@@ -856,10 +856,11 @@ viewHelp openInOut
 
 viewHelp Graphs
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
-
+cmTest L
 G.vertexSet
 class(L.vertexSet)_0
 L = graph({{1,2}})
+visualize L
 L.vertexSet
 R = QQ[L.vertexSet]
 
