@@ -18,6 +18,7 @@
 
   var drag_line = null;
 
+
   // Handles to link and node element groups.
   var path = null,
       circle = null;
@@ -79,6 +80,8 @@ function initializeBuilder() {
   }
 
   constrString = graph2M2Constructor(nodes,links);
+
+
     
   // (Brett) Removing incidence and adjacency matrices.
   /*incMatrix = getIncidenceMatrix(nodes,links);
@@ -88,8 +91,10 @@ function initializeBuilder() {
 
   // Add a paragraph containing the Macaulay2 graph constructor string below the svg.
   d3.select("body").append("p")
-  	.text("Macaulay2 Constructor: " + constrString)
-  	.attr("id","constructorString");
+    .text("Macaulay2 Constructor: " + constrString)
+    .attr("id","constructorString");
+
+//    .attr("id","isCM");
 
   // (Brett) Removing incidence and adjacency matrices.
     
@@ -374,12 +379,14 @@ function restart() {
         return (l.source === source && l.target === target);
       })[0];
 
+      // Graph Changed :: adding new links
       if(link) {
         link[direction] = false;
       } else {
         link = {source: source, target: target, left: false, right: false};
         link[direction] = false;
         links.push(link);
+        d3.select("#isCM").html("isCM");
       }
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
@@ -473,10 +480,13 @@ function mousedown() {
     curName = curName.substring(0, curName.length - 1) + getNextAlpha(curName.slice(-1));
   }
 
+  // Graph Changed :: adding nodes
   node = {id: lastNodeId++, name: curName, reflexive: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
+  // Graph is updated here so we change isCM to default
+  d3.select("#isCM").html("isCM");
 
   document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
     
@@ -551,6 +561,9 @@ function keydown() {
       }
       selected_link = null;
       selected_node = null;
+
+      // Graph Changed :: deleted nodes and links
+      d3.select("#isCM").html("isCM");      
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
       // (Brett) Removing incidence and adjacency matrices for now.
@@ -780,6 +793,69 @@ console.log(points);
 
   alert(edges);
 }
+
+// --------------------
+// Begin Server Stuff
+
+
+
+// Create the XHR object.
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();                    
+  if ("withCredentials" in xhr) {
+    // XHR for Chrome/Firefox/Opera/Safari.
+    xhr.open(method, url, true);
+  } else if (typeof XDomainRequest != "undefined") {
+    // XDomainRequest for IE.
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+  } else {
+    // CORS not supported.
+    xhr = null;
+  }
+  console.log("here");
+  console.log(xhr);
+  return xhr;
+}
+ 
+// Make the actual CORS request.
+function makeCorsRequest(method,url,browserData) {
+  // All HTML5 Rocks properties support CORS.
+  // var url ='http://localhost:8000/fcn2/';
+ 
+  var xhr = createCORSRequest(method, url);
+  if (!xhr) {
+    alert('CORS not supported');
+    return;
+  }
+ 
+  // Response handlers.
+  xhr.onload = function() {
+    var responseText = xhr.responseText;
+    console.log(xhr.responseText);    
+    console.log(responseText);
+//    m2Response = responseText;
+//    console.log("m2Response"+m2Response);
+//    console.log(m2Response+"onload");
+   d3.select("#isCM").html("isCM :: <b>"+responseText+"</b>");
+///   alert(responseText);   
+ // return;
+  };
+ 
+  //xhr.onerror = function() {
+  //  alert('Woops, there was an error making the request.');
+  //};
+  console.log(constrString);
+  console.log(graph2M2Constructor(nodes,links));
+  xhr.send(browserData);
+}
+// End Server Stuff
+// -------------------
+
+
+
+
+
 
 function stopForce() {
   force.stop();

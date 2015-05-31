@@ -24,7 +24,7 @@ newPackage(
      	     {Name => "Brett Barwick", Email => "Brett@barwick.edu", HomePage => "http://math.bard.edu/~bstone/"},	     
 	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
 	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
-	     {Name => "Branden Stone", Email => "bstone@bard.edu", HomePage => "http://math.bard.edu/~bstone/"},
+	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
 	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
 	     {Name => "Jim Vallandingham", Email => "vlandham@gmail.com", HomePage => "http://vallandingham.me/"}
 	     },
@@ -53,7 +53,14 @@ export {
      "copyTemplate",
      "replaceInFile",
      "heightFunction",
-     "relHeightFunction"
+     "relHeightFunction",
+     
+    -- Server
+     "openServer",
+     "outPut",
+     "openPort",
+     "closePort"
+     
 
 }
 
@@ -62,6 +69,12 @@ export {
 defaultPath = (options Visualize).Configuration#"DefaultPath"
 
 -- (options Visualize).Configuration
+
+portTest = false
+inOutPort = null
+
+outPut = method()
+outPut Boolean := B -> return portTest;
 
 ------------------------------------------------------------
 -- METHODS
@@ -569,83 +582,170 @@ copyJS(String) := opts -> dst -> (
     return "Created directories at "|dst;
 )
 
---input: a String of a path to a directory
---output: Copies the js library to path
+-- The idea here is to open a port using a number from the config file. 
+-- Then we assign a global varable portTest = true. This way we can test
+-- if the port is open or not. Ideally this method would not have a input
+-- but would pull the info from the config file. 
+-- 
+-- The work flow would be, 
+-- 1. Do cool VisStuff; 
+-- 2. openPort() and then continue (with the same webpage) your work;
+-- 3. End session to export info to browser;
+-- 4. closePort() (or restart M2; not sure if this works) to end.
 --
---caveat: Checks to see if files exist. If they do exist, the user
---        must give permission to continue. Continuing will overwrite
---        current files and cannont be undone.
-copyCSS = method(Options => {Warning => true} )
-copyCSS(String) := opts -> dst -> (
-    local jsdir; local ans; local quest;
-    
-    dst = dst|"css/";    
-    
-    -- get list of filenames in css/
-    jsdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/css/")
-	    ));
-    
-    if opts.Warning == true
-    then(
-    -- test to see if files exist in target
-    if (scan(jsdir, j -> if fileExists(concatenate(dst,j)) then break true) === true)
-    then (
-    	   quest = concatenate(" -- Some CSS files in ",dst," will be overwritten.\n -- This action cannot be undone.");
-	   print quest;
-	   ans = read "Would you like to continue? (y or n):  ";
-	   while (ans != "y" and ans != "n") do (
-	       ans = read "Would you like to continue? (y or n):  ";
-	       );  
-	   if ans == "n" then (
-	       error "Process was aborted."
-	       );
-    	);
-    );
-    
-    copyDirectory(currentDirectory()|"Visualize/css/",dst);
-    
-    return "Created directory "|dst;
+-- At first I thought it would probably be better to have 2 and 4 in all 
+-- the methods and have a test to see if 2 needs an action (with global 
+-- var portTest), and an option that lets the user decide if the port 
+-- should stay open. But now I think it would be better if the user actually
+-- opens the port. This would give more control to the user. 
+--
+openPort = method()
+openPort String := F -> (    
+    portTest = true;
+    inOutPort = openListener F;
+    return inOutPort;
 )
 
---input: a String of a path to a directory
---output: Copies the js library to path
---
---caveat: Checks to see if files exist. If they do exist, the user
---        must give permission to continue. Continuing will overwrite
---        current files and cannont be undone.
-copyFonts = method(Options => {Warning => true} )
-copyFonts(String) := opts -> dst -> (
-    local jsdir; local ans; local quest;
-    
-    dst = dst|"fonts/";    
-    
-    -- get list of filenames in fonts/
-    jsdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/fonts/")
-	    ));
-    
-    if opts.Warning == true
-    then(
-    -- test to see if files exist in target
-    if (scan(jsdir, j -> if fileExists(concatenate(dst,j)) then break true) === true)
-    then (
-    	   quest = concatenate(" -- Some font files in ",dst," will be overwritten.\n -- This action cannot be undone.");
-	   print quest;
-	   ans = read "Would you like to continue? (y or n):  ";
-	   while (ans != "y" and ans != "n") do (
-	       ans = read "Would you like to continue? (y or n):  ";
-	       );  
-	   if ans == "n" then (
-	       error "Process was aborted."
-	       );
-    	);
-    );
-    
-    copyDirectory(currentDirectory()|"Visualize/fonts/",dst);
-    
-    return "Created directory "|dst;
+closePort = method()
+closePort String := F -> (
+     portTest = false;
+     close inOutPort;
+     print("--Port " | F | " is now closed");
 )
+
+openServer = method()
+openServer File := S -> (
+ 
+local listener; local verbose; local hexdigits; local hext; 
+local hex1; local hex2; local toHex1; local toHex;
+local server; local fun; local s;
+local ev; local fcn1; local fcn2; local httpHeader;
+local testKey; local cmTest; local cmTestOut;
+
+testKey = " ";
+
+listener = S;
+--listener = openListener ("$:"|S);
+verbose = true;
+
+-- hexdigits = "0123456789ABCDEF";
+-- hext = new HashTable from for i from 0 to 15 list hexdigits#i => i;
+-- hex1 = c -> if hext#?c then hext#c else 0;
+-- hex2 = (c,d) -> 16 * hex1 c + hex1 d;
+-- toHex1 = asc -> ("%",hexdigits#(asc>>4),hexdigits#(asc&15));
+-- toHex = str -> concatenate apply(ascii str, toHex1);
+
+server = () -> (
+    stderr << "listening:" << endl;
+    while true do (
+        wait {listener};
+--	viewHelp wait
+        g := openInOut listener;				    -- this should be interruptable!
+        r := read g;
+--	<< "r0 " << r << endl;	
+        if verbose then stderr << "request: " << stack lines r << endl;
+--	<< "------------------------" << endl;
+--        S := read g;
+--	<< "S0 " << S << endl;	
+--        if verbose then stderr << "request: " << stack lines S << endl;
+--	<< "------------------------" << endl;	
+--	<< "r1 " << r << endl;
+        r = lines r;
+	<< "r2 " << r << endl;	
+        if #r == 0 then (close g; continue);
+	data := last r;
+	<< "here is 1 data " << data << endl;
+--	<< "r3 " << r << endl;	
+--	<< "data=" << data << endl;
+        r = first r;
+        if match("^GET /fcn1/",r) then (
+            s = first select("^GET /fcn1/(.*) ", "\\1", r);
+            fun = fcn1;
+            )
+	  else if match("^GET /fcn2/(.*) ",r) then (
+--	       s = first select("^GET /fcn2/(.*) ", "\\1", r);
+    	    	s = "I can answer all of your questions!"|"12345678901";
+	       fun = fcn2;
+	       )
+	  else if match("^POST /isCM/(.*) ",r) then (
+   	    	s = "isCM stuff."|"12345678901";
+	<< "here is 2 data " << data << endl;
+               testKey = "isCM";
+	       fun = identity;
+	       )	   
+	  else if match("^GET /end/(.*) ",r) then (
+	       close listener;
+    	       return;
+	       )
+	  else if match("^POST /end/(.*) ",r) then (
+--	       close listener;
+	       print"end tesst";
+--	       print data;
+--	       value "QQ[x]"
+	       R := value data;
+    	       return R;
+	       )	   
+	  else if match("^POST /eval/(.*) ",r) then (
+	       s = data; 
+	       -- s = first select("^POST /eval/(.*) ", "\\1", r);
+	       fun = ev;
+	       )
+	  else if match("^HEAD /(.*) ",r) then (
+	       s = first select("^HEAD /(.*) ", "\\1", r);
+	       fun = identity;
+	       )
+	  else (
+	       s = "";
+	       fun = identity;
+	       );
+--	  t := select(".|%[0-9A-F]{2,2}", s); --data);
+--	  u := apply(t, x -> if #x == 1 then x else ascii hex2(x#1, x#2));
+--	  u = concatenate u;
+--	  << u << endl;
+	<< "here is 3 data " << data << endl;
+	<< "here is 3 value data " << value data << endl;
+	<< "here is 3 cmTest value data " << cmTest value data << endl;		
+	  if (testKey == "isCM") then ( u := toString( cmTest value data ) );
+	  << "here is u " << u << endl;
+	  << "here is fun u " << fun u << endl;
+	  send := httpHeader fun u; 
+	  << send << endl;
+      	  g << send << close;
+	  );
+     );
+
+ev = x -> "called POST ev on " | x;
+fcn1 = x -> "called fcn1 on " | x;
+fcn2 = x -> "Hey Brett! " | x;
+cmTestOut = x -> "Is the graph CM? " | x;
+cmTest = G -> ( -- fix so this takes any graph with any lable.
+    	if (class(G.vertexSet)_0 === ZZ) then (isCM G) else (
+	    R := QQ[G.vertexSet];
+	    H := G;
+	    isCM H
+	    )    
+    );
+
+-- getJSfile = get "graph-test.html"
+
+httpHeader = ss -> concatenate(
+     -- for documentation of http protocol see http://www.w3.org/Protocols/rfc2616/rfc2616.html
+     "HTTP/1.1 200 OK
+Server: Macaulay2
+Access-Control-Allow-Origin: *
+Connection: close
+Content-Length: ", toString length ss, "
+Content-type: text/html; charset=utf-8
+
+", ss);
+
+H := server();
+
+print"the end";
+
+return H;
+)
+
 
 --------------------------------------------------
 -- DOCUMENTATION
@@ -868,30 +968,81 @@ visIdeal I
 visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
 
+-- Server Tests
+
+get "!netstat"
+
+restart
+loadPackage"Visualize"
+outPut true
+openPort("$:8888")
+outPut true
+closePort("$:8888")
+listener = openListener ("$:8888")
+close listener
+
+restart
+loadPackage"Visualize"
+listener = openPort("$:8000")
+openServer(listener)
+closePort("$:8888")
+
+restart
+loadPackage"Visualize"
+G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+visualize G
+listener = openPort("$:8000")
+H = openServer(listener)
+H
+closePort("$:8888")
+
+visualize( G, VisPath => "/Users/bstone/Desktop/Test/")
+
+
+
+
+
+H = openServer(listener)
+viewHelp wait
+
+HHH = openListener ("$:8888")
+close HHH
+toString(close HHH) == "$:8888"
+code methods close
+
+close listener
+
+loadPackage"EdgeIdeals"
+code methods httpHeaders
+
+viewHelp openInOut
+
+viewHelp Graphs
+G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
+cmTest L
+G.vertexSet
+class(L.vertexSet)_0
+L = graph({{1,2}})
+visualize L
+L.vertexSet
+R = QQ[L.vertexSet]
+
+restart
+loadPackage"Visualize"
+G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
+G = graph({{1,2}})
+if (class(G.vertexSet)_0 === ZZ) then (print"first";isCM G) else (
+R = QQ[G.vertexSet];
+G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5});
+print"here";
+isCM G
+)    
+
+peek G
+
 -- Random Tests
 
 copyTemplate(currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", "/Users/bstone/Desktop/Test/")
-
-
-
------------------------------
--- Julio's tests
------------------------------
-restart
-loadPackage "Visualize"
-"TEST" << "let" << close
-replaceInFile("e", "i", "TEST")
-
--- doc testing
-
-restart
-uninstallPackage"Visualize"
-installPackage"Visualize"
-viewHelp Visualize
-
------------------------------
--- end Julio's Test
------------------------------
 
 
 
