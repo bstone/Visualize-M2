@@ -56,7 +56,10 @@ export {
      "relHeightFunction",
      
     -- Server
-     "openServer"
+     "openServer",
+     "outPut",
+     "openPort",
+     "closePort"
      
 
 }
@@ -66,6 +69,12 @@ export {
 defaultPath = (options Visualize).Configuration#"DefaultPath"
 
 -- (options Visualize).Configuration
+
+portTest = false
+inOutPort = null
+
+outPut = method()
+outPut Boolean := B -> return portTest;
 
 ------------------------------------------------------------
 -- METHODS
@@ -537,6 +546,36 @@ copyJS(String) := opts -> dst -> (
     return "Created directories at "|dst;
 )
 
+-- The idea here is to open a port using a number from the config file. 
+-- Then we assign a global varable portTest = true. This way we can test
+-- if the port is open or not. Ideally this method would not have a input
+-- but would pull the info from the config file. 
+-- 
+-- The work flow would be, 
+-- 1. Do cool VisStuff; 
+-- 2. openPort() and then continue (with the same webpage) your work;
+-- 3. End session to export info to browser;
+-- 4. closePort() (or restart M2; not sure if this works) to end.
+--
+-- At first I thought it would probably be better to have 2 and 4 in all 
+-- the methods and have a test to see if 2 needs an action (with global 
+-- var portTest), and an option that lets the user decide if the port 
+-- should stay open. But now I think it would be better if the user actually
+-- opens the port. This would give more control to the user. 
+--
+openPort = method()
+openPort String := F -> (    
+    portTest = true;
+    inOutPort = openListener F;
+    return inOutPort;
+)
+
+closePort = method()
+closePort String := F -> (
+     portTest = false;
+     close inOutPort;
+     print("--Port " | F | " is now closed");
+)
 
 openServer = method()
 openServer File := S -> (
@@ -851,8 +890,42 @@ get "!netstat"
 
 restart
 loadPackage"Visualize"
-listener = openListener ("$:8000");
+outPut true
+openPort("$:8888")
+outPut true
+closePort("$:8888")
+listener = openListener ("$:8888")
+close listener
+
+restart
+loadPackage"Visualize"
+listener = openPort("$:8000")
 openServer(listener)
+closePort("$:8888")
+
+restart
+loadPackage"Visualize"
+G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+visualize G
+listener = openPort("$:8000")
+H = openServer(listener)
+H
+closePort("$:8888")
+
+visualize( G, VisPath => "/Users/bstone/Desktop/Test/")
+
+
+
+
+
+H = openServer(listener)
+viewHelp wait
+
+HHH = openListener ("$:8888")
+close HHH
+toString(close HHH) == "$:8888"
+code methods close
+
 close listener
 
 loadPackage"EdgeIdeals"
@@ -886,27 +959,6 @@ peek G
 -- Random Tests
 
 copyTemplate(currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", "/Users/bstone/Desktop/Test/")
-
-
-
------------------------------
--- Julio's tests
------------------------------
-restart
-loadPackage "Visualize"
-"TEST" << "let" << close
-replaceInFile("e", "i", "TEST")
-
--- doc testing
-
-restart
-uninstallPackage"Visualize"
-installPackage"Visualize"
-viewHelp Visualize
-
------------------------------
--- end Julio's Test
------------------------------
 
 
 

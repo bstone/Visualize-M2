@@ -18,9 +18,6 @@
 
   var drag_line = null;
 
-  var m2Response = null;
-  m2Response = "I want this to work m2Response";
-  console.log(m2Response);
 
   // Handles to link and node element groups.
   var path = null,
