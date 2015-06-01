@@ -18,14 +18,14 @@
 
 newPackage(
 	"Visualize",
-    	Version => "0.2", 
-    	Date => "October 2, 2013",
+    	Version => "0.3", 
+    	Date => "June 1, 2015",
     	Authors => {       
      	     {Name => "Brett Barwick", Email => "Brett@barwick.edu", HomePage => "http://math.bard.edu/~bstone/"},	     
-	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
-	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
+-- Contributing Author	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
+-- Contributing Author	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
 	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
-	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
+-- Contributing Author	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
 	     {Name => "Jim Vallandingham", Email => "vlandham@gmail.com", HomePage => "http://vallandingham.me/"}
 	     },
     	Headline => "Visualize",
@@ -606,11 +606,12 @@ openPort String := F -> (
     return inOutPort;
 )
 
+-- Need to make this a method without an input.
 closePort = method()
 closePort String := F -> (
      portTest = false;
      close inOutPort;
-     print("--Port " | F | " is now closed");
+     print("--Port " | toString inOutPort | " is now closed");
 )
 
 openServer = method()
@@ -983,18 +984,18 @@ close listener
 
 restart
 loadPackage"Visualize"
-listener = openPort("$:8000")
+listener = openPort("$:8001")
 openServer(listener)
-closePort("$:8888")
+closePort("")
 
 restart
 loadPackage"Visualize"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
-visualize G
 listener = openPort("$:8000")
+visualize G -- this opens the browser; you need to come back and run openServer to start communication.
 H = openServer(listener)
 H
-closePort("$:8888")
+closePort("")
 
 visualize( G, VisPath => "/Users/bstone/Desktop/Test/")
 
