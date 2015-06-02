@@ -356,7 +356,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
     
     show new URL from { "file://"|visTemp };
     
-    browserOutput = openServer(inOutPort);
+    browserOutput = openGraphServer(inOutPort);
         
     return browserOutput;
 )
@@ -635,8 +635,8 @@ closePort String := F -> (
      print("--Port " | toString inOutPort | " is now closed.");
 )
 
-openServer = method()
-openServer File := S -> (
+openGraphServer = method()
+openGraphServer File := S -> (
  
 local listener; local verbose; local hexdigits; local hext; 
 local hex1; local hex2; local toHex1; local toHex;
@@ -658,7 +658,7 @@ verbose = true;
 -- toHex = str -> concatenate apply(ascii str, toHex1);
 
 server = () -> (
-    stderr << "listening:" << endl;
+    stderr << "-- Visualizing graph. Your browser should open automatically." << endl <<  "-- Click 'End Session' in the browser when finished." << endl;
     while true do (
         wait {listener};
 --	viewHelp wait
@@ -1014,20 +1014,22 @@ listener = openPort("$:8001")
 openServer(listener)
 closePort("")
 
+
+-- workflow testing
 restart
 loadPackage"Visualize"
-listener = openPort("$:8000")
 openPort("$:8000")
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
-visualize G
-H = openServer(listener)
+H = visualize G
 isCM H
-visualize H
-K = openServer(listener)
+K = visualize H
 isCM K
-
 closePort("")
+restart
 
+
+
+-- Bug
 visualize( G, VisPath => "/Users/bstone/Desktop/Test/")
 
 
