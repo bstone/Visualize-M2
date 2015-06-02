@@ -47,7 +47,7 @@ export {
      "visualize",
      
     -- Helpers 
-     "runServer",
+     "runServer", -- maybe delete this?
      "toArray", 
      "getCurrPath", 
      "copyTemplate",
@@ -59,7 +59,9 @@ export {
      "openServer",
      "outPut",
      "openPort",
-     "closePort"
+     "closePort",
+     "outPutPortTest",
+     "outPutInOutPort"
      
 
 }
@@ -73,8 +75,12 @@ defaultPath = (options Visualize).Configuration#"DefaultPath"
 portTest = false
 inOutPort = null
 
-outPut = method()
-outPut Boolean := B -> return portTest;
+outPutPortTest = method()
+outPutPortTest Boolean := B -> return portTest;
+
+outPutInOutPort = method()
+outPutInOutPort Boolean := B -> return inOutPort;
+
 
 ------------------------------------------------------------
 -- METHODS
@@ -307,7 +313,8 @@ visualize(Ideal) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
 --
 visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
-    local keyPosition; local vertexSet;
+    local keyPosition; local vertexSet; local browserOutput;
+    
     
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
@@ -349,7 +356,9 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
     
     show new URL from { "file://"|visTemp };
     
-    return visTemp;
+    browserOutput = openServer(inOutPort);
+        
+    return browserOutput;
 )
 
 visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()|"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
@@ -613,15 +622,17 @@ openPort = method()
 openPort String := F -> (    
     portTest = true;
     inOutPort = openListener F;
-    return inOutPort;
+    print("--Port " | toString inOutPort | " is now open.");    
+--    return inOutPort;
 )
+
 
 -- Need to make this a method without an input.
 closePort = method()
 closePort String := F -> (
      portTest = false;
      close inOutPort;
-     print("--Port " | toString inOutPort | " is now closed");
+     print("--Port " | toString inOutPort | " is now closed.");
 )
 
 openServer = method()
@@ -985,12 +996,17 @@ get "!netstat"
 
 restart
 loadPackage"Visualize"
-outPut true
+outPutPortTest true
+outPutInOutPort true
 openPort("$:8888")
-outPut true
-closePort("$:8888")
+outPutPortTest true
+outPutInOutPort true
+closePort("")
+outPutPortTest true
+outPutInOutPort true
 listener = openListener ("$:8888")
 close listener
+
 
 restart
 loadPackage"Visualize"
@@ -1001,8 +1017,9 @@ closePort("")
 restart
 loadPackage"Visualize"
 listener = openPort("$:8000")
+openPort("$:8000")
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
-visualize G -- this opens the browser; you need to come back and run openServer to start communication.
+visualize G
 H = openServer(listener)
 isCM H
 visualize H
