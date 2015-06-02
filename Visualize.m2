@@ -632,7 +632,7 @@ closePort = method()
 closePort String := F -> (
      portTest = false;
      close inOutPort;
-     print("--Port " | toString inOutPort | " is now closed.");
+     print("--Port " | toString inOutPort | " is now closing. This could take a few seconds.");
 )
 
 openGraphServer = method()
@@ -736,10 +736,12 @@ server = () -> (
 	  );
      );
 
-ev = x -> "called POST ev on " | x;
-fcn1 = x -> "called fcn1 on " | x;
-fcn2 = x -> "Hey Brett! " | x;
+--ev = x -> "called POST ev on " | x;
+--fcn1 = x -> "called fcn1 on " | x;
+--fcn2 = x -> "Hey Brett! " | x;
 cmTestOut = x -> "Is the graph CM? " | x;
+
+-- Need Ata's code here
 cmTest = G -> ( -- fix so this takes any graph with any lable.
     	if (class(G.vertexSet)_0 === ZZ) then (isCM G) else (
 	    R := QQ[G.vertexSet];
@@ -763,7 +765,7 @@ Content-type: text/html; charset=utf-8
 
 H := server();
 
-print"the end";
+--print"the end";
 
 return H;
 )
