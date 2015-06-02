@@ -29,7 +29,7 @@ newPackage(
 	     {Name => "Jim Vallandingham", Email => "vlandham@gmail.com", HomePage => "http://vallandingham.me/"}
 	     },
     	Headline => "Visualize",
-    	DebuggingMode => true,
+    	DebuggingMode => false,
 	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
@@ -588,10 +588,20 @@ copyJS(String) := opts -> dst -> (
 -- but would pull the info from the config file. 
 -- 
 -- The work flow would be, 
--- 1. Do cool VisStuff; 
--- 2. openPort() and then continue (with the same webpage) your work;
--- 3. End session to export info to browser;
--- 4. closePort() (or restart M2; not sure if this works) to end.
+-- 0. Load Visualize.m2
+-- 1. User opens port :: openPort("$:8000")
+--                    :: maybe this is in visualize method?
+--                    :: if so how can we tell if a port is open?
+--                    :: if a port is open already, then M2
+--                    :: goes into debugger. 
+-- 2. Define graph :: G = graph(....)
+-- 3. Run visualize :: H = visualize G
+--                  :: This will open the website and start
+--                  :: communication with the server. 
+--                  :: When the user ends session, output is 
+--                  :: sent back to M2 and assigned to H.
+-- 4. End session to export info to browser;
+-- 5. closePort() (or restart M2; not sure if this works) to end.
 --
 -- At first I thought it would probably be better to have 2 and 4 in all 
 -- the methods and have a test to see if 2 needs an action (with global 
@@ -990,11 +1000,15 @@ closePort("")
 
 restart
 loadPackage"Visualize"
-G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 listener = openPort("$:8000")
+G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 visualize G -- this opens the browser; you need to come back and run openServer to start communication.
 H = openServer(listener)
-H
+isCM H
+visualize H
+K = openServer(listener)
+isCM K
+
 closePort("")
 
 visualize( G, VisPath => "/Users/bstone/Desktop/Test/")
