@@ -59,7 +59,8 @@ export {
      "openPort",
      "closePort",
      "outPutPortTest", -- Just for testing, delete in final version.
-     "outPutInOutPort" -- Just for testing, delete in final version.
+     "outPutInOutPort", -- Just for testing, delete in final version.
+     "outPutInOutPortNum" -- Just for testing, delete in final version.     
      
 
 }
@@ -315,7 +316,7 @@ visualize(Ideal) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
 --input: A graph
 --output: the graph in the browswer
 --
-visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", Warning => true} >> opts -> G -> (
+visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
     
@@ -361,7 +362,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
     
     show new URL from { "file://"|visTemp };
     
-    browserOutput = openGraphServer(inOutPort);
+    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
         
     return browserOutput;
 )
@@ -652,20 +653,22 @@ closePort String := F -> (
      print("--Port " | toString inOutPort | " is now closing. This could take a few seconds.");
 )
 
-openGraphServer = method()
-openGraphServer File := S -> (
+openGraphServer = method(Options =>{Verbose => true})
+openGraphServer File := opts -> S -> (
  
-local listener; local verbose; local hexdigits; local hext; 
-local hex1; local hex2; local toHex1; local toHex;
+-- local hexdigits; local hext; local hex1; local hex2; local toHex1; local toHex;
+local ev; local fcn1; local fcn2; 
+
 local server; local fun; local s;
-local ev; local fcn1; local fcn2; local httpHeader;
-local testKey; local cmTest; local cmTestOut;
+local listener; local verbose; 
+local httpHeader; local testKey; local cmTest; local cmTestOut;
 
 testKey = " ";
 
 listener = S;
 --listener = openListener ("$:"|S);
-verbose = true; -- make this an option
+
+-- verbose = true; -- make this an option
 
 -- hexdigits = "0123456789ABCDEF";
 -- hext = new HashTable from for i from 0 to 15 list hexdigits#i => i;
@@ -678,11 +681,10 @@ server = () -> (
     stderr << "-- Visualizing graph. Your browser should open automatically." << endl <<  "-- Click 'End Session' in the browser when finished." << endl;
     while true do (
         wait {listener};
---	viewHelp wait
-        g := openInOut listener;				    -- this should be interruptable!
+        g := openInOut listener; -- this should be interruptable! (Dan's Comment, not sure what it means)
         r := read g;
 --	<< "r0 " << r << endl;	
-        if verbose then stderr << "request: " << stack lines r << endl;
+        if opts.Verbose then stderr << "request: " << stack lines r << endl;
 --	<< "------------------------" << endl;
 --        S := read g;
 --	<< "S0 " << S << endl;	
@@ -1039,6 +1041,7 @@ restart
 loadPackage"Visualize"
 openPort "8080"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+visualize (G, Verbose => true)
 H = visualize G
 isCM H
 K = visualize H
