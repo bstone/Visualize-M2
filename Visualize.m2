@@ -62,6 +62,10 @@ export {
 }
 
 
+------------------------------------------------------------
+-- Global Variables
+------------------------------------------------------------
+
 defaultPath = (options Visualize).Configuration#"DefaultPath"
 
 -- (options Visualize).Configuration
@@ -952,7 +956,6 @@ isCM H
 K = visualize H
 isCM K
 closePort()
-restart
 
 
 
