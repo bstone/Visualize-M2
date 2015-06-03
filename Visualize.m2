@@ -597,18 +597,16 @@ copyJS(String) := opts -> dst -> (
     return "Created directories at "|dst;
 )
 
--- The idea here is to open a port using a number from the config file. 
--- Then we assign a global varable portTest = true. This way we can test
--- if the port is open or not. Ideally this method would not have a input
--- but would pull the info from the config file. 
--- 
--- The work flow would be, 
+
+-- The server workflow is as follows.
 -- 0. Load Visualize.m2
--- 1. User opens port :: openPort("$:8000")
---                    :: maybe this is in visualize method?
---                    :: if so how can we tell if a port is open?
---                    :: if a port is open already, then M2
---                    :: goes into debugger. 
+-- 1. User opens port :: openPort("8000")
+--                    :: If any port is open an error occurs.
+--                    :: Sometimes the error is thrown when no port
+--                    :: is open. This usually occurs right after a
+--                    :: port has been closed. It takes a bit of time
+--                    :: for M2 to realize no port is open. 
+--                    :: Maybe this is an issue with the garbage collector?
 -- 2. Define graph :: G = graph(....)
 -- 3. Run visualize :: H = visualize G
 --                  :: This will open the website and start
@@ -616,14 +614,10 @@ copyJS(String) := opts -> dst -> (
 --                  :: When the user ends session, output is 
 --                  :: sent back to M2 and assigned to H.
 -- 4. End session to export info to browser;
--- 5. closePort() (or restart M2; not sure if this works) to end.
---
--- At first I thought it would probably be better to have 2 and 4 in all 
--- the methods and have a test to see if 2 needs an action (with global 
--- var portTest), and an option that lets the user decide if the port 
--- should stay open. But now I think it would be better if the user actually
--- opens the port. This would give more control to the user. 
---
+-- 5. Keep working and visualizeing objects;
+-- 6. When finished, user closes port :: closePort() (or restart M2).
+
+
 
 -- input: String, a port number the user wants to open.
 -- output: None, a port is open and a message is displayed.
@@ -644,38 +638,30 @@ openPort String := F -> (
 --    return inOutPort;
 )
 
+--getCurrPath = method()
+--installMethod(getCurrPath, () -> (local currPath; currPath = get "!pwd"; substring(currPath,0,(length currPath)-1)|"/"))
 
 -- Need to make this a method without an input.
 closePort = method()
-closePort String := F -> (
+installMethod(closePort, () -> (
      portTest = false;
      close inOutPort;
      print("--Port " | toString inOutPort | " is now closing. This could take a few seconds.");
+     )
 )
 
+
+-- input: File, an in-out port for communicating with the browser
+-- output: whatever the browser sends
+--
 openGraphServer = method(Options =>{Verbose => true})
 openGraphServer File := opts -> S -> (
  
--- local hexdigits; local hext; local hex1; local hex2; local toHex1; local toHex;
-local ev; local fcn1; local fcn2; 
-
-local server; local fun; local s;
-local listener; local verbose; 
-local httpHeader; local testKey; local cmTest; local cmTestOut;
+local server; local fun; local listener; 
+local httpHeader; local testKey; local cmTest; 
 
 testKey = " ";
-
 listener = S;
---listener = openListener ("$:"|S);
-
--- verbose = true; -- make this an option
-
--- hexdigits = "0123456789ABCDEF";
--- hext = new HashTable from for i from 0 to 15 list hexdigits#i => i;
--- hex1 = c -> if hext#?c then hext#c else 0;
--- hex2 = (c,d) -> 16 * hex1 c + hex1 d;
--- toHex1 = asc -> ("%",hexdigits#(asc>>4),hexdigits#(asc&15));
--- toHex = str -> concatenate apply(ascii str, toHex1);
 
 server = () -> (
     stderr << "-- Visualizing graph. Your browser should open automatically." << endl <<  "-- Click 'End Session' in the browser when finished." << endl;
@@ -683,85 +669,43 @@ server = () -> (
         wait {listener};
         g := openInOut listener; -- this should be interruptable! (Dan's Comment, not sure what it means)
         r := read g;
---	<< "r0 " << r << endl;	
-        if opts.Verbose then stderr << "request: " << stack lines r << endl;
---	<< "------------------------" << endl;
---        S := read g;
---	<< "S0 " << S << endl;	
---        if verbose then stderr << "request: " << stack lines S << endl;
---	<< "------------------------" << endl;	
---	<< "r1 " << r << endl;
+        if opts.Verbose then stderr << "request: " << stack lines r << endl << endl;
         r = lines r;
-	<< "r2 " << r << endl;	
+	
         if #r == 0 then (close g; continue);
+	
 	data := last r;
-	<< "here is 1 data " << data << endl;
---	<< "r3 " << r << endl;	
---	<< "data=" << data << endl;
         r = first r;
-        if match("^GET /fcn1/",r) then (
-            s = first select("^GET /fcn1/(.*) ", "\\1", r);
-            fun = fcn1;
-            )
-	  else if match("^GET /fcn2/(.*) ",r) then (
---	       s = first select("^GET /fcn2/(.*) ", "\\1", r);
-    	    	s = "I can answer all of your questions!"|"12345678901";
-	       fun = fcn2;
-	       )
-	  else if match("^POST /isCM/(.*) ",r) then (
-   	    	s = "isCM stuff."|"12345678901";
-	<< "here is 2 data " << data << endl;
-               testKey = "isCM";
-	       fun = identity;
-	       )	   
-	  else if match("^GET /end/(.*) ",r) then (
-	       close listener;
-    	       return;
-	       )
-	  else if match("^POST /end/(.*) ",r) then (
---	       close listener;
-	       print"end tesst";
---	       print data;
---	       value "QQ[x]"
-	       R := value data;
-    	       return R;
-	       )	   
-	  else if match("^POST /eval/(.*) ",r) then (
-	       s = data; 
-	       -- s = first select("^POST /eval/(.*) ", "\\1", r);
-	       fun = ev;
-	       )
-	  else if match("^HEAD /(.*) ",r) then (
-	       s = first select("^HEAD /(.*) ", "\\1", r);
-	       fun = identity;
-	       )
-	  else (
-	       s = "";
-	       fun = identity;
-	       );
---	  t := select(".|%[0-9A-F]{2,2}", s); --data);
---	  u := apply(t, x -> if #x == 1 then x else ascii hex2(x#1, x#2));
---	  u = concatenate u;
---	  << u << endl;
-	<< "here is 3 data " << data << endl;
-	<< "here is 3 value data " << value data << endl;
-	<< "here is 3 cmTest value data " << cmTest value data << endl;		
-	  if (testKey == "isCM") then ( u := toString( cmTest value data ) );
-	  << "here is u " << u << endl;
-	  << "here is fun u " << fun u << endl;
-	  send := httpHeader fun u; 
-	  << send << endl;
-      	  g << send << close;
-	  );
-     );
+	
+	-- Begin handling requests from browser
+	---------------------------------------
+	
+	-- isCM
+	if match("^POST /isCM/(.*) ",r) then (
+	    testKey = "isCM";
+	    fun = identity;
+	    )	
+	 
+	-- End Session   
+	else if match("^POST /end/(.*) ",r) then (
+	    R := value data;
+	    return R;
+	    ); 
+	
+	-- Determines the output based on the testKey
+	if (testKey == "isCM") then ( u := toString( cmTest value data ) );
+	
+	send := httpHeader fun u; 
+	
+	if opts.Verbose then stderr << "response: " << stack lines send << endl << endl;	  
+	
+	g << send << close;
+	);
+    );
 
---ev = x -> "called POST ev on " | x;
---fcn1 = x -> "called fcn1 on " | x;
---fcn2 = x -> "Hey Brett! " | x;
-cmTestOut = x -> "Is the graph CM? " | x;
 
--- Need Ata's code here
-cmTest = G -> ( -- fix so this takes any graph with any lable.
+-- Need Ata's code here to fix so this takes any graph with any lable.
+cmTest = G -> (
     	if (class(G.vertexSet)_0 === ZZ) then (isCM G) else (
 	    R := QQ[G.vertexSet];
 	    H := G;
@@ -769,10 +713,10 @@ cmTest = G -> ( -- fix so this takes any graph with any lable.
 	    )    
     );
 
--- getJSfile = get "graph-test.html"
-
 httpHeader = ss -> concatenate(
      -- for documentation of http protocol see http://www.w3.org/Protocols/rfc2616/rfc2616.html
+     -- This header is not up to the standards, but I am not sure it matters for local transmissions.
+     -- I believe you are supposed to have a different header for different requests.
      "HTTP/1.1 200 OK
 Server: Macaulay2
 Access-Control-Allow-Origin: *
@@ -783,8 +727,6 @@ Content-type: text/html; charset=utf-8
 ", ss);
 
 H := server();
-
---print"the end";
 
 return H;
 )
@@ -1041,8 +983,7 @@ restart
 loadPackage"Visualize"
 openPort "8080"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
-visualize (G, Verbose => true)
-H = visualize G
+H = visualize (G, Verbose => true)
 isCM H
 K = visualize H
 isCM K
