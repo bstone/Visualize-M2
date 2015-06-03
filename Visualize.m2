@@ -74,12 +74,16 @@ defaultPath = (options Visualize).Configuration#"DefaultPath"
 
 portTest = false
 inOutPort = null
+inOutPortNum = null
 
 outPutPortTest = method()
 outPutPortTest Boolean := B -> return portTest;
 
 outPutInOutPort = method()
 outPutInOutPort Boolean := B -> return inOutPort;
+
+outPutInOutPortNum = method()
+outPutInOutPortNum Boolean := B -> return inOutPort;
 
 
 ------------------------------------------------------------
@@ -353,6 +357,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
     
     searchReplace("visArray",arrayString, visTemp); -- Replace visArray in the visGraph html file by the adjacency matrix.
     searchReplace("visLabels",vertexString, visTemp); -- Replace visLabels in the visGraph html file by the ordered list of vertices.
+    searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
     
     show new URL from { "file://"|visTemp };
     
@@ -621,6 +626,8 @@ copyJS(String) := opts -> dst -> (
 openPort = method()
 openPort String := F -> (    
     portTest = true;
+    inOutPortNum = F;
+    F = "$:"|F;
     inOutPort = openListener F;
     print("--Port " | toString inOutPort | " is now open.");    
 --    return inOutPort;
@@ -1020,7 +1027,7 @@ closePort("")
 -- workflow testing
 restart
 loadPackage"Visualize"
-openPort("$:8000")
+openPort "4000"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize G
 isCM H

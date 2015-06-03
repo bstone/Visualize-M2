@@ -116,6 +116,7 @@
       dataData = visArray;
 //      labelData = ["0", "1", "3", "4", "2", "5"];
       labelData = visLabels;
+      portData = visPort; // initializes port from user
       forceOn = true;
     </script>
   </head>
@@ -183,12 +184,14 @@
 
       $("#isCM").on("click", function() {
         console.log("isCM");
-        makeCorsRequest('POST','http://localhost:8000/isCM/', graph2M2Constructor(nodes,links));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isCM/', graph2M2Constructor(nodes,links));
+//        makeCorsRequest('POST','http://localhost:8000/isCM/', graph2M2Constructor(nodes,links));        
       });      
 
       $("#endSession").on("click", function() {
         console.log("End session");
-        makeCorsRequest('POST','http://localhost:8000/end/',graph2M2Constructor(nodes,links));
+        makeCorsRequest('POST','http://localhost:'+portData+'/end/',graph2M2Constructor(nodes,links));
+//        makeCorsRequest('POST','http://localhost:8000/end/',graph2M2Constructor(nodes,links));        
       });            
 
       initializeBuilder();
