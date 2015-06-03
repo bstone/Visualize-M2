@@ -57,11 +57,7 @@ export {
      
     -- Server
      "openPort",
-     "closePort",
-     "outPutPortTest", -- Just for testing, delete in final version.
-     "outPutInOutPort", -- Just for testing, delete in final version.
-     "outPutInOutPortNum" -- Just for testing, delete in final version.     
-     
+     "closePort"
 
 }
 
@@ -73,18 +69,6 @@ defaultPath = (options Visualize).Configuration#"DefaultPath"
 portTest = false -- Used to test if ports are open or closed.
 inOutPort = null -- Actual file the listener is opened to.
 inOutPortNum = null -- The port number that is being opened. This is passed to the browser.
-
--- used for testing, will not be in final package
-outPutPortTest = method()
-outPutPortTest Boolean := B -> return portTest;
-
--- used for testing, will not be in final package
-outPutInOutPort = method()
-outPutInOutPort Boolean := B -> return inOutPort;
-
--- used for testing, will not be in final package
-outPutInOutPortNum = method()
-outPutInOutPortNum Boolean := B -> return inOutPort;
 
 
 ------------------------------------------------------------
@@ -953,35 +937,15 @@ visIdeal I
 visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
 
+
+
 -- Server Tests
 
 get "!netstat"
 
 restart
 loadPackage"Visualize"
-outPutPortTest true
-outPutInOutPort true
-openPort("$:8888")
-outPutPortTest true
-outPutInOutPort true
-closePort("")
-outPutPortTest true
-outPutInOutPort true
-listener = openListener ("$:8888")
-close listener
-
-
-restart
-loadPackage"Visualize"
-listener = openPort("$:8001")
-openServer(listener)
-closePort("")
-
-
--- workflow testing
-restart
-loadPackage"Visualize"
-openPort "8080"
+openPort "8079"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 isCM H
