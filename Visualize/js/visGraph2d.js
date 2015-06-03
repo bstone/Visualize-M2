@@ -816,8 +816,7 @@ function createCORSRequest(method, url) {
     // CORS not supported.
     xhr = null;
   }
-  console.log("here");
-  console.log(xhr);
+
   return xhr;
 }
  
@@ -835,23 +834,19 @@ function makeCorsRequest(method,url,browserData) {
   // Response handlers.
   xhr.onload = function() {
     var responseText = xhr.responseText;
-    console.log(xhr.responseText);    
-    console.log(responseText);
-//    m2Response = responseText;
-//    console.log("m2Response"+m2Response);
-//    console.log(m2Response+"onload");
-   d3.select("#isCM").html("isCM :: <b>"+responseText+"</b>");
-///   alert(responseText);   
- // return;
+
+    // Add a response for each id from the side menu (browserM2)
+    d3.select("#isCM").html("isCM :: <b>"+responseText+"</b>");
+
   };
  
   //xhr.onerror = function() {
   //  alert('Woops, there was an error making the request.');
   //};
-  console.log(constrString);
-  console.log(graph2M2Constructor(nodes,links));
+
   xhr.send(browserData);
 }
+
 // End Server Stuff
 // -------------------
 
