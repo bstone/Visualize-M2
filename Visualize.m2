@@ -987,7 +987,7 @@ H = visualize (G, Verbose => true)
 isCM H
 K = visualize H
 isCM K
-closePort("")
+closePort()
 restart
 
 
