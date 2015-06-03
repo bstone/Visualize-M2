@@ -66,22 +66,24 @@ export {
 
 }
 
--- needsPackage"Graphs"
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
 
 -- (options Visualize).Configuration
 
-portTest = false
+portTest = false -- maybe delete this? Not sure if it is actually used. 
 inOutPort = null
 inOutPortNum = null
 
+-- used for testing, will not be in final package
 outPutPortTest = method()
 outPutPortTest Boolean := B -> return portTest;
 
+-- used for testing, will not be in final package
 outPutInOutPort = method()
 outPutInOutPort Boolean := B -> return inOutPort;
 
+-- used for testing, will not be in final package
 outPutInOutPortNum = method()
 outPutInOutPortNum Boolean := B -> return inOutPort;
 
@@ -623,13 +625,23 @@ copyJS(String) := opts -> dst -> (
 -- should stay open. But now I think it would be better if the user actually
 -- opens the port. This would give more control to the user. 
 --
+
+-- input: String, a port number the user wants to open.
+-- output: None, a port is open and a message is displayed.
+--
 openPort = method()
 openPort String := F -> (    
-    portTest = true;
-    inOutPortNum = F;
-    F = "$:"|F;
-    inOutPort = openListener F;
-    print("--Port " | toString inOutPort | " is now open.");    
+    if (portTest == true)
+    then (
+	error ("--Port "| toString inOutPort | " is currently open. To use a different port, you must first close this port with closePort().");
+	)
+    else(
+	portTest = true;
+	inOutPortNum = F;
+	F = "$:"|F;
+	inOutPort = openListener F;
+	print("--Port " | toString inOutPort | " is now open.");    
+	);  
 --    return inOutPort;
 )
 
@@ -655,7 +667,7 @@ testKey = " ";
 
 listener = S;
 --listener = openListener ("$:"|S);
-verbose = true;
+verbose = true; -- make this an option
 
 -- hexdigits = "0123456789ABCDEF";
 -- hext = new HashTable from for i from 0 to 15 list hexdigits#i => i;
@@ -1027,7 +1039,8 @@ closePort("")
 -- workflow testing
 restart
 loadPackage"Visualize"
-openPort "4000"
+openPort "8080"
+openPort "8079"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize G
 isCM H
