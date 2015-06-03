@@ -47,7 +47,7 @@ export {
      "visualize",
      
     -- Helpers 
-     "runServer", -- maybe delete this?
+--     "runServer",
      "toArray", 
      "getCurrPath", 
      "copyTemplate",
@@ -56,12 +56,10 @@ export {
      "relHeightFunction",
      
     -- Server
-     "openServer",
-     "outPut",
      "openPort",
      "closePort",
-     "outPutPortTest",
-     "outPutInOutPort"
+     "outPutPortTest", -- Just for testing, delete in final version.
+     "outPutInOutPort" -- Just for testing, delete in final version.
      
 
 }
@@ -71,9 +69,9 @@ defaultPath = (options Visualize).Configuration#"DefaultPath"
 
 -- (options Visualize).Configuration
 
-portTest = false -- maybe delete this? Not sure if it is actually used. 
-inOutPort = null
-inOutPortNum = null
+portTest = false -- Used to test if ports are open or closed.
+inOutPort = null -- Actual file the listener is opened to.
+inOutPortNum = null -- The port number that is being opened. This is passed to the browser.
 
 -- used for testing, will not be in final package
 outPutPortTest = method()
@@ -115,10 +113,10 @@ toArray(List) := L -> (
 --input: A path
 --output: runs a server for displaying objects
 --
-runServer = method(Options => {VisPath => currentDirectory()})
-runServer(String) := opts -> (visPath) -> (
-    return run visPath;
-    )
+-- runServer = method(Options => {VisPath => currentDirectory()})
+-- runServer(String) := opts -> (visPath) -> (
+--     return run visPath;
+--    )
 
 --- add methods for output here:
 --
@@ -1040,7 +1038,6 @@ closePort("")
 restart
 loadPackage"Visualize"
 openPort "8080"
-openPort "8079"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize G
 isCM H
