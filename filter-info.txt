@@ -1,0 +1,7 @@
+I am trying to figure out how to delete all the contributors to this repo that are not needed. Here are some sites that could help:
+
+* http://stackoverflow.com/questions/8058509/github-how-would-you-delete-all-commits-by-a-certain-username
+
+* http://stacktoheap.com/blog/2013/01/06/using-mailmap-to-fix-authors-list-in-git/
+
+* http://git-scm.com/docs/git-filter-branch
