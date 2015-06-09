@@ -31,6 +31,9 @@
 
   var drag = null;
 
+ // Helps determine what menu button was clicked.
+  var clickTest = null; 
+
 function initializeBuilder() {
   // Set up SVG for D3.
   width  = window.innerWidth;
@@ -381,8 +384,9 @@ function restart() {
         link = {source: source, target: target, left: false, right: false};
         link[direction] = false;
         links.push(link);
-        // Graph is updated here so we change isCM to default
-        d3.select("#isCM").html("isCM");
+        // Graph is updated here so we change some items to default 
+        // d3.select("#isCM").html("isCM");
+        menuDefaults();
       }
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
@@ -481,8 +485,9 @@ function mousedown() {
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
-  // Graph is updated here so we change isCM to default
-  d3.select("#isCM").html("isCM");
+  // Graph is updated here so we change some items to default 
+  // d3.select("#isCM").html("isCM");
+  menuDefaults();
 
   document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
     
@@ -559,7 +564,9 @@ function keydown() {
       selected_node = null;
 
       // Graph Changed :: deleted nodes and links
-      d3.select("#isCM").html("isCM");      
+      // as a result we change some items to default
+      // d3.select("#isCM").html("isCM");      
+      menuDefaults();
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
       // (Brett) Removing incidence and adjacency matrices for now.
@@ -797,9 +804,37 @@ console.log(tikzTex.length);
   }
 }
 
-// --------------------
+// -----------------------------------------
 // Begin Server Stuff
+// -----------------------------------------
 
+
+// Add a response for each id from the side menu
+function onclickResults(m2Response) {
+    
+    if (clickTest == "isBipartite"){
+      d3.select("#isBipartite").html("isBipartite :: <b>"+m2Response+"</b>");
+    } 
+
+    else if (clickTest == "isChordal") {
+      d3.select("#isChordal").html("isChordal :: <b>"+m2Response+"</b>");    
+    } 
+
+    else if (clickTest == "isCM") {
+      d3.select("#isCM").html("isCM :: <b>"+m2Response+"</b>");    
+    }
+
+}
+
+
+
+// Anytime the graph is edited by user we call this function.
+// It changes the menu items to default.
+function menuDefaults() {
+  d3.select("#isCM").html("isCM");
+  d3.select("#isChordal").html("isChordal");
+  d3.select("#isBipartite").html("isBipartite");
+}
 
 
 // Create the XHR object.
@@ -835,8 +870,7 @@ function makeCorsRequest(method,url,browserData) {
   xhr.onload = function() {
     var responseText = xhr.responseText;
 
-    // Add a response for each id from the side menu (browserM2)
-    d3.select("#isCM").html("isCM :: <b>"+responseText+"</b>");
+    onclickResults(responseText);      
 
   };
  
@@ -847,8 +881,9 @@ function makeCorsRequest(method,url,browserData) {
   xhr.send(browserData);
 }
 
+// -----------------------------------------
 // End Server Stuff
-// -------------------
+// -----------------------------------------
 
 
 function stopForce() {

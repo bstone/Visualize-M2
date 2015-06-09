@@ -647,6 +647,8 @@ openGraphServer File := opts -> S -> (
  
 local server; local fun; local listener; 
 local httpHeader; local testKey; local cmTest; 
+local u;
+
 
 testKey = " ";
 listener = S;
@@ -673,6 +675,18 @@ server = () -> (
 	    testKey = "isCM";
 	    fun = identity;
 	    )	
+
+	-- isBipartite
+	else if match("^POST /isBipartite/(.*) ",r) then (
+	    testKey = "isBipartite";
+	    fun = identity;
+	    )	
+
+	-- isChordal
+	else if match("^POST /isChordal/(.*) ",r) then (
+	    testKey = "isChordal";
+	    fun = identity;
+	    )	
 	 
 	-- End Session   
 	else if match("^POST /end/(.*) ",r) then (
@@ -681,7 +695,9 @@ server = () -> (
 	    ); 
 	
 	-- Determines the output based on the testKey
-	if (testKey == "isCM") then ( u := toString( cmTest value data ) );
+	if (testKey == "isCM") then ( u = toString( cmTest value data ) );
+	if (testKey == "isBipartite") then ( u = toString( isBipartite value data ) );	
+	if (testKey == "isChordal") then ( u = toString( isChordal value data ) );	
 	
 	send := httpHeader fun u; 
 	
@@ -949,10 +965,12 @@ get "!netstat"
 
 restart
 loadPackage"Visualize"
-openPort "8079"
+openPort "8080"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 isCM H
+isBipartite H
+isChordal H
 K = visualize H
 isCM K
 closePort()
@@ -1102,6 +1120,7 @@ visGraph A
 
 
 --isCM 
+restart
 loadPackage "Graphs"
 G = graph({{x_1,x_2},{x_1,x_3},{x_1,x_4},{x_2,x_5},{x_5,x_3},{x_3,x_2}})
 E = apply (edges G, i->toList i)
