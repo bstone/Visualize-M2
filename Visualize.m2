@@ -965,7 +965,7 @@ get "!netstat"
 
 restart
 loadPackage"Visualize"
-openPort "8080"
+openPort "8081"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 isCM H
