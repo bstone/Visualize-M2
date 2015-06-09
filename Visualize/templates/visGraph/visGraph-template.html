@@ -130,7 +130,9 @@
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn off force</a>
             <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
-            <a id="isCM" href="#" class="list-group-item">isCM</a>                                    
+            <a id="isBipartite" href="#" class="list-group-item">isBipartite</a>                                                
+            <a id="isChordal" href="#" class="list-group-item">isChordal</a>                                    
+            <a id="isCM" href="#" class="list-group-item">isCM</a>                                                
             <a id="endSession" href="#" class="list-group-item">End Session</a>            
           </div>
         </div>
@@ -178,6 +180,16 @@
       // For each item, a line in the function `makeCorsRequest()`
       // located in `visGraph2d.js` must be added. 
       // Search for "browserM2" in the `visGraph2d.js` file.
+
+      // Checks to see if users graph is bipartite
+      $("#isBipartite").on("click", function() {
+        makeCorsRequest('POST','http://localhost:'+portData+'/isBipartite/', graph2M2Constructor(nodes,links));
+      });      
+
+      // Checks to see if users graph is chordal
+      $("#isChordal").on("click", function() {
+        makeCorsRequest('POST','http://localhost:'+portData+'/isChordal/', graph2M2Constructor(nodes,links));
+      });                  
 
       // Checks to see if users graph is Cohen-Macaulay
       $("#isCM").on("click", function() {
