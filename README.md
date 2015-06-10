@@ -1,7 +1,7 @@
 Visualize.m2
 ========
 
-A [Macaulay2](https://github.com/Macaulay2/M2) package to help visualize algebraic objects in the browser using javascript. This package is still in development.
+A [Macaulay2](https://github.com/Macaulay2/M2) package to help visualize algebraic objects in the browser using javascript. This package is still in development. There are many great features that are not detailed below, but this should get you the idea of what we are doing. The goal (as of now) is to support the following packages: Graphs.m2; SimplicialComplexes.m2; Posets.m2; AlgebraicSplines.m2.  If you would like us to support other packages, please let us know.
 
 Usage
 =====
@@ -47,17 +47,6 @@ J = visualize K
 -- To finish, either close M2 or run `closePort()`. Either one will
 -- close the port you opened earlier.
 closePort()
-```
-
-
-At this point your browser should open and you should have an interactive image of the lower boundary of the ideals exponent set (as can bee seen [here](http://math.bard.edu/bstone/visideal/)). As is, the `html` file that is created is saved in the `./Visualize-M2/temp-files/` directory. If you wish to create the file elsewhere, change the path, but make sure the JavaScript files are moved to your target directory.
-
-For visualization of graphs, use the following command. (An example is found [here])(http://math.bard.edu/~bstone/visgraph/))
-
-```
-loadPackage"Graphs"
-G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
-visGraph( G, Path => "./temp-files/" )
 ```
 
 
