@@ -1041,6 +1041,7 @@ closePort()
 
 
 
+
 -- Bug
 visualize( G, VisPath => "/Users/bstone/Desktop/Test/")
 
