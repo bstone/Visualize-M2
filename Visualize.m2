@@ -48,7 +48,7 @@ export {
      
     -- Helpers 
 --     "runServer",
-     "toArray", 
+     "toArray",
      "getCurrPath", 
      "copyTemplate",
      "replaceInFile",
@@ -674,19 +674,78 @@ server = () -> (
 	if match("^POST /isCM/(.*) ",r) then (
 	    testKey = "isCM";
 	    fun = identity;
+	    u = toString( cmTest value data );
 	    )	
 
 	-- isBipartite
 	else if match("^POST /isBipartite/(.*) ",r) then (
 	    testKey = "isBipartite";
 	    fun = identity;
+	    u = toString( isBipartite value data );
 	    )	
 
 	-- isChordal
 	else if match("^POST /isChordal/(.*) ",r) then (
 	    testKey = "isChordal";
 	    fun = identity;
+	    u = toString( isChordal value data );
 	    )	
+	
+	-- isConnected
+	else if match("^POST /isCconnected/(.*) ",r) then (
+	    testKey = "isConnected";
+	    fun = identity;
+	    u = toString( isConnected value data );
+	    )	
+
+    	-- isCyclic
+	else if match("^POST /isCyclic/(.*) ",r) then (
+	    testKey = "isCyclic";
+	    fun = identity;
+	    u = toString( isCyclic value data );
+	    )		
+
+    	-- isEulerian
+	else if match("^POST /isEulerian/(.*) ",r) then (
+	    testKey = "isEulerian";
+	    fun = identity;
+	    u = toString( isEulerian value data );
+	    )		
+
+    	-- isForest
+	else if match("^POST /isForest/(.*) ",r) then (
+	    testKey = "isForest";
+	    fun = identity;
+	    u = toString( isForest value data );
+	    )		
+
+    	-- isPerfect
+	else if match("^POST /isPerfect/(.*) ",r) then (
+	    testKey = "isPerfect";
+	    fun = identity;
+	    u = toString( isPerfect value data );
+	    )		
+
+    	-- isRegular
+	else if match("^POST /isRegular/(.*) ",r) then (
+	    testKey = "isRegular";
+	    fun = identity;
+	    u = toString( isRegular value data );
+	    )		
+
+    	-- isSimple
+	else if match("^POST /isSimple/(.*) ",r) then (
+	    testKey = "isSimple";
+	    fun = identity;
+	    u = toString( isSimple value data );
+	    )		
+
+    	-- isTree
+	else if match("^POST /isTree/(.*) ",r) then (
+	    testKey = "isTree";
+	    fun = identity;
+	    u = toString( isTree value data );
+	    )		
 	 
 	-- End Session   
 	else if match("^POST /end/(.*) ",r) then (
@@ -695,9 +754,17 @@ server = () -> (
 	    ); 
 	
 	-- Determines the output based on the testKey
-	if (testKey == "isCM") then ( u = toString( cmTest value data ) );
-	if (testKey == "isBipartite") then ( u = toString( isBipartite value data ) );	
-	if (testKey == "isChordal") then ( u = toString( isChordal value data ) );	
+--	if (testKey == "isCM") then ( u = toString( cmTest value data ) );
+--	if (testKey == "isBipartite") then ( u = toString( isBipartite value data ) );	
+--	if (testKey == "isChordal") then ( u = toString( isChordal value data ) );	
+--	if (testKey == "isConnected") then ( u = toString( isConnected value data ) );	
+--	if (testKey == "isCyclic") then ( u = toString( isCyclic value data ) );			
+--	if (testKey == "isEulerian") then ( u = toString( isEulerian value data ) );			
+--	if (testKey == "isForest") then ( u = toString( isForest value data ) );			
+--	if (testKey == "isPerfect") then ( u = toString( isPerfect value data ) );			
+--	if (testKey == "isRegular") then ( u = toString( isRegular value data ) );			
+--	if (testKey == "isSimple") then ( u = toString( isSimple value data ) );			
+--	if (testKey == "isTree") then ( u = toString( isTree value data ) );			
 	
 	send := httpHeader fun u; 
 	
@@ -965,7 +1032,7 @@ get "!netstat"
 
 restart
 loadPackage"Visualize"
-openPort "8080"
+openPort "8081"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 isCM H
