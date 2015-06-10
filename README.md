@@ -25,7 +25,7 @@ You only need the `Visualize.m2` file and the folder `/Visualize/` but the other
 Running in M2
 ----
 
-First make sure that the file `Visualize.m2` is on the load [path](http://www.math.uiuc.edu/Macaulay2/doc/Macaulay2-1.6/share/doc/Macaulay2/Macaulay2Doc/html/_path.html). To run, execute the following. (This is assuming that `Visualize.m2` is on the path)
+First make sure that the file `Visualize.m2` is on the load [path](http://www.math.uiuc.edu/Macaulay2/doc/Macaulay2-1.6/share/doc/Macaulay2/Macaulay2Doc/html/_path.html). To run, execute the following (This is assuming that `Visualize.m2` is on the path):
 
 ```
 loadPackage "Visualize"
