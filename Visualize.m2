@@ -692,9 +692,10 @@ server = () -> (
 	    )	
 	
 	-- isConnected
-	else if match("^POST /isCconnected/(.*) ",r) then (
+	else if match("^POST /isConnected/(.*) ",r) then (
 	    testKey = "isConnected";
 	    fun = identity;
+	    print"isConnected else if in M2";
 	    u = toString( isConnected value data );
 	    )	
 
@@ -751,7 +752,12 @@ server = () -> (
 	else if match("^POST /end/(.*) ",r) then (
 	    R := value data;
 	    return R;
-	    ); 
+	    )
+	
+	-- Error to catch typos and bad requests
+	else (
+	    error ("There was no match to the request: "|r);
+	    );	   
 	
 	-- Determines the output based on the testKey
 --	if (testKey == "isCM") then ( u = toString( cmTest value data ) );
@@ -1032,9 +1038,10 @@ get "!netstat"
 
 restart
 loadPackage"Visualize"
-openPort "8081"
+openPort "8080"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
+closePort()
 isCM H
 isBipartite H
 isChordal H
