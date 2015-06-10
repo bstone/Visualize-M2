@@ -824,6 +824,38 @@ function onclickResults(m2Response) {
       d3.select("#isCM").html("isCM :: <b>"+m2Response+"</b>");    
     }
 
+    else if (clickTest == "isConnected") {
+      d3.select("#isConnected").html("isConnected :: <b>"+m2Response+"</b>");    
+    }    
+
+    else if (clickTest == "isCyclic") {
+      d3.select("#isCyclic").html("isCyclic :: <b>"+m2Response+"</b>");    
+    }    
+
+    else if (clickTest == "isEulerian") {
+      d3.select("#isEulerian").html("isEulerian :: <b>"+m2Response+"</b>");    
+    }    
+
+    else if (clickTest == "isForest") {
+      d3.select("#isForest").html("isForest :: <b>"+m2Response+"</b>");    
+    }    
+
+    else if (clickTest == "isPerfect") {
+      d3.select("#isPerfect").html("isPerfect :: <b>"+m2Response+"</b>");    
+    }    
+
+    else if (clickTest == "isRegular") {
+      d3.select("#isRegular").html("isRegular :: <b>"+m2Response+"</b>");    
+    }    
+
+    else if (clickTest == "isSimple") {
+      d3.select("#isSimple").html("isSimple :: <b>"+m2Response+"</b>");    
+    }    
+
+    else if (clickTest == "isTree") {
+      d3.select("#isTree").html("isTree :: <b>"+m2Response+"</b>");    
+    }    
+
 }
 
 
@@ -834,6 +866,14 @@ function menuDefaults() {
   d3.select("#isCM").html("isCM");
   d3.select("#isChordal").html("isChordal");
   d3.select("#isBipartite").html("isBipartite");
+  d3.select("#isConnected").html("isConnected");  
+  d3.select("#isCyclic").html("isCyclic");  
+  d3.select("#isEulerian").html("isEulerian");  
+  d3.select("#isForest").html("isForest");  
+  d3.select("#isPerfect").html("isPerfect");  
+  d3.select("#isRegular").html("isRegular");  
+  d3.select("#isSimple").html("isSimple");  
+  d3.select("#isTree").html("isTree");  
 }
 
 
