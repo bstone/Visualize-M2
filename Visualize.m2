@@ -1182,14 +1182,3 @@ M =
 A = graph M
 visGraph A
 
-
---isCM 
-restart
-loadPackage "Graphs"
-G = graph({{x_1,x_2},{x_1,x_3},{x_1,x_4},{x_2,x_5},{x_5,x_3},{x_3,x_2}})
-visualize G
-E = apply (edges G, i->toList i)
-varList = unique flatten E
-E1 = apply(E, i->apply(i,j->position(varList,k -> k===j)))
-G1 = graph (E1) 
-isCM G
