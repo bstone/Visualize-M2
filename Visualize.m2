@@ -646,7 +646,7 @@ openGraphServer = method(Options =>{Verbose => true})
 openGraphServer File := opts -> S -> (
  
 local server; local fun; local listener; 
-local httpHeader; local testKey; local cmTest; 
+local httpHeader; local testKey; 
 local u;
 
 
@@ -674,7 +674,7 @@ server = () -> (
 	if match("^POST /isCM/(.*) ",r) then (
 	    testKey = "isCM";
 	    fun = identity;
-	    u = toString( cmTest value data );
+	    u = toString( isCM indexLabelGraph  value data );
 	    )	
 
 	-- isBipartite
@@ -692,9 +692,10 @@ server = () -> (
 	    )	
 	
 	-- isConnected
-	else if match("^POST /isCconnected/(.*) ",r) then (
+	else if match("^POST /isConnected/(.*) ",r) then (
 	    testKey = "isConnected";
 	    fun = identity;
+	    print"isConnected else if in M2";
 	    u = toString( isConnected value data );
 	    )	
 
@@ -751,7 +752,12 @@ server = () -> (
 	else if match("^POST /end/(.*) ",r) then (
 	    R := value data;
 	    return R;
-	    ); 
+	    )
+	
+	-- Error to catch typos and bad requests
+	else (
+	    error ("There was no match to the request: "|r);
+	    );	   
 	
 	-- Determines the output based on the testKey
 --	if (testKey == "isCM") then ( u = toString( cmTest value data ) );
@@ -772,16 +778,6 @@ server = () -> (
 	
 	g << send << close;
 	);
-    );
-
-
--- Need Ata's code here to fix so this takes any graph with any lable.
-cmTest = G -> (
-    	if (class(G.vertexSet)_0 === ZZ) then (isCM G) else (
-	    R := QQ[G.vertexSet];
-	    H := G;
-	    isCM H
-	    )    
     );
 
 httpHeader = ss -> concatenate(
@@ -1035,12 +1031,14 @@ loadPackage"Visualize"
 openPort "8081"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
+closePort()
 isCM H
 isBipartite H
 isChordal H
 K = visualize H
 isCM K
 closePort()
+
 
 
 
@@ -1185,13 +1183,3 @@ M =
 A = graph M
 visGraph A
 
-
---isCM 
-restart
-loadPackage "Graphs"
-G = graph({{x_1,x_2},{x_1,x_3},{x_1,x_4},{x_2,x_5},{x_5,x_3},{x_3,x_2}})
-E = apply (edges G, i->toList i)
-varList = unique flatten E
-E1 = apply(E, i->apply(i,j->position(varList,k -> k===j)))
-G1 = graph (E1) 
-isCM G1
