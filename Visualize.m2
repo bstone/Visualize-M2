@@ -536,7 +536,12 @@ copyJS = method(Options => {Warning => true} )
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
     local cssdir; local fontdir; local imagedir;
+    local JS; local CSS; local FONT;    
     
+    JS = "";
+    CSS = "";
+    FONT = "";
+        
     -- Brett: I removed this so that we can add all three
     -- folders (js, css, and fonts) in the one method.
     -- dst = dst|"js/";    
@@ -559,23 +564,51 @@ copyJS(String) := opts -> dst -> (
     imagedir = delete("..",delete(".",
 	    readDirectory(currentDirectory()|"Visualize/images/")
 	    ));
-    
+
     if opts.Warning == true
-    then(
-    -- test to see if files exist in target
-    if (scan(jsdir, j -> if fileExists(dst|"js/"|concatenate(dst,j)) then break true) === true) or (scan(cssdir, j -> if fileExists(dst|"css/"|concatenate(dst,j)) then break true) === true) or (scan(fontdir, j -> if fileExists(dst|"fonts/"|concatenate(dst,j)) then break true) === true)
     then (
-    	   quest = concatenate(" -- Some files in ",dst," will be overwritten.\n -- This action cannot be undone.");
-	   print quest;
-	   ans = read "Would you like to continue? (y or n):  ";
-	   while (ans != "y" and ans != "n") do (
-	       ans = read "Would you like to continue? (y or n):  ";
-	       );  
-	   if ans == "n" then (
-	       error "Process was aborted."
-	       );
-    	);
-    );
+	-- test to see if files exist in target
+	if (
+	    (scan(jsdir, j -> if fileExists(concatenate(dst,"js/",j)) then (JS ="js/";  break true)) === true) 
+	    or (scan(cssdir, j -> if fileExists(concatenate(dst,"css/",j)) then break true) === true) 
+	    or (scan(fontdir, j -> if fileExists(concatenate(dst,"fonts/",j)) then break true) === true)
+	    )
+	then (
+	    if JS == "js/" then (
+		quest = concatenate(" -- Some files in ",dst,JS," will be overwritten.\n -- This action cannot be undone.");
+		print quest;
+		ans = read "Would you like to continue? (y or n):  ";
+		while (ans != "y" and ans != "n") do (
+		    ans = read "Would you like to continue? (y or n):  ";
+		    );
+		if ans == "n" then (
+		    error "Process was aborted.";
+		    );
+		) 
+	    else if CSS == "css/" then (
+		quest = concatenate(" -- Some files in ",dst,CSS," will be overwritten.\n -- This action cannot be undone.");
+		print quest;
+		ans = read "Would you like to continue? (y or n):  ";
+		while (ans != "y" and ans != "n") do (
+		    ans = read "Would you like to continue? (y or n):  ";
+		    );
+		if ans == "n" then (
+		    error "Process was aborted.";
+		    );
+		) 
+	    else if FONT = "font/" then (
+		quest = concatenate(" -- Some files in ",dst,FONT," will be overwritten.\n -- This action cannot be undone.");
+		print quest;
+		ans = read "Would you like to continue? (y or n):  ";
+		while (ans != "y" and ans != "n") do (
+		    ans = read "Would you like to continue? (y or n):  ";
+		    );
+		if ans == "n" then (
+		    error "Process was aborted.";
+		    );
+		);	 
+	    );
+	);
     
     copyDirectory(currentDirectory()|"Visualize/js/",dst|"js/");
     copyDirectory(currentDirectory()|"Visualize/css/",dst|"css/");
@@ -674,21 +707,21 @@ server = () -> (
 	if match("^POST /isCM/(.*) ",r) then (
 	    testKey = "isCM";
 	    fun = identity;
-	    u = toString( isCM indexLabelGraph  value data );
+	    u = toString( isCM indexLabelGraph value data );
 	    )	
 
 	-- isBipartite
 	else if match("^POST /isBipartite/(.*) ",r) then (
 	    testKey = "isBipartite";
 	    fun = identity;
-	    u = toString( isBipartite value data );
+	    u = toString( isBipartite indexLabelGraph value data );
 	    )	
 
 	-- isChordal
 	else if match("^POST /isChordal/(.*) ",r) then (
 	    testKey = "isChordal";
 	    fun = identity;
-	    u = toString( isChordal value data );
+	    u = toString( isChordal indexLabelGraph value data );
 	    )	
 	
 	-- isConnected
@@ -696,56 +729,56 @@ server = () -> (
 	    testKey = "isConnected";
 	    fun = identity;
 	    print"isConnected else if in M2";
-	    u = toString( isConnected value data );
+	    u = toString( isConnected indexLabelGraph value data );
 	    )	
 
     	-- isCyclic
 	else if match("^POST /isCyclic/(.*) ",r) then (
 	    testKey = "isCyclic";
 	    fun = identity;
-	    u = toString( isCyclic value data );
+	    u = toString( isCyclic indexLabelGraph value data );
 	    )		
 
     	-- isEulerian
 	else if match("^POST /isEulerian/(.*) ",r) then (
 	    testKey = "isEulerian";
 	    fun = identity;
-	    u = toString( isEulerian value data );
+	    u = toString( isEulerian indexLabelGraph value data );
 	    )		
 
     	-- isForest
 	else if match("^POST /isForest/(.*) ",r) then (
 	    testKey = "isForest";
 	    fun = identity;
-	    u = toString( isForest value data );
+	    u = toString( isForest indexLabelGraph value data );
 	    )		
 
     	-- isPerfect
 	else if match("^POST /isPerfect/(.*) ",r) then (
 	    testKey = "isPerfect";
 	    fun = identity;
-	    u = toString( isPerfect value data );
+	    u = toString( isPerfect indexLabelGraph value data );
 	    )		
 
     	-- isRegular
 	else if match("^POST /isRegular/(.*) ",r) then (
 	    testKey = "isRegular";
 	    fun = identity;
-	    u = toString( isRegular value data );
+	    u = toString( isRegular indexLabelGraph value data );
 	    )		
 
     	-- isSimple
 	else if match("^POST /isSimple/(.*) ",r) then (
 	    testKey = "isSimple";
 	    fun = identity;
-	    u = toString( isSimple value data );
+	    u = toString( isSimple indexLabelGraph value data );
 	    )		
 
     	-- isTree
 	else if match("^POST /isTree/(.*) ",r) then (
 	    testKey = "isTree";
 	    fun = identity;
-	    u = toString( isTree value data );
+	    u = toString( isTree indexLabelGraph value data );
 	    )		
 	 
 	-- End Session   
@@ -983,109 +1016,60 @@ visualize S
 -----------------------------
 
 -- branden
-restart
-loadPackage"Visualize"
-(options Visualize).Configuration
+-- (options Visualize).Configuration
 
 --Graphs test
 restart
 loadPackage"Visualize"
+openPort "8081"
+
+G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+H = visualize (G, Verbose => true)
+K = spanningForest H
+J = visualize K
+
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
-visualize G
-visGraph G
-visGraph( G, VisPath => "/Users/bstone/Desktop/Test/")
+H = visualize ( G, VisPath => "/Users/bstone/Desktop/Test/",Verbose => true)
 y
-visGraph( G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
+K = spanningForest H
+J = visualize K
 
-H = graph({{x_1, x_0}, {x_3, x_0}, {x_3, x_1}, {x_4, x_0}}, Singletons => {x_2, x_5, 6, cat_sandwich})
-visGraph H
+G = graph({{x_1, x_0}, {x_3, x_0}, {x_3, x_1}, {x_4, x_0}}, Singletons => {x_2, x_5, 6, cat_sandwich})
+H = visualize (G, Verbose => true)
+K = spanningForest H
+J = visualize K
 
-L = graph({{1,2}})
-visGraph L
+closePort()
+
+ visGraph
+
+-- visGraph( G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
+
 
 -- ideal tests
 restart
 loadPackage"Visualize"
+openPort "8081"
 R = QQ[a,b,c]
 I = ideal"a2,ab,b2c,c5,b4"
 -- I = ideal"x4,xyz3,yz,xz,z6,y5"
-visIdeal I
-visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
-visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
-y
+visualize I
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
+
 
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
-visIdeal I
-visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
-visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
+visualize I
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
 
-
-
--- Server Tests
-
-get "!netstat"
-
-restart
-loadPackage"Visualize"
-openPort "8081"
-G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
-H = visualize (G, Verbose => true)
 closePort()
-isCM H
-isBipartite H
-isChordal H
-K = visualize H
-isCM K
-closePort()
-
-
 
 
 -- Bug
 visualize( G, VisPath => "/Users/bstone/Desktop/Test/")
 
-
-
-
-
-H = openServer(listener)
-viewHelp wait
-
-HHH = openListener ("$:8888")
-close HHH
-toString(close HHH) == "$:8888"
-code methods close
-
-close listener
-
-loadPackage"EdgeIdeals"
-code methods httpHeaders
-
-viewHelp openInOut
-
-viewHelp Graphs
-G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
-cmTest L
-G.vertexSet
-class(L.vertexSet)_0
-L = graph({{1,2}})
-visualize L
-L.vertexSet
-R = QQ[L.vertexSet]
-
-restart
-loadPackage"Visualize"
-G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
-G = graph({{1,2}})
-if (class(G.vertexSet)_0 === ZZ) then (print"first";isCM G) else (
-R = QQ[G.vertexSet];
-G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5});
-print"here";
-isCM G
-)    
-
-peek G
 
 -- Random Tests
 
