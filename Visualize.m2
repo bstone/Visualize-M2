@@ -527,7 +527,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | 
 )
 
 --input: a String of a path to a directory
---output: Copies the js library to path
+--output: Copies the needed files and libraries to path
 --
 --caveat: Checks to see if files exist. If they do exist, the user
 --        must give permission to continue. Continuing will overwrite
@@ -536,78 +536,68 @@ copyJS = method(Options => {Warning => true} )
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
     local cssdir; local fontdir; local imagedir;
-    local JS; local CSS; local FONT;    
-    
+    local JS; local CSS; local FONT; local IMAGE;
+        
     JS = "";
     CSS = "";
     FONT = "";
-        
-    -- Brett: I removed this so that we can add all three
-    -- folders (js, css, and fonts) in the one method.
-    -- dst = dst|"js/";    
-    
+    IMAGE = "";
+            
     -- get list of filenames in js/
     jsdir = delete("..",delete(".",
 	    readDirectory(currentDirectory()|"Visualize/js/")
 	    ));
     
-    -- get list of filenames in js/
+    -- get list of filenames in css/
     cssdir = delete("..",delete(".",
 	    readDirectory(currentDirectory()|"Visualize/css/")
 	    ));
     
-    -- get list of filenames in js/
+    -- get list of filenames in fonts/
     fontdir = delete("..",delete(".",
 	    readDirectory(currentDirectory()|"Visualize/fonts/")
 	    ));
     
+    -- get list of filenames in images/    
     imagedir = delete("..",delete(".",
 	    readDirectory(currentDirectory()|"Visualize/images/")
 	    ));
+    
+
 
     if opts.Warning == true
     then (
+	scan(jsdir, j -> if fileExists(concatenate(dst,"js/",j)) then (JS = "js/"; break)); -- Tests existence of js files
+	scan(cssdir, j -> if fileExists(concatenate(dst,"css/",j)) then (CSS = "css/"; break)); -- Tests existence of css files
+	scan(fontdir, j -> if fileExists(concatenate(dst,"fonts/",j)) then (FONT ="fonts/"; break)); -- Tests existence of font files
+	scan(imagedir, j -> if fileExists(concatenate(dst,"images/",j)) then (IMAGE ="images/"; break)); -- Tests existence of images files
+	
 	-- test to see if files exist in target
 	if (
-	    (scan(jsdir, j -> if fileExists(concatenate(dst,"js/",j)) then (JS ="js/";  break true)) === true) 
-	    or (scan(cssdir, j -> if fileExists(concatenate(dst,"css/",j)) then break true) === true) 
-	    or (scan(fontdir, j -> if fileExists(concatenate(dst,"fonts/",j)) then break true) === true)
+	    JS == "js/"
+	    or CSS == "css/"
+	    or FONT == "fonts/"
+	    or IMAGE == "images/"
 	    )
 	then (
-	    if JS == "js/" then (
-		quest = concatenate(" -- Some files in ",dst,JS," will be overwritten.\n -- This action cannot be undone.");
+		quest = concatenate(
+		    " -- Note: You can surpress this message with the 'Warning => false' option.\n",
+		    " -- The following folders on the path ",dst," have some files that will be overwritten: ",
+		    JS, ", ",
+		    CSS, ", ",
+		    FONT, ", ",
+		    IMAGE,". \n",
+		    " -- This action cannot be undone. \n"
+		    );
 		print quest;
-		ans = read "Would you like to continue? (y or n):  ";
+		ans = read " Would you like to continue? (y or n):  ";
 		while (ans != "y" and ans != "n") do (
-		    ans = read "Would you like to continue? (y or n):  ";
+		    ans = read " Would you like to continue? (y or n):  ";
 		    );
 		if ans == "n" then (
 		    error "Process was aborted.";
 		    );
-		) 
-	    else if CSS == "css/" then (
-		quest = concatenate(" -- Some files in ",dst,CSS," will be overwritten.\n -- This action cannot be undone.");
-		print quest;
-		ans = read "Would you like to continue? (y or n):  ";
-		while (ans != "y" and ans != "n") do (
-		    ans = read "Would you like to continue? (y or n):  ";
-		    );
-		if ans == "n" then (
-		    error "Process was aborted.";
-		    );
-		) 
-	    else if FONT = "font/" then (
-		quest = concatenate(" -- Some files in ",dst,FONT," will be overwritten.\n -- This action cannot be undone.");
-		print quest;
-		ans = read "Would you like to continue? (y or n):  ";
-		while (ans != "y" and ans != "n") do (
-		    ans = read "Would you like to continue? (y or n):  ";
-		    );
-		if ans == "n" then (
-		    error "Process was aborted.";
-		    );
-		);	 
-	    );
+		);
 	);
     
     copyDirectory(currentDirectory()|"Visualize/js/",dst|"js/");
@@ -1022,7 +1012,6 @@ visualize S
 restart
 loadPackage"Visualize"
 openPort "8081"
-
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 K = spanningForest H
