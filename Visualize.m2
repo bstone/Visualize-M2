@@ -48,10 +48,10 @@ export {
      
     -- Helpers 
 --     "runServer",
-     "toArray",
-     "getCurrPath", 
-     "copyTemplate",
-     "replaceInFile",
+     "toArray", -- Don't need to export?
+     "getCurrPath", -- Don't need to export?
+     "copyTemplate",-- Don't need to export?
+     "replaceInFile",-- Don't need to export?
      "heightFunction",
      "relHeightFunction",
      
@@ -1033,7 +1033,7 @@ closePort()
  visGraph
 
 -- visGraph( G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
-
+viewHelp Graphs
 
 -- ideal tests
 restart
