@@ -858,7 +858,10 @@ multidoc ///
     Description
      Text
        We are able to see the interactive staircase diagram. More stuff
-       should be here about the convext hull and other stuff.	    
+       should be here about the convext hull and other stuff.
+       
+     DIV
+       <iframe src="https://calendar.google.com/calendar/embed?showNav=0&amp;showDate=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;mode=AGENDA&amp;height=500&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src=adelphi.edu_e3u6a3854qeq1tjold07fgnjao%40group.calendar.google.com&amp;color=%238D6F47&amp;ctz=America%2FNew_York" style="border-width:0" width="350" height="500" frameborder="0" scrolling="no"></iframe>
 ///
 
 
@@ -896,6 +899,14 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
+
+restart
+uninstallPackage"Graphs"
+uninstallPackage"Visualize"
+restart
+loadPackage"Graphs"
+installPackage"Visualize"
+viewHelp Visualize
 
 -----------------------------
 -----------------------------
@@ -1074,10 +1085,11 @@ copyTemplate(currentDirectory() | "Visualize/templates/visGraph/visGraph-templat
 
 restart
 uninstallPackage"Graphs"
+uninstallPackage"Visualize"
 restart
 loadPackage"Graphs"
-loadPackage"Visualize"
-
+installPackage"Visualize"
+viewHelp Visualize
 -- Old Graphs
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visGraph G
