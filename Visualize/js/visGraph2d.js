@@ -813,47 +813,47 @@ console.log(tikzTex.length);
 function onclickResults(m2Response) {
     
     if (clickTest == "isBipartite"){
-      d3.select("#isBipartite").html("isBipartite :: <b>"+m2Response+"</b>");
+      d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite :: <b>"+m2Response+"</b>");
     } 
 
     else if (clickTest == "isChordal") {
-      d3.select("#isChordal").html("isChordal :: <b>"+m2Response+"</b>");    
+      d3.select("#isChordal").html("&nbsp;&nbsp; isChordal :: <b>"+m2Response+"</b>");    
     } 
 
     else if (clickTest == "isCM") {
-      d3.select("#isCM").html("isCM :: <b>"+m2Response+"</b>");    
+      d3.select("#isCM").html("&nbsp;&nbsp; isCM :: <b>"+m2Response+"</b>");    
     }
 
     else if (clickTest == "isConnected") {
-      d3.select("#isConnected").html("isConnected :: <b>"+m2Response+"</b>");    
+      d3.select("#isConnected").html("&nbsp;&nbsp; isConnected :: <b>"+m2Response+"</b>");    
     }    
 
     else if (clickTest == "isCyclic") {
-      d3.select("#isCyclic").html("isCyclic :: <b>"+m2Response+"</b>");    
+      d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic :: <b>"+m2Response+"</b>");    
     }    
 
     else if (clickTest == "isEulerian") {
-      d3.select("#isEulerian").html("isEulerian :: <b>"+m2Response+"</b>");    
+      d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian :: <b>"+m2Response+"</b>");    
     }    
 
     else if (clickTest == "isForest") {
-      d3.select("#isForest").html("isForest :: <b>"+m2Response+"</b>");    
+      d3.select("#isForest").html("&nbsp;&nbsp; isForest :: <b>"+m2Response+"</b>");    
     }    
 
     else if (clickTest == "isPerfect") {
-      d3.select("#isPerfect").html("isPerfect :: <b>"+m2Response+"</b>");    
+      d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect :: <b>"+m2Response+"</b>");    
     }    
 
     else if (clickTest == "isRegular") {
-      d3.select("#isRegular").html("isRegular :: <b>"+m2Response+"</b>");    
+      d3.select("#isRegular").html("&nbsp;&nbsp; isRegular :: <b>"+m2Response+"</b>");    
     }    
 
     else if (clickTest == "isSimple") {
-      d3.select("#isSimple").html("isSimple :: <b>"+m2Response+"</b>");    
+      d3.select("#isSimple").html("&nbsp;&nbsp; isSimple :: <b>"+m2Response+"</b>");    
     }    
 
     else if (clickTest == "isTree") {
-      d3.select("#isTree").html("isTree :: <b>"+m2Response+"</b>");    
+      d3.select("#isTree").html("&nbsp;&nbsp; isTree :: <b>"+m2Response+"</b>");    
     }    
 
 }
@@ -863,17 +863,17 @@ function onclickResults(m2Response) {
 // Anytime the graph is edited by user we call this function.
 // It changes the menu items to default.
 function menuDefaults() {
-  d3.select("#isCM").html("isCM");
-  d3.select("#isChordal").html("isChordal");
-  d3.select("#isBipartite").html("isBipartite");
-  d3.select("#isConnected").html("isConnected");  
-  d3.select("#isCyclic").html("isCyclic");  
-  d3.select("#isEulerian").html("isEulerian");  
-  d3.select("#isForest").html("isForest");  
-  d3.select("#isPerfect").html("isPerfect");  
-  d3.select("#isRegular").html("isRegular");  
-  d3.select("#isSimple").html("isSimple");  
-  d3.select("#isTree").html("isTree");  
+  d3.select("#isCM").html("&nbsp;&nbsp; isCM");
+  d3.select("#isChordal").html("&nbsp;&nbsp; isChordal");
+  d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite");
+  d3.select("#isConnected").html("&nbsp;&nbsp; isConnected");  
+  d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic");  
+  d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian");  
+  d3.select("#isForest").html("&nbsp;&nbsp; isForest");  
+  d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect");  
+  d3.select("#isRegular").html("&nbsp;&nbsp; isRegular");  
+  d3.select("#isSimple").html("&nbsp;&nbsp; isSimple");  
+  d3.select("#isTree").html("&nbsp;&nbsp; isTree");  
 }
 
 
