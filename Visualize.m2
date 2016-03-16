@@ -838,7 +838,7 @@ document {
      matrix over a polynomial ring with coefficients in the rationals, integers, or a finite field, or a Laurent
      polynomial ring with coefficients in the rationals or a finite field.",
      
-     PARA IMG ("src" => get "!pwd"|"/Visualize/images/testpic.png", "alt" => "test pic"), 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/testpic.png", "alt" => "test pic"), 
      PARA currentLayout#"package",
      PARA get "!pwd",
      PARA "For mathematical background and applications, see ",
