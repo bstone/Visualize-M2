@@ -832,34 +832,60 @@ document {
      Key => Visualize,
      Headline => "A package to help visualize algebraic objects in the browser using javascript",
      
-     "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
-     PARA "The workflow for this package is as follows.",
      
-     UL {
-	  "Load the package",
-	  "Open a port for the browser to communicate with M2.",
-	  "Define your favorite object.",
--- G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5}) 	  
-	  "Start visualizing!",
--- H = visualize G	  
-    	  "At this point you can edit the graph in the browser (add/delete vertices or edges).",
-	  {"Your new object is exported to M2 when you click ", TT "End Session","."},
-	  "You can now perform more operations to it in Macaulay2 and then send it bace to the browser with visualize.",
---K = spanningForest H
---J = visualize K	  
-    	  {"Once you are done, click ", TT "End Session", "once again in the browser."},
-	  "To finish, either close M2 or run closePort(). Either one will close the port you opened earlier."
+     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
+     an object to visualize.",
+     
+     EXAMPLE {
+	 "openPort \"8080\"",
+	 "G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
 	 },
      
-     PARA "A screen shot of a visualization of a graph.",
+     PARA {"At this point we wish to visualize ", TT "G", ". To do this simple execute ", TT "H = visualize G", " and 
+     browser will open with the following interactive image."},
+     
+     -- make sure this image matches the graph in the example. 
      PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_sm.png", "alt" => "test pic"), 
      
---     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize.png", "alt" => "test pic"),      
+     PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
+     Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
+     if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
 
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_sm.png", "alt" => "test pic"),      
+     
+     PARA "Once exporting we obtain the following graph.",
+     
+     EXAMPLE {
+	 "H = graph({{0,3},{0,4},{2,3}},Singletons => {1, 5})"
+	 },
+     
+     PARA {"You can now perform more operations to it in Macaulay2 and then send it back to the browser with ", TO "visualize",
+     ". For example you might want to look at the spanning forest of ", TT "H", "."},
+     
+     EXAMPLE {
+	 "K = spanningForest H"
+	 },
+
+     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
+     open with a new graph, the spanning forest of ", TT "H", "."},
+     
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_sm.png", "alt" => "test pic"),      
+     
+     PARA {"Once you are finished, click ", TT "End Session", "once again in the browser. To end your session, either close 
+     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
+     
+     EXAMPLE {
+	 "closePort()"
+	 },
+     
      }
 
 
