@@ -844,26 +844,26 @@ document {
      
      EXAMPLE {
 	 "openPort \"8080\"",
-	 "G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
+	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
 	 },
      
      PARA {"At this point we wish to visualize ", TT "G", ". To do this simple execute ", TT "H = visualize G", " and 
      browser will open with the following interactive image."},
      
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_sm.png", "alt" => "test pic"), 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
      
      PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
      Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
      if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
 
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_sm.png", "alt" => "test pic"),      
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph2.png", "alt" => "Modified Graph"),      
      
      PARA "Once exporting we obtain the following graph.",
      
      EXAMPLE {
-	 "H = graph({{0,3},{0,4},{2,3}},Singletons => {1, 5})"
+	 "H = graph({{1,4},{2,4},{0,3},{0,4},{2,3}},Singletons => {5})"
 	 },
      
      PARA {"You can now perform more operations to it in Macaulay2 and then send it back to the browser with ", TO "visualize",
@@ -877,18 +877,21 @@ document {
      open with a new graph, the spanning forest of ", TT "H", "."},
      
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_sm.png", "alt" => "test pic"),      
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph3.png", "alt" => "Spanning Forest"),      
      
-     PARA {"Once you are finished, click ", TT "End Session", "once again in the browser. To end your session, either close 
+     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
      Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
      
      EXAMPLE {
 	 "closePort()"
 	 },
      
+--     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
+     
      }
 
 
+  
 end
 
 beginDocumentation()
@@ -1092,7 +1095,7 @@ visualize S
 restart
 loadPackage"Visualize"
 openPort "8080"
-G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
