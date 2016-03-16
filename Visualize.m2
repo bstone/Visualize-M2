@@ -832,23 +832,34 @@ document {
      Key => Visualize,
      Headline => "A package to help visualize algebraic objects in the browser using javascript",
      
-     "We use really rediculusly cools things to do really cool things.",
-
-
+     "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     PARA "The workflow for this package is as follows.",
+     
+     UL {
+	  "Load the package",
+	  "Open a port for the browser to communicate with M2.",
+	  "Define your favorite object.",
+-- G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5}) 	  
+	  "Start visualizing!",
+-- H = visualize G	  
+    	  "At this point you can edit the graph in the browser (add/delete vertices or edges).",
+	  {"Your new object is exported to M2 when you click ", TT "End Session","."},
+	  "You can now perform more operations to it in Macaulay2 and then send it bace to the browser with visualize.",
+--K = spanningForest H
+--J = visualize K	  
+    	  {"Once you are done, click ", TT "End Session", "once again in the browser."},
+	  "To finish, either close M2 or run closePort(). Either one will close the port you opened earlier."
+	 },
+     
+     PARA "A screen shot of a visualization of a graph.",
      PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_sm.png", "alt" => "test pic"), 
      
+--     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize.png", "alt" => "test pic"),      
 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize.png", "alt" => "test pic"),      
-
-     PARA "For mathematical background and applications, see ",
-
-     UL {
-	  {"A. Fabianska.", EM " Algorithmic analysis of presentations of groups and modules. ", HREF{"http://darwin.bth.rwth-aachen.de/opus/volltexte/2009/2950/","http://darwin.bth.rwth-aachen.de/opus/volltexte/2009/2950/"}, ", Jan 2009."},
-	  {"T. Y. Lam.", EM " Serre's problem on projective modules.", " Springer Monographs in Mathematics.", " Springer-Verlag, Berlin, 2006."},
-	  {"A. Logar and B. Sturmfels.", EM " Algorithms for the Quillen-Suslin theorem.", " J. Algebra, 145(1):231-239, 1992."},
-	  {"A. Fabianska and A. Quadrat." , EM " Applications of the Quillen-Suslin theorem to multidimensional systems theory.", " Grobner bases in control theory and signal processing.", " Radon Series Comp. Appl. Math (3):23-106, 2007."}
-	},
-     
      }
 
 
@@ -1054,7 +1065,7 @@ visualize S
 --Graphs test
 restart
 loadPackage"Visualize"
-openPort "8081"
+openPort "8080"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 K = spanningForest H
