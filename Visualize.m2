@@ -830,17 +830,16 @@ beginDocumentation()
 
 document {
      Key => Visualize,
-     Headline => "computes a free basis of a projective module over a polynomial ring",
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
      
-     "Using the algorithms in Logar-Sturmfels and Fabianska-Quadrat, this package computes a free basis of 
-     a projective module over a polynomial ring with coefficients in the rationals, integers, or a finite field.  It
-     also provides methods to solve related problems involving completing a unimodular matrix to a square invertible
-     matrix over a polynomial ring with coefficients in the rationals, integers, or a finite field, or a Laurent
-     polynomial ring with coefficients in the rationals or a finite field.",
+     "We use really rediculusly cools things to do really cool things.",
+
+
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_sm.png", "alt" => "test pic"), 
      
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/testpic.png", "alt" => "test pic"), 
-     PARA currentLayout#"package",
-     PARA get "!pwd",
+
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize.png", "alt" => "test pic"),      
+
      PARA "For mathematical background and applications, see ",
 
      UL {
