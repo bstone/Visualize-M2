@@ -826,6 +826,34 @@ return H;
 -- DOCUMENTATION
 --------------------------------------------------
 
+beginDocumentation()
+
+document {
+     Key => Visualize,
+     Headline => "computes a free basis of a projective module over a polynomial ring",
+     
+     "Using the algorithms in Logar-Sturmfels and Fabianska-Quadrat, this package computes a free basis of 
+     a projective module over a polynomial ring with coefficients in the rationals, integers, or a finite field.  It
+     also provides methods to solve related problems involving completing a unimodular matrix to a square invertible
+     matrix over a polynomial ring with coefficients in the rationals, integers, or a finite field, or a Laurent
+     polynomial ring with coefficients in the rationals or a finite field.",
+     
+     PARA IMG ("src" => get "!pwd"|"/Visualize/images/testpic.png", "alt" => "test pic"), 
+     PARA currentLayout#"package",
+     PARA get "!pwd",
+     PARA "For mathematical background and applications, see ",
+
+     UL {
+	  {"A. Fabianska.", EM " Algorithmic analysis of presentations of groups and modules. ", HREF{"http://darwin.bth.rwth-aachen.de/opus/volltexte/2009/2950/","http://darwin.bth.rwth-aachen.de/opus/volltexte/2009/2950/"}, ", Jan 2009."},
+	  {"T. Y. Lam.", EM " Serre's problem on projective modules.", " Springer Monographs in Mathematics.", " Springer-Verlag, Berlin, 2006."},
+	  {"A. Logar and B. Sturmfels.", EM " Algorithms for the Quillen-Suslin theorem.", " J. Algebra, 145(1):231-239, 1992."},
+	  {"A. Fabianska and A. Quadrat." , EM " Applications of the Quillen-Suslin theorem to multidimensional systems theory.", " Grobner bases in control theory and signal processing.", " Radon Series Comp. Appl. Math (3):23-106, 2007."}
+	},
+     
+     }
+
+
+end
 
 beginDocumentation()
 needsPackage "SimpleDoc"
@@ -840,6 +868,7 @@ multidoc ///
      Description
        Text
      	 We use really rediculusly cools things to do really cool things.
+
      Caveat
      	 Let's see.
   Node
@@ -860,8 +889,6 @@ multidoc ///
        We are able to see the interactive staircase diagram. More stuff
        should be here about the convext hull and other stuff.
        
-     DIV
-       <iframe src="https://calendar.google.com/calendar/embed?showNav=0&amp;showDate=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;showTz=0&amp;mode=AGENDA&amp;height=500&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src=adelphi.edu_e3u6a3854qeq1tjold07fgnjao%40group.calendar.google.com&amp;color=%238D6F47&amp;ctz=America%2FNew_York" style="border-width:0" width="350" height="500" frameborder="0" scrolling="no"></iframe>
 ///
 
 
@@ -902,11 +929,17 @@ end
 
 restart
 uninstallPackage"Graphs"
+restart
 uninstallPackage"Visualize"
 restart
-loadPackage"Graphs"
 installPackage"Visualize"
 viewHelp Visualize
+viewHelp SimpleDoc
+
+
+loadPackage"Graphs"
+
+
 
 -----------------------------
 -----------------------------
