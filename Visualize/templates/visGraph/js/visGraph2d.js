@@ -627,8 +627,7 @@ function setAllNodesFixed() {
 
 }
 
-function updateWindowSize2d() {
-
+function updateWindowSize2d(e) {
         var svg = document.getElementById("canvasElement2d");
         svg.style.width = window.innerWidth;
         svg.style.height = window.innerHeight - 150;

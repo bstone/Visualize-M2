@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Macaulay2: visGraph</title>
+    <title>Macaulay2: Graph Visualization</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/BootSideMenu.css" rel="stylesheet">
     <style>
@@ -110,6 +110,7 @@
     <script type="text/javascript">
       //global variables
       curEdit = false;
+      curHighlight = false;
   	  curView = "2d";
       menuOpen = false;
 //      dataData = [[0, 1, 1, 1, 0, 0], [1, 0, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
@@ -127,6 +128,7 @@
           <h3>&#8202;&#8202;Menu</h3>
           <div class="list-group">
             <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
+            <a id="highlightToggle" href="#" class="list-group-item">Highlight neighbors</a>
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn off force</a>
             <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
@@ -148,12 +150,13 @@
                 <div id="collapse2" class="panel-collapse collapse">
                     <div> Other tests go here </div>
                 </div>
+             <a id="copyConstructor" href="#" class="list-group-item">Copy M2 Graph Constructor</a>
              <a id="endSession" href="#" class="list-group-item">End Session</a>            
           </div>
         </div>
 
         <div class="container">
-          <div id="canvasElement3d"></div>
+          <div id="canvasElement2d"></div>
         </div>
 
 
@@ -167,8 +170,8 @@
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
-    document.getElementById("canvasElement3d").style.width = window.innerWidth;
-    document.getElementById("canvasElement3d").style.width = window.innerHeight - 125;
+    document.getElementById("canvasElement2d").style.width = window.innerWidth;
+    document.getElementById("canvasElement2d").style.width = window.innerHeight - 125;
 
     $(document).ready(function(){
 
@@ -181,6 +184,18 @@
           $(this).html("Disable editing");
           curEdit = !curEdit;
           enableEditing();
+        }
+      });
+    
+      $("#highlightToggle").on("click", function(){
+        if(curHightlight) {
+          $(this).html("Show Neighbors");
+          curHighlight = !curHighlight;
+          disableHighlight();
+        } else {
+          $(this).html("Disable Neighbors");
+          curHighlight = !curHighlight;
+          enableHighlight();
         }
       });
 
@@ -264,6 +279,10 @@
         clickTest = "isTree";
         makeCorsRequest('POST','http://localhost:'+portData+'/isTree/', graph2M2Constructor(nodes,links));
       });      
+        
+      $("#copyConstructor").on("click", function() {
+        // TODO: Add code here to copy M2 graph constructor to clipboard using Flash.
+      });  
 
       // Ends the browser session and outputs the information to M2
       $("#endSession").on("click", function() {
