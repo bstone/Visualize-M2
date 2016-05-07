@@ -48,12 +48,12 @@ export {
      
     -- Helpers 
 --     "runServer",
-     "toArray", -- Don't need to export?
-     "getCurrPath", -- Don't need to export?
-     "copyTemplate",-- Don't need to export?
-     "replaceInFile",-- Don't need to export?
-     "heightFunction",
-     "relHeightFunction",
+--     "toArray", -- Don't need to export?
+--     "getCurrPath", -- Don't need to export?
+--     "copyTemplate",-- Don't need to export?
+--     "replaceInFile",-- Don't need to export?
+--     "heightFunction",
+--     "relHeightFunction",
      
     -- Server
      "openPort",
@@ -443,6 +443,8 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
     
     return visTemp;
 )
+
+
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
@@ -499,6 +501,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 )
 
 
+{*
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
@@ -525,6 +528,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | 
     
     return visTemp;
 )
+*}
 
 --input: a String of a path to a directory
 --output: Copies the needed files and libraries to path
@@ -607,26 +611,6 @@ copyJS(String) := opts -> dst -> (
     
     return "Created directories at "|dst;
 )
-
-
--- The server workflow is as follows.
--- 0. Load Visualize.m2
--- 1. User opens port :: openPort("8000")
---                    :: If any port is open an error occurs.
---                    :: Sometimes the error is thrown when no port
---                    :: is open. This usually occurs right after a
---                    :: port has been closed. It takes a bit of time
---                    :: for M2 to realize no port is open. 
---                    :: Maybe this is an issue with the garbage collector?
--- 2. Define graph :: G = graph(....)
--- 3. Run visualize :: H = visualize G
---                  :: This will open the website and start
---                  :: communication with the server. 
---                  :: When the user ends session, output is 
---                  :: sent back to M2 and assigned to H.
--- 4. End session to export info to browser;
--- 5. Keep working and visualizeing objects;
--- 6. When finished, user closes port :: closePort() (or restart M2).
 
 
 
@@ -837,17 +821,63 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
+--     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
+     
+     }
+
+
+document {
+     Key => visualize,
+     Headline => "creates an interactive object in a modern browser",
+     
+     PARA "Given an open port, this method will create an interactive visualization of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+               
+     PARA "The workflow for this package is as follows",
+     
+     UL{ "1. Load or install the package."},
+     
+     UL{{"2. Open a port with ", TT "openPort", " method for communication with the browser. 
+	     It is up to the user to choose port and also to close the port when finished."}},
+     
+     UL{"3. Define an object you wish to visualize. For example, a graph, poset, digraph, etc."},
+     
+     UL{{"4. Run ", TT "visualize", " method. This will open the browser with an interactive
+	     interface. This session is in communication with Macaulay2 through the open port above.
+	     At this point you can edit and manipulate the created object."}},
+     
+     UL{"5. End the session and export work back to Macaulay2."},
+     
+     UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
+     
+     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2"}},
+     
+     }
+
+
+
+document {
+     Key => (visualize,Graph),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
      
      PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
      open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
      an object to visualize.",
-     
+
      EXAMPLE {
 	 "openPort \"8080\"",
 	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
 	 },
      
-     PARA {"At this point we wish to visualize ", TT "G", ". To do this simple execute ", TT "H = visualize G", " and 
+     PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
      browser will open with the following interactive image."},
      
      -- make sure this image matches the graph in the example. 
@@ -890,68 +920,66 @@ document {
      
      }
 
+document {
+     Key => (visualize,Ideal),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
-  
-end
+document {
+     Key => (visualize,Digraph),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
-beginDocumentation()
-needsPackage "SimpleDoc"
-debug SimpleDoc
+document {
+     Key => (visualize,Poset),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
-multidoc ///
-  Node
-     Key
-     	 Visualize
-     Headline 
-     	 A package to help visualize algebraic objects in the browser using javascript.
-     Description
-       Text
-     	 We use really rediculusly cools things to do really cool things.
+document {
+     Key => (visualize,SimplicialComplex),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
-     Caveat
-     	 Let's see.
-  Node
-    Key
-       visualize
-    Headline
-       Creates staircase diagram for an ideal
-    Usage
-       visIdeal I
-    Inputs
-       I: Ideal
-         An ideal in a ring with 2 or 3 variables.
-    Outputs
-       visTemp: String
-         Path to html containg polytope.
-    Description
-     Text
-       We are able to see the interactive staircase diagram. More stuff
-       should be here about the convext hull and other stuff.
-       
-///
+document {
+     Key => openPort,
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
 
-end
-
-doc ///
-  Key
-    (visIdeal, Ideal)
-  Headline
-    Creates staircase diagram for an ideal
-  Usage
-    visIdeal I
---  Inputs
---    I:Ideal
---      An ideal in a ring with 2 or 3 variables.
-  Outputs
-    An interactive html file that is opened in the user's default browser.
-  Description
-    Text
-      We are able to see the interactive staircase diagram. More stuff
-      should be here about the convext hull and other stuff. 
-///
-
-end
+document {
+     Key => closePort,
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
 
 -------------------------------------------------------------------------------------------
@@ -966,8 +994,6 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
-restart
-uninstallPackage"Graphs"
 restart
 uninstallPackage"Visualize"
 restart
@@ -1090,9 +1116,15 @@ visualize S
 
 -- branden
 -- (options Visualize).Configuration
-
+uninstallPackage"Graphs"
+restart
+loadPackage"Graphs"
+peek loadedFiles
+path
 --Graphs test
 restart
+installPackage"Visualize"
+viewHelp Visualize
 loadPackage"Visualize"
 openPort "8080"
 G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
