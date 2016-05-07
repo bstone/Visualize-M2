@@ -48,12 +48,12 @@ export {
      
     -- Helpers 
 --     "runServer",
-     "toArray", -- Don't need to export?
-     "getCurrPath", -- Don't need to export?
-     "copyTemplate",-- Don't need to export?
-     "replaceInFile",-- Don't need to export?
-     "heightFunction",
-     "relHeightFunction",
+--     "toArray", -- Don't need to export?
+--     "getCurrPath", -- Don't need to export?
+--     "copyTemplate",-- Don't need to export?
+--     "replaceInFile",-- Don't need to export?
+--     "heightFunction",
+--     "relHeightFunction",
      
     -- Server
      "openPort",
@@ -502,6 +502,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
+{*
 visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
     local visTemp; local stringList;
         
@@ -525,6 +526,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | 
     
     return visTemp;
 )
+*}
 
 --input: a String of a path to a directory
 --output: Copies the needed files and libraries to path
@@ -847,7 +849,7 @@ document {
 	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
 	 },
      
-     PARA {"At this point we wish to visualize ", TT "G", ". To do this simple execute ", TT "H = visualize G", " and 
+     PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
      browser will open with the following interactive image."},
      
      -- make sure this image matches the graph in the example. 
@@ -891,68 +893,42 @@ document {
      }
 
 
-  
-end
 
-beginDocumentation()
-needsPackage "SimpleDoc"
-debug SimpleDoc
+document {
+     Key => (visualize,Graph),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     
+     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
+     an object to visualize.",
+     
+     }
 
-multidoc ///
-  Node
-     Key
-     	 Visualize
-     Headline 
-     	 A package to help visualize algebraic objects in the browser using javascript.
-     Description
-       Text
-     	 We use really rediculusly cools things to do really cool things.
+document {
+     Key => (visualize,Ideal),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
-     Caveat
-     	 Let's see.
-  Node
-    Key
-       visualize
-    Headline
-       Creates staircase diagram for an ideal
-    Usage
-       visIdeal I
-    Inputs
-       I: Ideal
-         An ideal in a ring with 2 or 3 variables.
-    Outputs
-       visTemp: String
-         Path to html containg polytope.
-    Description
-     Text
-       We are able to see the interactive staircase diagram. More stuff
-       should be here about the convext hull and other stuff.
-       
-///
-
-
-end
-
-doc ///
-  Key
-    (visIdeal, Ideal)
-  Headline
-    Creates staircase diagram for an ideal
-  Usage
-    visIdeal I
---  Inputs
---    I:Ideal
---      An ideal in a ring with 2 or 3 variables.
-  Outputs
-    An interactive html file that is opened in the user's default browser.
-  Description
-    Text
-      We are able to see the interactive staircase diagram. More stuff
-      should be here about the convext hull and other stuff. 
-///
-
-end
-
+document {
+     Key => visualize,
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
@@ -1090,9 +1066,15 @@ visualize S
 
 -- branden
 -- (options Visualize).Configuration
-
+uninstallPackage"Graphs"
+restart
+loadPackage"Graphs"
+peek loadedFiles
+path
 --Graphs test
 restart
+installPackage"Visualize"
+viewHelp Visualize
 loadPackage"Visualize"
 openPort "8080"
 G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
