@@ -443,6 +443,8 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
     
     return visTemp;
 )
+
+
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
@@ -499,10 +501,10 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 )
 
 
+{*
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
-{*
 visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
     local visTemp; local stringList;
         
@@ -609,26 +611,6 @@ copyJS(String) := opts -> dst -> (
     
     return "Created directories at "|dst;
 )
-
-
--- The server workflow is as follows.
--- 0. Load Visualize.m2
--- 1. User opens port :: openPort("8000")
---                    :: If any port is open an error occurs.
---                    :: Sometimes the error is thrown when no port
---                    :: is open. This usually occurs right after a
---                    :: port has been closed. It takes a bit of time
---                    :: for M2 to realize no port is open. 
---                    :: Maybe this is an issue with the garbage collector?
--- 2. Define graph :: G = graph(....)
--- 3. Run visualize :: H = visualize G
---                  :: This will open the website and start
---                  :: communication with the server. 
---                  :: When the user ends session, output is 
---                  :: sent back to M2 and assigned to H.
--- 4. End session to export info to browser;
--- 5. Keep working and visualizeing objects;
--- 6. When finished, user closes port :: closePort() (or restart M2).
 
 
 
@@ -840,10 +822,63 @@ document {
      Macaulay2 session.",
      
      
+     PARA "The workflow for this package is as follows",
+     
+     PARA "1. Load or install the package.",
+     
+     PARA {"2. Open a port with ", TT "openPort", " method for communication with the browser. 
+     It is up to the user to choose port and also to close the port when finished."},
+     
+     PARA "3. Define an opbject you wish to visualize. For example, a graph, poset, digraph, etc.",
+     
+     
+     PARA {"4. Run ", TT "visualize", " method. This will open the browser with an interactive
+     interface. This session is in communication with Macaualay2 through the open port above.
+     At this point you can edit and manipulate the created object."},
+     
+     PARA "5. End the session and export work back to Macaulay2.",
+     
+     PARA "6. Continue manipulating the object and repeat steps 3-5 as necessary.",
+     
+     PARA {"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2"},
+     
+--     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
+     
+     }
+
+
+document {
+     Key => visualize,
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+          
+     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
+     an object to visualize."
+     
+     }
+
+
+
+document {
+     Key => (visualize,Graph),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     
      PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
      open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
      an object to visualize.",
-     
+
      EXAMPLE {
 	 "openPort \"8080\"",
 	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
@@ -892,24 +927,6 @@ document {
      
      }
 
-
-
-document {
-     Key => (visualize,Graph),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session.",
-     
-     
-     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
-     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
-     an object to visualize.",
-     
-     }
-
 document {
      Key => (visualize,Ideal),
      Headline => "A package to help visualize algebraic objects in the browser using javascript",
@@ -921,7 +938,7 @@ document {
      }
 
 document {
-     Key => visualize,
+     Key => (visualize,Digraph),
      Headline => "A package to help visualize algebraic objects in the browser using javascript",
      
      PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
@@ -929,6 +946,48 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session."
      }
+
+document {
+     Key => (visualize,Poset),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => (visualize,SimplicialComplex),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => openPort,
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+
+document {
+     Key => closePort,
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
 
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
