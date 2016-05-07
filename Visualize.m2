@@ -826,6 +826,73 @@ return H;
 -- DOCUMENTATION
 --------------------------------------------------
 
+beginDocumentation()
+
+document {
+     Key => Visualize,
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     
+     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
+     an object to visualize.",
+     
+     EXAMPLE {
+	 "openPort \"8080\"",
+	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "G", ". To do this simple execute ", TT "H = visualize G", " and 
+     browser will open with the following interactive image."},
+     
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
+     Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
+     if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
+
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph2.png", "alt" => "Modified Graph"),      
+     
+     PARA "Once exporting we obtain the following graph.",
+     
+     EXAMPLE {
+	 "H = graph({{1,4},{2,4},{0,3},{0,4},{2,3}},Singletons => {5})"
+	 },
+     
+     PARA {"You can now perform more operations to it in Macaulay2 and then send it back to the browser with ", TO "visualize",
+     ". For example you might want to look at the spanning forest of ", TT "H", "."},
+     
+     EXAMPLE {
+	 "K = spanningForest H"
+	 },
+
+     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
+     open with a new graph, the spanning forest of ", TT "H", "."},
+     
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph3.png", "alt" => "Spanning Forest"),      
+     
+     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
+     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
+     
+     EXAMPLE {
+	 "closePort()"
+	 },
+     
+--     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
+     
+     }
+
+
+  
+end
 
 beginDocumentation()
 needsPackage "SimpleDoc"
@@ -840,6 +907,7 @@ multidoc ///
      Description
        Text
      	 We use really rediculusly cools things to do really cool things.
+
      Caveat
      	 Let's see.
   Node
@@ -858,7 +926,8 @@ multidoc ///
     Description
      Text
        We are able to see the interactive staircase diagram. More stuff
-       should be here about the convext hull and other stuff.	    
+       should be here about the convext hull and other stuff.
+       
 ///
 
 
@@ -896,6 +965,20 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
+
+restart
+uninstallPackage"Graphs"
+restart
+uninstallPackage"Visualize"
+restart
+installPackage"Visualize"
+viewHelp Visualize
+viewHelp SimpleDoc
+
+
+loadPackage"Graphs"
+
+
 
 -----------------------------
 -----------------------------
@@ -1011,8 +1094,8 @@ visualize S
 --Graphs test
 restart
 loadPackage"Visualize"
-openPort "8081"
-G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+openPort "8080"
+G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
@@ -1074,10 +1157,11 @@ copyTemplate(currentDirectory() | "Visualize/templates/visGraph/visGraph-templat
 
 restart
 uninstallPackage"Graphs"
+uninstallPackage"Visualize"
 restart
 loadPackage"Graphs"
-loadPackage"Visualize"
-
+installPackage"Visualize"
+viewHelp Visualize
 -- Old Graphs
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visGraph G
