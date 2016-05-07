@@ -1002,7 +1002,7 @@ viewHelp Visualize
 viewHelp SimpleDoc
 
 
-loadPackage"Graphs"
+
 
 
 
