@@ -821,27 +821,6 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
-     
-     PARA "The workflow for this package is as follows",
-     
-     PARA "1. Load or install the package.",
-     
-     PARA {"2. Open a port with ", TT "openPort", " method for communication with the browser. 
-     It is up to the user to choose port and also to close the port when finished."},
-     
-     PARA "3. Define an opbject you wish to visualize. For example, a graph, poset, digraph, etc.",
-     
-     
-     PARA {"4. Run ", TT "visualize", " method. This will open the browser with an interactive
-     interface. This session is in communication with Macaualay2 through the open port above.
-     At this point you can edit and manipulate the created object."},
-     
-     PARA "5. End the session and export work back to Macaulay2.",
-     
-     PARA "6. Continue manipulating the object and repeat steps 3-5 as necessary.",
-     
-     PARA {"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2"},
-     
 --     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
      
      }
@@ -849,17 +828,31 @@ document {
 
 document {
      Key => visualize,
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     Headline => "creates an interactive object in a modern browser",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     PARA "Given an open port, this method will create an interactive visualization of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
+               
+     PARA "The workflow for this package is as follows",
      
-          
-     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
-     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
-     an object to visualize."
+     UL{ "1. Load or install the package."},
+     
+     UL{{"2. Open a port with ", TT "openPort", " method for communication with the browser. 
+	     It is up to the user to choose port and also to close the port when finished."}},
+     
+     UL{"3. Define an object you wish to visualize. For example, a graph, poset, digraph, etc."},
+     
+     UL{{"4. Run ", TT "visualize", " method. This will open the browser with an interactive
+	     interface. This session is in communication with Macaulay2 through the open port above.
+	     At this point you can edit and manipulate the created object."}},
+     
+     UL{"5. End the session and export work back to Macaulay2."},
+     
+     UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
+     
+     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2"}},
      
      }
 
@@ -1001,8 +994,6 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
-restart
-uninstallPackage"Graphs"
 restart
 uninstallPackage"Visualize"
 restart
