@@ -852,11 +852,11 @@ function exportTikz (event){
 function highlightAllNeighbors(n) {
     circle.selectAll('circle')
     // Highlight all nodes that are neighbors with the given node n.
-    .classed("highlighted", function(d) { return (areNeighbors(d,n)) })
+    .classed("highlighted", function(d) { return areNeighbors(d,n); });
 }
 
 function areNeighbors(node1,node2) {
-    return links.some( function(l) {(l.source === node1 && l.target === node2) || (l.target === node1 && l.source === node 2)} );    
+    return links.some( function(l) {return ((l.source === node1 && l.target === node2) || (l.target === node1 && l.source === node 2));} );    
 }
 
 // -----------------------------------------
