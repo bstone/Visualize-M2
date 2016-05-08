@@ -831,11 +831,11 @@ document {
      Headline => "creates an interactive object in a modern browser",
      
      PARA "Given an open port, this method will create an interactive visualization of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
+     in a modern browser. While viewing the object, the user has the ability to manipulate the 
+     object, and run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
                
-     PARA "The workflow for this package is as follows",
+     PARA "The workflow for this package is as follows:",
      
      UL{ "1. Load or install the package."},
      
@@ -852,17 +852,25 @@ document {
      
      UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
      
-     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2"}},
+     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2."}},
      
      }
 
 
 
 document {
-     Key => (visualize,Graph),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     Key => {(visualize,Graph),[visualize, Verbose], [visualize, VisPath], [visualize, VisTemplate], [visualize, Warning]},
+     Headline => "visualizes a graph in a modern browser",
+     Usage => " H = visualize G",
+     Inputs => {
+	 "G" => Graph => " a graph",
+	 Verbose => Boolean => " prints server communication in the M2 buffer",
+	 VisPath => String => " a path where the visualization will be created and saved",
+	 VisTemplate => String => " a path to a user created/modified template",
+	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath",
+	 
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
