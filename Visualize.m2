@@ -693,26 +693,40 @@ server = () -> (
 	-- Begin handling requests from browser
 	---------------------------------------
 	
+	-- hasEulerianTrail
+	if match("^POST /hasEulerianTrail/(.*) ",r) then (
+	    testKey = "hasEulerianTrail";
+	    fun = identity;
+	    u = toString( hasEulerianTrail indexLabelGraph value data );
+	)	
+	
+	-- hasOddHole
+	else if match("^POST /hasOddHole/(.*) ",r) then (
+	    testKey = "hasOddHole";
+	    fun = identity;
+	    u = toString( hasOddHole indexLabelGraph value data );
+	)	
+	
 	-- isCM
-	if match("^POST /isCM/(.*) ",r) then (
+	else if match("^POST /isCM/(.*) ",r) then (
 	    testKey = "isCM";
 	    fun = identity;
 	    u = toString( isCM indexLabelGraph value data );
-	    )	
+	)	
 
 	-- isBipartite
 	else if match("^POST /isBipartite/(.*) ",r) then (
 	    testKey = "isBipartite";
 	    fun = identity;
 	    u = toString( isBipartite indexLabelGraph value data );
-	    )	
+	)	
 
 	-- isChordal
 	else if match("^POST /isChordal/(.*) ",r) then (
 	    testKey = "isChordal";
 	    fun = identity;
 	    u = toString( isChordal indexLabelGraph value data );
-	    )	
+	)	
 	
 	-- isConnected
 	else if match("^POST /isConnected/(.*) ",r) then (
@@ -720,62 +734,153 @@ server = () -> (
 	    fun = identity;
 	    print"isConnected else if in M2";
 	    u = toString( isConnected indexLabelGraph value data );
-	    )	
+	)	
 
     	-- isCyclic
 	else if match("^POST /isCyclic/(.*) ",r) then (
 	    testKey = "isCyclic";
 	    fun = identity;
 	    u = toString( isCyclic indexLabelGraph value data );
-	    )		
+	)		
 
     	-- isEulerian
 	else if match("^POST /isEulerian/(.*) ",r) then (
 	    testKey = "isEulerian";
 	    fun = identity;
 	    u = toString( isEulerian indexLabelGraph value data );
-	    )		
+	)		
 
     	-- isForest
 	else if match("^POST /isForest/(.*) ",r) then (
 	    testKey = "isForest";
 	    fun = identity;
 	    u = toString( isForest indexLabelGraph value data );
-	    )		
+	)		
 
     	-- isPerfect
 	else if match("^POST /isPerfect/(.*) ",r) then (
 	    testKey = "isPerfect";
 	    fun = identity;
 	    u = toString( isPerfect indexLabelGraph value data );
-	    )		
+	)		
 
     	-- isRegular
 	else if match("^POST /isRegular/(.*) ",r) then (
 	    testKey = "isRegular";
 	    fun = identity;
 	    u = toString( isRegular indexLabelGraph value data );
-	    )		
+	)		
 
     	-- isSimple
 	else if match("^POST /isSimple/(.*) ",r) then (
 	    testKey = "isSimple";
 	    fun = identity;
 	    u = toString( isSimple indexLabelGraph value data );
-	    )		
+	)		
 
     	-- isTree
 	else if match("^POST /isTree/(.*) ",r) then (
 	    testKey = "isTree";
 	    fun = identity;
 	    u = toString( isTree indexLabelGraph value data );
-	    )		
+	)
+    
+        -- chromaticNumber
+	else if match("^POST /chromaticNumber/(.*) ",r) then (
+	    testKey = "chromaticNumber";
+	    fun = identity;
+	    u = toString( chromaticNumber indexLabelGraph value data );
+	)			
+	
+	-- independenceNumber
+	else if match("^POST /independenceNumber/(.*) ",r) then (
+	    testKey = "independenceNumber";
+	    fun = identity;
+	    u = toString( independenceNumber indexLabelGraph value data );
+	)			
+	
+	-- cliqueNumber
+	else if match("^POST /cliqueNumber/(.*) ",r) then (
+	    testKey = "cliqueNumber";
+	    fun = identity;
+	    u = toString( cliqueNumber indexLabelGraph value data );
+	)			
+	
+	-- degeneracy
+	else if match("^POST /degeneracy/(.*) ",r) then (
+	    testKey = "degeneracy";
+	    fun = identity;
+	    u = toString( degeneracy indexLabelGraph value data );
+	)			
+	
+	-- density
+	else if match("^POST /density/(.*) ",r) then (
+	    testKey = "density";
+	    fun = identity;
+	    u = toString( density indexLabelGraph value data );
+	)			
+	
+	-- diameter
+	else if match("^POST /diameter/(.*) ",r) then (
+	    testKey = "diameter";
+	    fun = identity;
+	    u = toString( diameter indexLabelGraph value data );
+	)			
+	
+	-- edgeConnectivity
+	else if match("^POST /edgeConnectivity/(.*) ",r) then (
+	    testKey = "edgeConnectivity";
+	    fun = identity;
+	    u = toString( edgeConnectivity indexLabelGraph value data );
+	)			
+	
+	-- minimalDegree
+	else if match("^POST /minimalDegree/(.*) ",r) then (
+	    testKey = "minimalDegree";
+	    fun = identity;
+	    u = toString( minimalDegree indexLabelGraph value data );
+	)			
+	
+	-- numberOfComponents
+	else if match("^POST /numberOfComponents/(.*) ",r) then (
+	    testKey = "numberOfComponents";
+	    fun = identity;
+	    u = toString( numberOfComponents indexLabelGraph value data );
+	)			
+	
+	-- numberOfTriangles
+	else if match("^POST /numberOfTriangles/(.*) ",r) then (
+	    testKey = "numberOfTriangles";
+	    fun = identity;
+	    u = toString( numberOfTriangles indexLabelGraph value data );
+	)			
+	
+	-- radius
+	else if match("^POST /radius/(.*) ",r) then (
+	    testKey = "radius";
+	    fun = identity;
+	    if not isConnected indexLabelGraph value data then u = "Not connected." else u = toString( radius indexLabelGraph value data );
+	)			
+	
+	-- vertexConnectivity
+	else if match("^POST /vertexConnectivity/(.*) ",r) then (
+	    testKey = "";
+	    fun = identity;
+	    u = toString( vertexConnectivity indexLabelGraph value data );
+	)			
+	
+	-- vertexCoverNumber
+	else if match("^POST /vertexCoverNumber/(.*) ",r) then (
+	    testKey = "vertexCoverNumber";
+	    fun = identity;
+	    u = toString( vertexCoverNumber indexLabelGraph value data );
+	)			
 	 
 	-- End Session   
 	else if match("^POST /end/(.*) ",r) then (
 	    R := value data;
 	    return R;
-	    )
+	)
 	
 	-- Error to catch typos and bad requests
 	else (
