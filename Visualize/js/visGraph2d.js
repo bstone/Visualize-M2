@@ -58,13 +58,13 @@ function initializeBuilder() {
   links = [];
   for (var i = 0; i<data.length; i++) {
 
-      nodes.push( {name: names[i], id: i, reflexive:false } );
+      nodes.push( {name: names[i], id: i, reflexive:false, highlighted:false } );
 
   }
   for (var i = 0; i<data.length; i++) {
       for (var j = 0; j < i ; j++) {
           if (data[i][j] != 0) {
-              links.push( { source: nodes[i], target: nodes[j], left: false, right: false} );
+              links.push( { source: nodes[i], target: nodes[j], left: false, right: false, highlighted:false} );
           }
       }
   }
@@ -248,8 +248,9 @@ function restart() {
   path = path.data(links);
 
   // Update existing links.
-  // If a link is currently selected, set 'selected: true'.
-  path.classed('selected', function(d) { return d === selected_link; })
+  // If a link is currently selected, set 'selected: true'.  If a link should be highlighted, set 'highlighted: true'.
+  path.classed('highlighted', function(d) {return d.highlighted; })
+    .classed('selected', function(d) { return d === selected_link; })
     // If the edge is directed towards the source or target, attach an arrow.
     .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
@@ -257,6 +258,8 @@ function restart() {
   // Add new links.
   path.enter().append('svg:path')
     .attr('class', 'link')
+    // If a link should be highlighted, set 'highlighted: true'.
+    .classed('highlighted', function(d) {return d.highlighted; })
     // If a link is currently selected, set 'selected: true'.
     .classed('selected', function(d) { return d === selected_link; })
     // If the edge is directed towards the source or target, attach an arrow.
@@ -281,6 +284,8 @@ function restart() {
       
       // Since we selected or unselected a link, set all nodes to be unselected.
       selected_node = null;
+      // If highlighting neighbors is turned on, un-highlight all nodes and links since there is no currently selected node.
+      if(curHighlight) unHighlightAll();
       
       // Update all properties of the graph.
       restart();
@@ -299,6 +304,7 @@ function restart() {
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     // Set the 'reflexive' attribute to true for all reflexive nodes.
     //.classed('reflexive', function(d) { return d.reflexive; });
+    .classed('highlighted', function(d) { return d.highlighted; });
 
   // Add new nodes.
   var g = circle.enter().append('svg:g');
@@ -309,6 +315,7 @@ function restart() {
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
+    .classed('highlighted',function(d) {return d.highlighted;})
     .on('mouseover', function(d) {
       // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
       // then do nothing.
@@ -325,14 +332,21 @@ function restart() {
     })
     .on('mousedown', function(d) {
       // If either the shift key is held down or editing is disabled, do nothing.
-      if(d3.event.shiftKey || !curEdit) return;
+      // Brett: Add back in the following line if we don't want selected nodes brightened in non-editing mode.
+      //if(d3.event.shiftKey || !curEdit) return;
+      if(d3.event.shiftKey) return;
 
       // Otherwise, select node.
       mousedown_node = d;
       
       // If the node that the user clicked was already selected, then unselect it.
-      if(mousedown_node === selected_node) selected_node = null;
-      else if(curEdit) selected_node = mousedown_node;
+      if(mousedown_node === selected_node) { selected_node = null; 
+            if(curHighlight) unHighlightAll(); }
+      //Brett: Add the following line back in if we don't want nodes to be brightened in non-editing mode.
+      //else if(curEdit) { selected_node = mousedown_node;
+      else {selected_node = mousedown_node;
+            if(curHighlight) highlightAllNeighbors(selected_node);
+      };
       selected_link = null;
 
       // reposition drag line
@@ -397,6 +411,7 @@ function restart() {
       // select new link
       if (curEdit) selected_link = link;
       selected_node = null;
+      if (curHighlight) unHighlightAll();
       restart();
     })
 
@@ -567,6 +582,8 @@ function keydown() {
       }
       selected_link = null;
       selected_node = null;
+    
+      if(curHighlight) unHighlightAll();
 
       // Graph Changed :: deleted nodes and links
       // as a result we change some items to default
@@ -601,6 +618,7 @@ function disableEditing() {
   svg.classed('shift', true);
   selected_node = null;
   selected_link = null;
+  if(curHighlight) unHighlightAll();
 
   /*
   for (var i = 0; i<nodes.length; i++) {
@@ -630,30 +648,47 @@ function enableEditing() {
 function enableHighlight() {
   // If there is no currently selected node, then just return (negating the value of curHighlight).
   if(selected_node == null) return;
-  
-
-  /*
-  for (var i = 0; i<nodes.length; i++) {
-    nodes[i].selected = false;
-  }
-  for (var i = 0; i<links.length; i++) {
-    links[i].selected = false;
-  }
-  path = path.data(links);
-
-  // update existing links
-  path.classed('selected', false)
-    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
-  */
-
-  restart();
+  highlightAllNeighbors(selected_node);
+  console.log("curHighlight: "+curHighlight);
 }
 
+function unHighlightAll() {
+    // Un-highlight all nodes.
+    for (var i = 0; i<nodes.length; i++) {
+       nodes[i].highlighted = false;
+    }
+    
+    // Un-highlight all links.
+    for (var i = 0; i<links.length; i++) {
+       links[i].highlighted = false;
+    }
+    
+    // Update graph based on changes to nodes and links.
+    restart();
+}
+
+function highlightAllNeighbors(n) {
+    // Highlight all nodes that are neighbors with the given node n.
+    for (var i = 0; i<nodes.length; i++) {
+       console.log(areNeighbors(nodes[i],n));
+       nodes[i].highlighted = areNeighbors(nodes[i],n);
+    }
+    
+    // Highlight all links that have the given node n as a source or target.
+    for (var i = 0; i<links.length; i++) {
+       links[i].highlighted = ((links[i].source === n) || (links[i].target === n));
+    }
+    
+    // Update graph based on changes to nodes and links.
+    restart();
+}
+
+function areNeighbors(node1,node2) {
+    return links.some( function(l) {return (((l.source === node1) && (l.target === node2)) || ((l.target === node1) && (l.source === node2)));});
+}
 
 function setAllNodesFixed() {
   for (var i = 0; i<nodes.length; i++) {
-    //d3.select(this).classed(d.fixed = true);
     nodes[i].fixed = true;
   }
 
@@ -848,16 +883,6 @@ function exportTikz (event){
   }
     
 }
-
-function highlightAllNeighbors(n) {
-    circle.selectAll('circle')
-    // Highlight all nodes that are neighbors with the given node n.
-    .classed("highlighted", function(d) { return areNeighbors(d,n); });
-}
-
-//function areNeighbors(node1,node2) {
-//    return links.some( function(l) {return (((l.source === node1) && (l.target === node2)) || ((l.target === node1) && (l.source === node 2)));} );
-//}
 
 // -----------------------------------------
 // Begin Server Stuff
