@@ -627,13 +627,24 @@ function setAllNodesFixed() {
 
 }
 
-function updateWindowSize2d() {
+function updateWindowSize2d(e) {
+    console.log("resizing window");
+    //var svg = document.getElementById("canvasElement2d");
+    
+    // get width/height with container selector (body also works)
+    // or use other method of calculating desired values
+    var width = window.innerWidth;
+    var height = window.innerHeight-150;
 
-        var svg = document.getElementById("canvasElement2d");
-        svg.style.width = window.innerWidth;
-        svg.style.height = window.innerHeight - 150;
-        svg.width = window.innerWidth;
-        svg.height = window.innerHeight - 150;
+    // set attrs and 'resume' force 
+    //svg.attr('width', width);
+    //svg.attr('height', height);
+    svg.style.width = window.innerWidth;
+    svg.style.height = window.innerHeight - 150;
+    svg.width = window.innerWidth;
+    svg.height = window.innerHeight - 150;
+    force.size([width, height]).resume();
+    
 }
 
 // Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
@@ -851,11 +862,6 @@ function makeCorsRequest(method,url,browserData) {
 }
 // End Server Stuff
 // -------------------
-
-
-
-
-
 
 function stopForce() {
   force.stop();
