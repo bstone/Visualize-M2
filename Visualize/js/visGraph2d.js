@@ -892,6 +892,14 @@ function exportTikz (event){
 // Add a response for each id from the side menu
 function onclickResults(m2Response) {
     
+    if (clickTest == "hasEulerianTrail"){
+      d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail :: <b>"+m2Response+"</b>");
+    } 
+    
+    if (clickTest == "hasOddHole"){
+      d3.select("#hasOddHole").html("&nbsp;&nbsp; hasOddHole :: <b>"+m2Response+"</b>");
+    } 
+    
     if (clickTest == "isBipartite"){
       d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite :: <b>"+m2Response+"</b>");
     } 
@@ -934,15 +942,68 @@ function onclickResults(m2Response) {
 
     else if (clickTest == "isTree") {
       d3.select("#isTree").html("&nbsp;&nbsp; isTree :: <b>"+m2Response+"</b>");    
-    }    
-
+    }
+    
+    else if (clickTest == "chromaticNumber") {
+      d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "independenceNumber") {
+      d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "cliqueNumber") {
+      d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "degeneracy") {
+      d3.select("#degeneracy").html("&nbsp;&nbsp; degeneracy :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "density") {
+      d3.select("#density").html("&nbsp;&nbsp; density :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "diameter") {
+      d3.select("#diameter").html("&nbsp;&nbsp; diameter :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "edgeConnectivity") {
+      d3.select("#edgeConnectivity").html("&nbsp;&nbsp; edgeConnectivity :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "minimalDegree") {
+      d3.select("#minimalDegree").html("&nbsp;&nbsp; minimalDegree :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "numberOfComponents") {
+      d3.select("#numberOfComponents").html("&nbsp;&nbsp; numberOfComponents :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "numberOfTriangles") {
+      d3.select("#numberOfTriangles").html("&nbsp;&nbsp; numberOfTriangles :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "radius") {
+      d3.select("#radius").html("&nbsp;&nbsp; radius :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "vertexConnectivity") {
+      d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity :: <b>"+m2Response+"</b>");    
+    }  
+    
+    else if (clickTest == "vertexCoverNumber") {
+      d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber :: <b>"+m2Response+"</b>");    
+    }  
+    
 }
-
 
 
 // Anytime the graph is edited by user we call this function.
 // It changes the menu items to default.
 function menuDefaults() {
+  d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail");
+  d3.select("#hasOddHole").html("&nbsp;&nbsp; hasOddHole");
   d3.select("#isCM").html("&nbsp;&nbsp; isCM");
   d3.select("#isChordal").html("&nbsp;&nbsp; isChordal");
   d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite");
@@ -953,7 +1014,20 @@ function menuDefaults() {
   d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect");  
   d3.select("#isRegular").html("&nbsp;&nbsp; isRegular");  
   d3.select("#isSimple").html("&nbsp;&nbsp; isSimple");  
-  d3.select("#isTree").html("&nbsp;&nbsp; isTree");  
+  d3.select("#isTree").html("&nbsp;&nbsp; isTree");
+  d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber");
+  d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber");
+  d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber");
+  d3.select("#degeneracy").html("&nbsp;&nbsp; degeneracy");
+  d3.select("#density").html("&nbsp;&nbsp; density");
+  d3.select("#diameter").html("&nbsp;&nbsp; diameter");
+  d3.select("#edgeConnectivity").html("&nbsp;&nbsp; edgeConnectivity");
+  d3.select("#minimalDegree").html("&nbsp;&nbsp; minimalDegree");
+  d3.select("#numberOfComponents").html("&nbsp;&nbsp; numberOfComponents");
+  d3.select("#numberOfTriangles").html("&nbsp;&nbsp; numberOfTriangles");
+  d3.select("#radius").html("&nbsp;&nbsp; radius");
+  d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity");
+  d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber");
 }
 
 
