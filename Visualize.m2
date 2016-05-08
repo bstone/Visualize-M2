@@ -859,15 +859,16 @@ document {
 
 
 document {
-     Key => {(visualize,Graph),[visualize, Verbose], [visualize, VisPath], [visualize, VisTemplate], [visualize, Warning]},
+     Key => {(visualize,Graph), [(visualize,Graph), VisPath], [(visualize,Graph), VisTemplate], [(visualize,Graph), Warning]},
      Headline => "visualizes a graph in a modern browser",
      Usage => " H = visualize G",
      Inputs => {
 	 "G" => Graph => " a graph",
-	 Verbose => Boolean => " prints server communication in the M2 buffer",
+--	 Verbose => Boolean => " prints server communication in the M2 buffer",
 	 VisPath => String => " a path where the visualization will be created and saved",
 	 VisTemplate => String => " a path to a user created/modified template",
-	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath",
+	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath"
+	 },
 	 
      
      PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
