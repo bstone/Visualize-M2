@@ -298,7 +298,7 @@ function restart() {
     // If a node is currently selected, then make it brighter.
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     // Set the 'reflexive' attribute to true for all reflexive nodes.
-    .classed('reflexive', function(d) { return d.reflexive; });
+    //.classed('reflexive', function(d) { return d.reflexive; });
 
   // Add new nodes.
   var g = circle.enter().append('svg:g');
@@ -384,8 +384,7 @@ function restart() {
         link = {source: source, target: target, left: false, right: false};
         link[direction] = false;
         links.push(link);
-        // Graph is updated here so we change some items to default 
-        // d3.select("#isCM").html("isCM");
+        // Graph is updated here so we change some items to default.
         menuDefaults();
       }
 
@@ -403,13 +402,19 @@ function restart() {
 
   .on('dblclick', function(d) {
       name = "";
+      var letters = /^[0-9a-zA-Z]+$/;
       while (name=="") {
-        name = prompt('enter new label name', d.name);
+        name = prompt('Enter new label name.', d.name);
+        // Check whether the user has entered any illegal characters (including spaces).
+        if (!(letters.test(name))) {
+            alert('Please input alphanumeric characters only with no spaces.');
+            name = "";
+        }
         if (name==d.name) {
           return;
         }
         else if (checkName(name)) {
-          alert('sorry a node with that name already exists')
+          alert('Sorry, a node with that name already exists.')
           name = "";
         }
       }
@@ -622,6 +627,30 @@ function enableEditing() {
   svg.classed('shift', false);
 }
 
+function enableHighlight() {
+  // If there is no currently selected node, then just return (negating the value of curHighlight).
+  if(selected_node == null) return;
+  
+
+  /*
+  for (var i = 0; i<nodes.length; i++) {
+    nodes[i].selected = false;
+  }
+  for (var i = 0; i<links.length; i++) {
+    links[i].selected = false;
+  }
+  path = path.data(links);
+
+  // update existing links
+  path.classed('selected', false)
+    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
+    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
+  */
+
+  restart();
+}
+
+
 function setAllNodesFixed() {
   for (var i = 0; i<nodes.length; i++) {
     //d3.select(this).classed(d.fixed = true);
@@ -631,12 +660,22 @@ function setAllNodesFixed() {
 }
 
 function updateWindowSize2d() {
+    console.log("resizing window");
+    //var svg = document.getElementById("canvasElement2d");
+    
+    // get width/height with container selector (body also works)
+    // or use other method of calculating desired values
+    var width = window.innerWidth;
+    var height = window.innerHeight-150;
 
-        var svg = document.getElementById("canvasElement2d");
-        svg.style.width = window.innerWidth;
-        svg.style.height = window.innerHeight - 150;
-        svg.width = window.innerWidth;
-        svg.height = window.innerHeight - 150;
+    // set attrs and 'resume' force 
+    //svg.attr('width', width);
+    //svg.attr('height', height);
+    svg.style.width = window.innerWidth;
+    svg.style.height = window.innerHeight - 150;
+    svg.width = window.innerWidth;
+    svg.height = window.innerHeight - 150;
+    force.size([width, height]).resume();
 }
 
 // Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
@@ -698,21 +737,6 @@ function singletons(nodeSet, edgeSet){
   }
   return singSet;
 }
-
-// Brett working code - figuring out data loops in JS - ignore this
-
-// d3.select("body").selectAll("p").data(links).enter().append("p").text(function(d) {return [d.source.id,d.target.id]});
-
-// var vertices = [];
-// var edges = [];
-
-// for (var i = 0; i < nodes.length; i++) {
-//     vertices.push(nodes[i].id);          //Add new node to 'vertices' array
-// }
-
-// for (var i = 0; i < links.length; i++) {
-//     edges.push({source: links[i].source.id , target: links[i].target.id});      //Add new edge pair to 'edges' array
-// }
 
 // Constructs the incidence matrix for a graph as a multidimensional array.
 function getIncidenceMatrix (nodeSet, edgeSet){
@@ -776,7 +800,7 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
-function exportTikz (){
+function exportTikz (event){
   var points = [];
   for(var i = 0; i < nodes.length; i++){
     points[i] = [nodes[i].x.toString()+"/"+nodes[i].y.toString()+"/"+nodes[i].id+"/"+nodes[i].name];
@@ -788,20 +812,51 @@ function exportTikz (){
   }
 
   var tikzTex = "";
-  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates egdes\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
+  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
 
-// <textarea id = "tikzTextArea">tikzTex</textarea>;
-
-//  var tikzTextArea = document.getElementById(tikzTex);
-//  tikzTextArea.select().focus();
+  /*  
+  var tikzTextArea = document.createElement("textarea");
+  tikzTextArea.setAttribute("type", "hidden"); 
+  document.getElementById("body").appendChild(tikzTextArea);
+  tikzTextArea.value += tikzTex;
+    
+  event.preventDefault();
+  tikzTextArea.select(); // Select the input node's contents
+  var succeeded;
+  try {
+    // Copy it to the clipboard
+    succeeded = document.execCommand("copy");
+  } catch (e) {
+    succeeded = false;
+  }
+  if (succeeded) {
+    console.log("Copy successful.");
+  } else {
+    console.log("Copy failed.");
+  }
+  */
+    
+// tikzTextArea.select().focus();
 //  $('#container').append('To copy emails to clipboard, press: Ctrl+C, then Enter <br />  <textarea id="tikzTex">'+tikzTex+'</textarea>');
 //  $('#tikzTex').select().focus();
-console.log(tikzTex.length);
+
+//console.log(tikzTex.length);
   if (tikzTex.length < 2001){
     window.prompt("Copy this text the best way you can.", tikzTex );
   } else {
     alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
   }
+    
+}
+
+function highlightAllNeighbors(n) {
+    circle.selectAll('circle')
+    // Highlight all nodes that are neighbors with the given node n.
+    .classed("highlighted", function(d) { return (areNeighbors(d,n)) })
+}
+
+function areNeighbors(node1,node2) {
+    return links.some( function(l) {(l.source === node1 && l.target === node2) || (l.target === node1 && l.source === node 2)} );    
 }
 
 // -----------------------------------------

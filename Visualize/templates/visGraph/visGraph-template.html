@@ -44,6 +44,13 @@
       path.link.selected {
         stroke-dasharray: 10,2;
       }
+        
+      path.link.highlighted {
+        fill: none;
+        stroke: #B6B6B6;
+        stroke-width: 4px;
+        cursor: default;
+      }
 
       path.link.dragline {
         pointer-events: none;
@@ -60,6 +67,11 @@
 
       circle.node.reflexive {
         stroke: #000 !important;
+        stroke-width: 2.5px;
+      }
+     
+      circle.node.highlighted {
+        stroke: #000 !important;    
         stroke-width: 2.5px;
       }
 
@@ -154,24 +166,26 @@
              <a id="endSession" href="#" class="list-group-item">End Session</a>            
           </div>
         </div>
-
-        <div class="container">
-          <div id="canvasElement2d"></div>
-        </div>
-
+  
+  <div class="container">
+    <div id="canvasElement2d"></div>
+  </div>
 
   <script src="js/jquery-1.11.3.min.js"></script>
   <script src="js/BootSideMenu.js"></script>
   <script src="js/d3.v3.js"></script>
   <script src="js/visGraph2d.js"></script>
   <script src="js/bootstrap.min.js"></script>
+  <script src="js/clipboard.min.js"></script>
 
   <script type="text/javascript">
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
     document.getElementById("canvasElement2d").style.width = window.innerWidth;
-    document.getElementById("canvasElement2d").style.width = window.innerHeight - 125;
+    document.getElementById("canvasElement2d").style.height = window.innerHeight - 125;
+      
+    window.addEventListener("resize", updateWindowSize2d, false);
 
     $(document).ready(function(){
 
@@ -203,8 +217,8 @@
       
       $("#forceToggle").on("click", toggleForce);
       
-      $("#exportTikz").on("click", function() {
-        exportTikz();
+      $("#exportTikz").on("click", function(event) {
+        exportTikz(event);
       });
 
       // Begin browser-M2 communication.
@@ -317,7 +331,7 @@
       }
 
     }, false);
-  	window.addEventListener('resize', updateWindowSize2d, false);
+    
     </script>
 
   </body>
