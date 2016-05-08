@@ -47,7 +47,8 @@
         
       path.link.highlighted {
         fill: none;
-        stroke: #B6B6B6;
+        /* stroke: #B6B6B6; */
+        stroke: #FF0000;
         stroke-width: 4px;
         cursor: default;
       }
@@ -121,6 +122,7 @@
     </style>
     <script type="text/javascript">
       //global variables
+      activeSession = true;
       curEdit = false;
       curHighlight = false;
   	  curView = "2d";
@@ -162,7 +164,6 @@
                 <div id="collapse2" class="panel-collapse collapse">
                     <div> Other tests go here </div>
                 </div>
-             <a id="copyConstructor" href="#" class="list-group-item">Copy M2 Graph Constructor</a>
              <a id="endSession" href="#" class="list-group-item">End Session</a>            
           </div>
         </div>
@@ -202,14 +203,14 @@
       });
     
       $("#highlightToggle").on("click", function(){
-        if(curHightlight) {
-          $(this).html("Show Neighbors");
+        if(curHighlight) {
+          $(this).html("Highlight Neighbors");
+          unHighlightAll();
           curHighlight = !curHighlight;
-          disableHighlight();
         } else {
-          $(this).html("Disable Neighbors");
-          curHighlight = !curHighlight;
+          $(this).html("Disable Neighbor Highlighting");
           enableHighlight();
+          curHighlight = !curHighlight;
         }
       });
 
@@ -293,14 +294,16 @@
         clickTest = "isTree";
         makeCorsRequest('POST','http://localhost:'+portData+'/isTree/', graph2M2Constructor(nodes,links));
       });      
-        
-      $("#copyConstructor").on("click", function() {
-        // TODO: Add code here to copy M2 graph constructor to clipboard using Flash.
-      });  
 
       // Ends the browser session and outputs the information to M2
       $("#endSession").on("click", function() {
-        makeCorsRequest('POST','http://localhost:'+portData+'/end/',graph2M2Constructor(nodes,links));
+        if(activeSession) {
+          $(this).html("Session Terminated");
+          makeCorsRequest('POST','http://localhost:'+portData+'/end/',graph2M2Constructor(nodes,links));
+          activeSession = !activeSession;
+        } else {
+          return;
+        }
       });            
 
       initializeBuilder();
