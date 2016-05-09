@@ -440,8 +440,11 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
     searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
     
     show new URL from { "file://"|visTemp };
+ 
+    browserOutput = openPosetServer(inOutPort, Verbose => opts.Verbose);
     
-    return visTemp;
+    return browserOutput; 
+    --return visTemp;
 )
 
 
@@ -928,7 +931,7 @@ testKey = " ";
 listener = S;
 
 server = () -> (
-    stderr << "-- Visualizing graph. Your browser should open automatically." << endl <<  "-- Click 'End Session' in the browser when finished." << endl;
+    stderr << "-- Visualizing poset. Your browser should open automatically." << endl <<  "-- Click 'End Session' in the browser when finished." << endl;
     while true do (
         wait {listener};
         g := openInOut listener; -- this should be interruptable! (Dan's Comment, not sure what it means)
