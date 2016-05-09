@@ -407,7 +407,7 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()
 --input: A poset
 --output: The poset in the browswer
 --
-visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+visualize(Poset) := {Verbose => false, FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local nodeString; local relationString; local browserOutput;
     
@@ -1634,9 +1634,9 @@ restart
 --path=path|{"~/Desktop/githup/Visualize-M2"}
 --loadPackage "Posets"
 loadPackage "Visualize"
-openPort "8080"
+openPort "8081"
 P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
-visualize P
+visualize(P, Verbose => true)
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize P2
 visualize(P2,FixExtremeElements => true)
@@ -1648,6 +1648,7 @@ visualize P
 P = diamondProduct(chain 4, chain 4)
 visualize P
 
+closePort()
 -- Simplicial Complexes
 restart
 loadPackage "SimplicialComplexes"
