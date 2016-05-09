@@ -245,7 +245,7 @@ relHeightFunction(Poset) := P -> (
 --
 visualize = method(Options => true)
 
-visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
+visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList;
         
