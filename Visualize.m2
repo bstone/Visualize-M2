@@ -54,6 +54,7 @@ export {
 --     "replaceInFile",-- Don't need to export?
 --     "heightFunction",
 --     "relHeightFunction",
+--     "visOutput", -- do we even use this?
      
     -- Server
      "openPort",
@@ -140,6 +141,7 @@ replaceInFile(String, String, String) := (patt, repl, fileName) -> (
 --    	 where template file is located.
 --output: A file with visKey replaced with visString.
 --
+{*
 visOutput = method(Options => {VisPath => currentDirectory()})
 visOutput(String,String,String) := opts -> (visKey,visString,visTemplate) -> (
     local fileName; local openFile; local PATH;
@@ -152,6 +154,7 @@ visOutput(String,String,String) := opts -> (visKey,visString,visTemplate) -> (
                   
     return (show new URL from { "file://"|PATH }, fileName);
     )
+*}
 
 -- input: path to an html file
 -- output: a copy of the input file in a temporary folder
@@ -195,8 +198,8 @@ copyTemplate(String,String) := (src,dst) -> (
 
 -- input:
 -- output:
-searchReplace = method(Options => {VisPath => currentDirectory()})
-searchReplace(String,String,String) := opts -> (oldString,newString,visSrc) -> (
+searchReplace = method() --Options => {VisPath => currentDirectory()}) -- do we use VisPath?
+searchReplace(String,String,String) := (oldString,newString,visSrc) -> (
     local visFilePathTemp;
     
     visFilePathTemp = temporaryFileName();
@@ -308,9 +311,6 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
     
-    --bstest
-    if opts.Verbose == true then print opts.VisTemplate;
-    
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
     
@@ -336,37 +336,19 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
 
     if opts.VisPath =!= null 
     then (
-	 --bstest
-	 if opts.Verbose == true then print (1,opts.VisTemplate);
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visGraph template to a temporary directory.
     	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
 --	visTemp = copyTemplate(opts.VisTemplate|"3D.html",opts.VisPath);
 --	copyJS(opts.VisPath, Warning => opts.Warning);	    
-		 --bstest
-	 if opts.Verbose == true then print (5,opts.VisTemplate);
       )
     else (
-		 --bstest
-	 if opts.Verbose == true then print (2,opts.VisTemplate);
 	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visGraph template to a temporary directory.
-			 --bstest
-	 if opts.Verbose == true then print netList{3,basePath,defaultPath, currentFileDirectory, opts.VisTemplate,visTemp, baseFilename visTemp};
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
-			 --bstest
-	 if opts.Verbose == true then print (4,opts.VisTemplate);
       );
     
-    		 --bstest
-	 if opts.Verbose == true then print (6,opts.VisTemplate);
     searchReplace("visArray",arrayString, visTemp); -- Replace visArray in the visGraph html file by the adjacency matrix.
-    		 --bstest
-	 if opts.Verbose == true then print (7,opts.VisTemplate);
     searchReplace("visLabels",vertexString, visTemp); -- Replace visLabels in the visGraph html file by the ordered list of vertices.
-    		 --bstest
-	 if opts.Verbose == true then print (8,opts.VisTemplate);
     searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
-    		 --bstest
-	 if opts.Verbose == true then print (9,opts.VisTemplate);
     
     show new URL from { "file://"|visTemp };
     
@@ -375,7 +357,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
     return browserOutput;
 )
 
-visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()|"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
+visualize(Digraph) := {VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet;
     
@@ -428,7 +410,7 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()
 --input: A poset
 --output: The poset in the browswer
 --
-visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local nodeString; local relationString;
     
@@ -468,7 +450,7 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
-visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
@@ -488,10 +470,10 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 
     if dim D>2 then (
 	error "3-dimensional simplicial complexes not implemented yet.";
- 	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
+ 	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
     )
     else (
-	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"
+	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"
     );
    
     if opts.VisPath =!= null 
@@ -525,7 +507,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
-visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
+visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
     local visTemp; local stringList;
         
     if opts.VisPath =!= null 
@@ -567,37 +549,25 @@ copyJS(String) := opts -> dst -> (
     FONT = "";
     IMAGE = "";
             
---bstest
-print(basePath|"Visualize/js/");
-
     -- get list of filenames in js/
     jsdir = delete("..",delete(".",
 	    readDirectory(basePath|"Visualize/js/")
 	    ));
 
---bstest    
-print("toms mom is all the time");
-    
     -- get list of filenames in css/
     cssdir = delete("..",delete(".",
 	    readDirectory(basePath|"Visualize/css/")
 	    ));
 
-    
     -- get list of filenames in fonts/
     fontdir = delete("..",delete(".",
 	    readDirectory(basePath|"Visualize/fonts/")
 	    ));
 
-    
     -- get list of filenames in images/    
     imagedir = delete("..",delete(".",
 	    readDirectory(basePath|"Visualize/images/")
 	    ));
-    
---bstest
-print dst;
-
 
     if opts.Warning == true
     then (
@@ -1475,9 +1445,10 @@ installPackage"Visualize"
 viewHelp Visualize
 
 restart
+run "pwd"
 path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage"Visualize"
-openPort "8080"
+openPort "8081"
 G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 K = spanningForest H
