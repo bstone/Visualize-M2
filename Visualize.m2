@@ -67,6 +67,7 @@ export {
 ------------------------------------------------------------
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
+basePath = currentFileDirectory
 
 -- (options Visualize).Configuration
 
@@ -303,7 +304,7 @@ arrayList = toArray arrayList;
 --input: A graph
 --output: the graph in the browswer
 --
-visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
+visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
     
@@ -349,7 +350,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
 	 if opts.Verbose == true then print (2,opts.VisTemplate);
 	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visGraph template to a temporary directory.
 			 --bstest
-	 if opts.Verbose == true then print (3,opts.VisTemplate);
+	 if opts.Verbose == true then print netList{3,basePath,defaultPath, currentFileDirectory, opts.VisTemplate,visTemp, baseFilename visTemp};
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
 			 --bstest
 	 if opts.Verbose == true then print (4,opts.VisTemplate);
@@ -555,7 +556,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | 
 --caveat: Checks to see if files exist. If they do exist, the user
 --        must give permission to continue. Continuing will overwrite
 --        current files and cannont be undone.
-copyJS = method(Options => {Warning => true} )
+copyJS = method(Options => {Warning => true})
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
     local cssdir; local fontdir; local imagedir;
@@ -566,26 +567,36 @@ copyJS(String) := opts -> dst -> (
     FONT = "";
     IMAGE = "";
             
+--bstest
+print(basePath|"Visualize/js/");
+
     -- get list of filenames in js/
     jsdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/js/")
+	    readDirectory(basePath|"Visualize/js/")
 	    ));
+
+--bstest    
+print("toms mom is all the time");
     
     -- get list of filenames in css/
     cssdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/css/")
+	    readDirectory(basePath|"Visualize/css/")
 	    ));
+
     
     -- get list of filenames in fonts/
     fontdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/fonts/")
+	    readDirectory(basePath|"Visualize/fonts/")
 	    ));
+
     
     -- get list of filenames in images/    
     imagedir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/images/")
+	    readDirectory(basePath|"Visualize/images/")
 	    ));
     
+--bstest
+print dst;
 
 
     if opts.Warning == true
@@ -623,10 +634,10 @@ copyJS(String) := opts -> dst -> (
 		);
 	);
     
-    copyDirectory(currentDirectory()|"Visualize/js/",dst|"js/");
-    copyDirectory(currentDirectory()|"Visualize/css/",dst|"css/");
-    copyDirectory(currentDirectory()|"Visualize/fonts/",dst|"fonts/");
-    copyDirectory(currentDirectory()|"Visualize/images/",dst|"images/");
+    copyDirectory(basePath|"Visualize/js/",dst|"js/");
+    copyDirectory(basePath|"Visualize/css/",dst|"css/");
+    copyDirectory(basePath|"Visualize/fonts/",dst|"fonts/");
+    copyDirectory(basePath|"Visualize/images/",dst|"images/");
     
     return "Created directories at "|dst;
 )
@@ -1464,12 +1475,14 @@ installPackage"Visualize"
 viewHelp Visualize
 
 restart
+path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage"Visualize"
 openPort "8080"
 G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
+closePort()
 
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 H = visualize ( G, VisPath => "/Users/bstone/Desktop/Test/",Verbose => true)
