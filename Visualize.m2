@@ -241,12 +241,9 @@ relHeightFunction(Poset) := P -> (
 --
 visualize = method(Options => true)
 
-visualize(Ideal) :=  {VisPath => defaultPath, Warning => true, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
+visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList;
-    -- local A;
-    
-    --opts.VisTemplate = opts.VisTemplate | "Visualize/templates/visIdeal/visIdeal";
         
     R = ring J;
     numVar = rank source vars R;
@@ -267,7 +264,7 @@ visualize(Ideal) :=  {VisPath => defaultPath, Warning => true, VisTemplate => cu
 	    );
 	
 	arrayList = apply( flatten entries gens J, m -> flatten exponents m);	
-	arrayList = toArray arrayList;
+arrayList = toArray arrayList;
 	arrayString = toString arrayList;
 	
 	searchReplace("visArray",arrayString, visTemp);
@@ -930,6 +927,48 @@ document {
 --     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
      
      }
+ 
+ document {
+     Key => VisPath,
+     Headline => "an option to define a path save visualizations",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => VisTemplate,
+     Headline => "an option to define a path to a user defined template",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+ 
+document {
+     Key => Warning,
+     Headline => "an option to squelch warnings",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => FixExtremeElements,
+     Headline => "an option that Brett made",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+
 
 document {
      Key => (visualize,Ideal),
