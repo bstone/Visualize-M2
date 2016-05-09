@@ -408,7 +408,7 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()
 --input: A poset
 --output: The poset in the browswer
 --
-visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local nodeString; local relationString; local browserOutput;
     
