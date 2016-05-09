@@ -960,7 +960,7 @@ document {
 
 document {
      Key => FixExtremeElements,
-     Headline => "an option that Brett made",
+     Headline => "an option that brett created",
      
      PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
