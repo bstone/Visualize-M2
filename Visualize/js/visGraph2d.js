@@ -597,12 +597,14 @@ function keydown() {
       if(curEdit && selected_node) {
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
+        if(curHighlight) unHighlightAll();
       } else if(curEdit && selected_link) {
 
         links.splice(links.indexOf(selected_link), 1);
+        if(curHighlight) unHighlightAll();
       }
       selected_link = null;
-      selected_node = null;
+      if(curEdit) {selected_node = null;}
 
       // Graph Changed :: deleted nodes and links
       // as a result we change some items to default
@@ -615,7 +617,6 @@ function keydown() {
       document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
 
       restart();
-      if(curHighlight) unHighlightAll();
       break;
   }
   restart();
