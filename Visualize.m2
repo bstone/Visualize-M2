@@ -307,6 +307,8 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
     
+    --bstest
+    if opts.Verbose == true then print opts.VisTemplate;
     
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
@@ -333,19 +335,37 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
 
     if opts.VisPath =!= null 
     then (
+	 --bstest
+	 if opts.Verbose == true then print (1,opts.VisTemplate);
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visGraph template to a temporary directory.
     	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
 --	visTemp = copyTemplate(opts.VisTemplate|"3D.html",opts.VisPath);
 --	copyJS(opts.VisPath, Warning => opts.Warning);	    
+		 --bstest
+	 if opts.Verbose == true then print (5,opts.VisTemplate);
       )
     else (
+		 --bstest
+	 if opts.Verbose == true then print (2,opts.VisTemplate);
 	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visGraph template to a temporary directory.
+			 --bstest
+	 if opts.Verbose == true then print (3,opts.VisTemplate);
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+			 --bstest
+	 if opts.Verbose == true then print (4,opts.VisTemplate);
       );
     
+    		 --bstest
+	 if opts.Verbose == true then print (6,opts.VisTemplate);
     searchReplace("visArray",arrayString, visTemp); -- Replace visArray in the visGraph html file by the adjacency matrix.
+    		 --bstest
+	 if opts.Verbose == true then print (7,opts.VisTemplate);
     searchReplace("visLabels",vertexString, visTemp); -- Replace visLabels in the visGraph html file by the ordered list of vertices.
+    		 --bstest
+	 if opts.Verbose == true then print (8,opts.VisTemplate);
     searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
+    		 --bstest
+	 if opts.Verbose == true then print (9,opts.VisTemplate);
     
     show new URL from { "file://"|visTemp };
     
@@ -1289,7 +1309,7 @@ document {
 
 
 document {
-     Key => {closePort, (closePort)},
+     Key => (closePort),
      Headline => "closes and open port",
      
      PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
@@ -1442,6 +1462,8 @@ path
 restart
 installPackage"Visualize"
 viewHelp Visualize
+
+restart
 loadPackage"Visualize"
 openPort "8080"
 G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
