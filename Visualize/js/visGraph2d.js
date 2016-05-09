@@ -34,6 +34,22 @@
  // Helps determine what menu button was clicked.
   var clickTest = null; 
 
+  var scriptSource = (function(scripts) {
+    var scripts = document.getElementsByTagName('script'),
+        script = scripts[scripts.length - 1];
+
+    if (script.getAttribute.length !== undefined) {
+        return script.src
+    }
+
+    return script.getAttribute('src', -1)
+    }());
+    
+    // Just get the current directory that contains the html file.
+    scriptSource = scriptSource.substring(0, scriptSource.length - 16);
+      
+    console.log(scriptSource);
+
 function initializeBuilder() {
   // Set up SVG for D3.
   width  = window.innerWidth-10;
@@ -853,7 +869,7 @@ function exportTikz (event){
 
   var tikzTex = "";
   tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
-
+    
   if(!tikzGenerated){
     var tikzDiv = document.createElement("div");
     tikzDiv.id = "tikzHolder";
@@ -869,7 +885,7 @@ function exportTikz (event){
     //tikzButton.dataClipboardTarget = "#tikzTextBox";
     tikzButton.type = "button";
     var clipboardImg = document.createElement("img");
-    clipboardImg.src = "./images/32px-Octicons-clippy.svg";
+    clipboardImg.src = scriptSource+"images/32px-Octicons-clippy.svg";
     clipboardImg.alt = "Copy to clipboard";
     clipboardImg.style = "width:19px;height:19px;";
     tikzButton.appendChild(clipboardImg);
