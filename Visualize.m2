@@ -438,6 +438,7 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
     
     searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
     searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
+    searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
     
     show new URL from { "file://"|visTemp };
  
