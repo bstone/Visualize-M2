@@ -1359,8 +1359,10 @@ visualize D2
 
 -- Posets
 restart
-loadPackage "Posets"
+--path=path|{"~/Desktop/githup/Visualize-M2"}
+--loadPackage "Posets"
 loadPackage "Visualize"
+openPort "8080"
 P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
 visualize P
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
