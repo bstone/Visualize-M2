@@ -869,7 +869,7 @@ function exportTikz (event){
     //tikzButton.dataClipboardTarget = "#tikzTextBox";
     tikzButton.type = "button";
     var clipboardImg = document.createElement("img");
-    clipboardImg.src = "images/32px-Octicons-clippy.svg";
+    clipboardImg.src = "./images/32px-Octicons-clippy.svg";
     clipboardImg.alt = "Copy to clipboard";
     clipboardImg.style = "width:19px;height:19px;";
     tikzButton.appendChild(clipboardImg);
