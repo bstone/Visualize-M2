@@ -241,11 +241,10 @@ relHeightFunction(Poset) := P -> (
 --
 visualize = method(Options => true)
 
-visualize(Ideal) := {VisPath => defaultPath, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal", Warning => true} >> opts -> J -> (
+visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList;
-    -- local A;
-    
+        
     R = ring J;
     numVar = rank source vars R;
     varList = flatten entries vars R;
@@ -265,7 +264,7 @@ visualize(Ideal) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
 	    );
 	
 	arrayList = apply( flatten entries gens J, m -> flatten exponents m);	
-	arrayList = toArray arrayList;
+arrayList = toArray arrayList;
 	arrayString = toString arrayList;
 	
 	searchReplace("visArray",arrayString, visTemp);
@@ -936,11 +935,11 @@ document {
      Headline => "creates an interactive object in a modern browser",
      
      PARA "Given an open port, this method will create an interactive visualization of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
+     in a modern browser. While viewing the object, the user has the ability to manipulate the 
+     object, and run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
                
-     PARA "The workflow for this package is as follows",
+     PARA "The workflow for this package is as follows:",
      
      UL{ "1. Load or install the package."},
      
@@ -957,7 +956,7 @@ document {
      
      UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
      
-     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2"}},
+     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2."}},
      
      }
 
@@ -965,9 +964,18 @@ document {
 
 document {
      Key => (visualize,Graph),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     Headline => "visualizes a graph in a modern browser",
+     Usage => " H = visualize G",
+     Inputs => {
+	 "G" => Graph => " a graph",
+--	 Verbose => Boolean => " prints server communication in the M2 buffer",
+--	 VisPath => String => " a path where the visualization will be created and saved",
+--	 VisTemplate => String => " a path to a user created/modified template",
+--	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath"
+	 },
+	 
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
@@ -1024,6 +1032,210 @@ document {
 --     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
      
      }
+ 
+ document {
+     Key => VisPath,
+     Headline => "an option to define a path save visualizations",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => VisTemplate,
+     Headline => "an option to define a path to a user defined template",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+ 
+document {
+     Key => Warning,
+     Headline => "an option to squelch warnings",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => FixExtremeElements,
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+
+
+document {
+     Key => [(visualize,Poset),FixExtremeElements],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+ 
+document {
+     Key => [(visualize,Digraph),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Graph),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Ideal),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Poset),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,SimplicialComplex),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Digraph),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Graph),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Ideal),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Poset),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,SimplicialComplex),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Digraph),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Graph),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+ 
+document {
+     Key => [(visualize,Ideal),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Poset),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,SimplicialComplex),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+
 
 document {
      Key => (visualize,Ideal),
@@ -1066,8 +1278,8 @@ document {
      }
 
 document {
-     Key => openPort,
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     Key => {openPort,(openPort,String)},
+     Headline => "opens a port",
      
      PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
@@ -1077,8 +1289,8 @@ document {
 
 
 document {
-     Key => closePort,
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     Key => {closePort, (closePort)},
+     Headline => "closes and open port",
      
      PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
@@ -1265,7 +1477,7 @@ I = ideal"a2,ab,b2c,c5,b4"
 visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
-
+y
 
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
