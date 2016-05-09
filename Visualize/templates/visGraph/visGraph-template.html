@@ -119,10 +119,12 @@
         z-index: 100;
         padding-bottom: 5px;
       }
+        
     </style>
     <script type="text/javascript">
       //global variables
       activeSession = true;
+      tikzGenerated = false;
       curEdit = false;
       curHighlight = false;
   	  curView = "2d";
@@ -140,12 +142,15 @@
 
         <div id="side">
           <h3>&#8202;&#8202;Menu</h3>
-          <div class="list-group">
+          <div class="list-group" id="menuList">
             <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
             <a id="highlightToggle" href="#" class="list-group-item">Highlight neighbors</a>
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn off force</a>
-            <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
+            <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
+              
+              <!-- <div id="tikzHolder" class="list-group-item"><input id="tikzTextBox" value="" size="15" style="vertical-align:middle;" readonly><button id="copyButton" style="vertical-align:middle;" data-clipboard-target="#tikzTextBox" type="button"><img src="images/32px-Octicons-clippy.svg" alt="Copy to clipboard" style="width:19px;height:19px;"></button></div> -->
+            
             <a href="#collapse1" data-toggle="collapse" class="list-group-item">Boolean tests &#9662;</a>
                 <div id="collapse1" class="panel-collapse collapse">
                     <a id="hasEulerianTrail" href="#" class="list-group-item"> &nbsp;&nbsp; hasEulerianTrail</a>
@@ -194,11 +199,14 @@
   <script src="js/clipboard.min.js"></script>
 
   <script type="text/javascript">
+    // Initialize clipboard.js.
+    var clipboard = null;
+      
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
     document.getElementById("canvasElement2d").style.width = window.innerWidth;
-    document.getElementById("canvasElement2d").style.height = window.innerHeight - 125;
+    document.getElementById("canvasElement2d").style.height = window.innerHeight;
       
     window.addEventListener("resize", updateWindowSize2d, false);
 
@@ -232,8 +240,8 @@
       
       $("#forceToggle").on("click", toggleForce);
       
-      $("#exportTikz").on("click", function(event) {
-        exportTikz(event);
+      $("#exportTikz").on("click", function() {
+        exportTikz();
       });
 
       // Begin browser-M2 communication.
