@@ -409,7 +409,8 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()
 --
 visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
     local labelList; local groupList; local relList; local visTemp;
-    local numNodes; local nodeString; local relationString;
+    local numNodes; local nodeString; local relationString; local browserOutput;
+    
     
     labelList = P_*;
     if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
