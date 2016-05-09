@@ -54,6 +54,7 @@ export {
 --     "replaceInFile",-- Don't need to export?
 --     "heightFunction",
 --     "relHeightFunction",
+--     "visOutput", -- do we even use this?
      
     -- Server
      "openPort",
@@ -67,6 +68,7 @@ export {
 ------------------------------------------------------------
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
+basePath = currentFileDirectory
 
 -- (options Visualize).Configuration
 
@@ -139,6 +141,7 @@ replaceInFile(String, String, String) := (patt, repl, fileName) -> (
 --    	 where template file is located.
 --output: A file with visKey replaced with visString.
 --
+{*
 visOutput = method(Options => {VisPath => currentDirectory()})
 visOutput(String,String,String) := opts -> (visKey,visString,visTemplate) -> (
     local fileName; local openFile; local PATH;
@@ -151,6 +154,7 @@ visOutput(String,String,String) := opts -> (visKey,visString,visTemplate) -> (
                   
     return (show new URL from { "file://"|PATH }, fileName);
     )
+*}
 
 -- input: path to an html file
 -- output: a copy of the input file in a temporary folder
@@ -194,8 +198,8 @@ copyTemplate(String,String) := (src,dst) -> (
 
 -- input:
 -- output:
-searchReplace = method(Options => {VisPath => currentDirectory()})
-searchReplace(String,String,String) := opts -> (oldString,newString,visSrc) -> (
+searchReplace = method() --Options => {VisPath => currentDirectory()}) -- do we use VisPath?
+searchReplace(String,String,String) := (oldString,newString,visSrc) -> (
     local visFilePathTemp;
     
     visFilePathTemp = temporaryFileName();
@@ -241,7 +245,7 @@ relHeightFunction(Poset) := P -> (
 --
 visualize = method(Options => true)
 
-visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
+visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList;
         
@@ -303,10 +307,9 @@ arrayList = toArray arrayList;
 --input: A graph
 --output: the graph in the browswer
 --
-visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
+visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
-    
     
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
@@ -354,7 +357,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
     return browserOutput;
 )
 
-visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()|"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
+visualize(Digraph) := {VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet;
     
@@ -407,7 +410,7 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()
 --input: A poset
 --output: The poset in the browswer
 --
-visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local nodeString; local relationString;
     
@@ -447,7 +450,7 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
-visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
@@ -467,10 +470,10 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 
     if dim D>2 then (
 	error "3-dimensional simplicial complexes not implemented yet.";
- 	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
+ 	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
     )
     else (
-	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"
+	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"
     );
    
     if opts.VisPath =!= null 
@@ -504,7 +507,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
-visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
+visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
     local visTemp; local stringList;
         
     if opts.VisPath =!= null 
@@ -535,7 +538,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | 
 --caveat: Checks to see if files exist. If they do exist, the user
 --        must give permission to continue. Continuing will overwrite
 --        current files and cannont be undone.
-copyJS = method(Options => {Warning => true} )
+copyJS = method(Options => {Warning => true})
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
     local cssdir; local fontdir; local imagedir;
@@ -548,25 +551,23 @@ copyJS(String) := opts -> dst -> (
             
     -- get list of filenames in js/
     jsdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/js/")
+	    readDirectory(basePath|"Visualize/js/")
 	    ));
-    
+
     -- get list of filenames in css/
     cssdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/css/")
+	    readDirectory(basePath|"Visualize/css/")
 	    ));
-    
+
     -- get list of filenames in fonts/
     fontdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/fonts/")
+	    readDirectory(basePath|"Visualize/fonts/")
 	    ));
-    
+
     -- get list of filenames in images/    
     imagedir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/images/")
+	    readDirectory(basePath|"Visualize/images/")
 	    ));
-    
-
 
     if opts.Warning == true
     then (
@@ -603,10 +604,10 @@ copyJS(String) := opts -> dst -> (
 		);
 	);
     
-    copyDirectory(currentDirectory()|"Visualize/js/",dst|"js/");
-    copyDirectory(currentDirectory()|"Visualize/css/",dst|"css/");
-    copyDirectory(currentDirectory()|"Visualize/fonts/",dst|"fonts/");
-    copyDirectory(currentDirectory()|"Visualize/images/",dst|"images/");
+    copyDirectory(basePath|"Visualize/js/",dst|"js/");
+    copyDirectory(basePath|"Visualize/css/",dst|"css/");
+    copyDirectory(basePath|"Visualize/fonts/",dst|"fonts/");
+    copyDirectory(basePath|"Visualize/images/",dst|"images/");
     
     return "Created directories at "|dst;
 )
@@ -1289,7 +1290,7 @@ document {
 
 
 document {
-     Key => {closePort, (closePort)},
+     Key => (closePort),
      Headline => "closes and open port",
      
      PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
@@ -1442,12 +1443,17 @@ path
 restart
 installPackage"Visualize"
 viewHelp Visualize
+
+restart
+run "pwd"
+path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage"Visualize"
-openPort "8080"
+openPort "8081"
 G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
+closePort()
 
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 H = visualize ( G, VisPath => "/Users/bstone/Desktop/Test/",Verbose => true)
