@@ -36,8 +36,8 @@
 
 function initializeBuilder() {
   // Set up SVG for D3.
-  width  = window.innerWidth;
-  height = window.innerHeight-150;
+  width  = window.innerWidth-10;
+  height = window.innerHeight-10;
   colors = d3.scale.category10();
 
   svg = d3.select('body')
@@ -68,20 +68,8 @@ function initializeBuilder() {
           }
       }
   }
-
-  // Brett: Need to fix this.
-
-  var maxLength = d3.max(nodes, function(d) { return d.name.length; });
-
-  console.log("maxLength: " + maxLength + "\n");
-
-  if(maxLength < 4){
-    d3.selectAll("text").classed("fill", "White");
-  } else {
-    d3.selectAll("text").classed("fill", "White");
-  }
-
-  constrString = graph2M2Constructor(nodes,links);
+    
+  //constrString = graph2M2Constructor(nodes,links);
     
   // (Brett) Removing incidence and adjacency matrices.
   /*incMatrix = getIncidenceMatrix(nodes,links);
@@ -90,9 +78,10 @@ function initializeBuilder() {
   adjMatrixString = arraytoM2Matrix(adjMatrix);*/
 
   // Add a paragraph containing the Macaulay2 graph constructor string below the svg.
-  d3.select("body").append("p")
+  /* d3.select("body").append("p")
   	.text("Macaulay2 Constructor: " + constrString)
   	.attr("id","constructorString");
+  */
 
   // (Brett) Removing incidence and adjacency matrices.
     
@@ -145,6 +134,20 @@ function initializeBuilder() {
     
   // The restart() function updates the graph.
   restart();
+  
+  // Brett: Need to fix this.
+  /*
+  var maxLength = d3.max(nodes, function(d) { return d.name.length; });
+
+  console.log("maxLength: " + maxLength + "\n");
+
+  if(maxLength < 4){
+        document.getElementById("nodeText").style.fill = 'white';
+  } else {
+        document.getElementById("nodeText").style.fill = 'black';
+  }
+  */
+
 }
 
 function resetGraph() {
@@ -357,7 +360,6 @@ function restart() {
 
       restart();
     })
-
     .on('mouseup', function(d) {
       if(!mousedown_node) return;
 
@@ -385,7 +387,7 @@ function restart() {
         target = mousedown_node;
         direction = 'left';
       }
-
+      
       var link;
       link = links.filter(function(l) {
         return (l.source === source && l.target === target);
@@ -433,22 +435,13 @@ function restart() {
           name = "";
         }
       }
+      
       if(name != null) {
         d.name = name;
-        d3.select(this.parentNode).select("text").text(function(d) {return d.name});
+        d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
       }
 
       document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-
-      var maxLength = d3.max(nodes, function(d) {
-        return d.name.length;
-      });
-
-      if(maxLength < 4){
-        d3.selectAll("text").classed("fill", 0xfefcff);
-      } else {
-        d3.selectAll("text").classed("fill", 0x000000);
-      }
 
     });
 
@@ -459,6 +452,18 @@ function restart() {
       .attr('class', 'id noselect')
       .attr("pointer-events", "none")
       .text(function(d) { return d.name; });
+
+  /*
+  var maxLength = d3.max(nodes, function(d) {
+        return d.name.length;
+  });
+      
+  if(maxLength < 4){
+        document.getElementById("nodeText").style.fill = 'white';
+  } else {
+        document.getElementById("nodeText").style.fill = 'black';
+  }
+  */
 
   // remove old nodes
   circle.exit().remove();
@@ -700,16 +705,16 @@ function updateWindowSize2d() {
     
     // get width/height with container selector (body also works)
     // or use other method of calculating desired values
-    var width = window.innerWidth;
-    var height = window.innerHeight-150;
+    var width = window.innerWidth-10;
+    var height = window.innerHeight-10;
 
     // set attrs and 'resume' force 
     //svg.attr('width', width);
     //svg.attr('height', height);
-    svg.style.width = window.innerWidth;
-    svg.style.height = window.innerHeight - 150;
-    svg.width = window.innerWidth;
-    svg.height = window.innerHeight - 150;
+    svg.style.width = width;
+    svg.style.height = height;
+    svg.width = width;
+    svg.height = height;
     force.size([width, height]).resume();
 }
 
@@ -849,6 +854,37 @@ function exportTikz (event){
   var tikzTex = "";
   tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
 
+  if(!tikzGenerated){
+    var tikzDiv = document.createElement("div");
+    tikzDiv.id = "tikzHolder";
+    tikzDiv.className = "list-group-item";
+    var tikzInput = document.createElement("input");
+    tikzInput.value = "";
+    tikzInput.id = "tikzTextBox";
+    tikzInput.size = "15";
+    tikzInput.style = "vertical-align:middle;";
+    var tikzButton = document.createElement("button");
+    tikzButton.id = "copyButton";
+    tikzButton.style = "vertical-align:middle;";
+    //tikzButton.dataClipboardTarget = "#tikzTextBox";
+    tikzButton.type = "button";
+    var clipboardImg = document.createElement("img");
+    clipboardImg.src = "images/32px-Octicons-clippy.svg";
+    clipboardImg.alt = "Copy to clipboard";
+    clipboardImg.style = "width:19px;height:19px;";
+    tikzButton.appendChild(clipboardImg);
+    tikzDiv.appendChild(tikzInput);
+    tikzDiv.appendChild(tikzButton);
+    var listGroup = document.getElementById("menuList");
+    listGroup.insertBefore(tikzDiv,listGroup.childNodes[10]);
+    document.getElementById("copyButton").setAttribute("data-clipboard-target","#tikzTextBox");
+    clipboard = new Clipboard('#copyButton');
+    clipboard.on('error', function(e) {
+        window.alert("Press enter, then CTRL-C or CMD-C to copy")
+    });  
+    tikzGenerated = true;
+  }
+  document.getElementById("tikzTextBox").value = tikzTex;
   /*  
   var tikzTextArea = document.createElement("textarea");
   tikzTextArea.setAttribute("type", "hidden"); 
@@ -876,11 +912,11 @@ function exportTikz (event){
 //  $('#tikzTex').select().focus();
 
 //console.log(tikzTex.length);
-  if (tikzTex.length < 2001){
-    window.prompt("Copy this text the best way you can.", tikzTex );
-  } else {
-    alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
-  }
+//  if (tikzTex.length < 2001){
+//    window.prompt("Copy this text the best way you can.", tikzTex );
+//  } else {
+//    alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
+//  }
     
 }
 
