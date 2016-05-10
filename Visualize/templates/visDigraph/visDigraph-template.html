@@ -154,34 +154,9 @@
             <a href="#collapse1" data-toggle="collapse" class="list-group-item">Boolean tests &#9662;</a>
                 <div id="collapse1" class="panel-collapse collapse">
                     <a id="hasEulerianTrail" href="#" class="list-group-item"> &nbsp;&nbsp; hasEulerianTrail</a>
-                    <a id="hasOddHole" href="#" class="list-group-item"> &nbsp;&nbsp; hasOddHole</a>
-                    <a id="isBipartite" href="#" class="list-group-item"> &nbsp;&nbsp; isBipartite</a>
-                    <a id="isChordal" href="#" class="list-group-item"> &nbsp;&nbsp; isChordal</a>
-                    <a id="isCM" href="#" class="list-group-item"> &nbsp;&nbsp; isCM</a>
-                    <a id="isConnected" href="#" class="list-group-item"> &nbsp;&nbsp; isConnected</a>
-                    <a id="isCyclic" href="#" class="list-group-item"> &nbsp;&nbsp; isCyclic</a>
                     <a id="isEulerian" href="#" class="list-group-item"> &nbsp;&nbsp; isEulerian</a>
-                    <a id="isForest" href="#" class="list-group-item"> &nbsp;&nbsp; isForest</a>
-                    <a id="isPerfect" href="#" class="list-group-item"> &nbsp;&nbsp; isPerfect</a>
-                    <a id="isRegular" href="#" class="list-group-item"> &nbsp;&nbsp; isRegular</a>
-                    <a id="isSimple" href="#" class="list-group-item"> &nbsp;&nbsp; isSimple</a>
-                    <a id="isTree" href="#" class="list-group-item"> &nbsp;&nbsp; isTree</a>
-                </div>
-            <a href="#collapse2" data-toggle="collapse" class="list-group-item">Numerical invariants &#9662;</a>
-                <div id="collapse2" class="panel-collapse collapse">
-                    <a id="chromaticNumber" href="#" class="list-group-item"> &nbsp;&nbsp; chromaticNumber</a>
-                    <a id="independenceNumber" href="#" class="list-group-item"> &nbsp;&nbsp; independenceNumber</a>
-                    <a id="cliqueNumber" href="#" class="list-group-item"> &nbsp;&nbsp; cliqueNumber</a>
-                    <a id="degeneracy" href="#" class="list-group-item"> &nbsp;&nbsp; degeneracy</a>
-                    <a id="density" href="#" class="list-group-item"> &nbsp;&nbsp; density</a>
-                    <a id="diameter" href="#" class="list-group-item"> &nbsp;&nbsp; diameter</a>
-                    <a id="edgeConnectivity" href="#" class="list-group-item"> &nbsp;&nbsp; edgeConnectivity</a>
-                    <a id="minimalDegree" href="#" class="list-group-item"> &nbsp;&nbsp; minimalDegree</a>
-                    <a id="numberOfComponents" href="#" class="list-group-item"> &nbsp;&nbsp; numberOfComponents</a>
-                    <a id="numberOfTriangles" href="#" class="list-group-item"> &nbsp;&nbsp; numberOfTriangles</a>
-                    <a id="radius" href="#" class="list-group-item"> &nbsp;&nbsp; radius</a>
-                    <a id="vertexConnectivity" href="#" class="list-group-item"> &nbsp;&nbsp; vertexConnectivity</a>
-                    <a id="vertexCoverNumber" href="#" class="list-group-item"> &nbsp;&nbsp; vertexCoverNumber</a>
+                    <a id="isStronglyConnected" href="#" class="list-group-item"> &nbsp;&nbsp; isStronglyConnected</a>
+                    <a id="isWeaklyConnected" href="#" class="list-group-item"> &nbsp;&nbsp; isWeaklyConnected</a>
                 </div>
              <a id="endSession" href="#" class="list-group-item">End session</a>            
           </div>
@@ -260,157 +235,25 @@
       $("#hasEulerianTrail").on("click", function() {
         clickTest = "hasEulerianTrail";
         makeCorsRequest('POST','http://localhost:'+portData+'/hasEulerianTrail/', digraph2M2Constructor(nodes,links));
-      });    
+      });
         
-      // Checks to see if user's graph has an odd hole
-      $("#hasOddHole").on("click", function() {
-        clickTest = "hasOddHole";
-        makeCorsRequest('POST','http://localhost:'+portData+'/hasOddHole/', digraph2M2Constructor(nodes,links));
-      });    
-      
-      // Checks to see if users graph is bipartite
-      $("#isBipartite").on("click", function() {
-        clickTest = "isBipartite";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isBipartite/', digraph2M2Constructor(nodes,links));
-      });      
-
-      // Checks to see if users graph is chordal
-      $("#isChordal").on("click", function() {
-        clickTest = "isChordal";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isChordal/', digraph2M2Constructor(nodes,links));
-      });                  
-
-      // Checks to see if users graph is Cohen-Macaulay
-      $("#isCM").on("click", function() {
-        clickTest = "isCM";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isCM/', digraph2M2Constructor(nodes,links));
-      });      
-
-      // Checks to see if users graph is Connected
-      $("#isConnected").on("click", function() {
-        clickTest = "isConnected";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isConnected/', digraph2M2Constructor(nodes,links));
-      });      
-
-      // Checks to see if users graph is Cyclic
-      $("#isCyclic").on("click", function() {
-        clickTest = "isCyclic";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isCyclic/', digraph2M2Constructor(nodes,links));
-      });      
-
       // Checks to see if users graph is Eulerian
       $("#isEulerian").on("click", function() {
         clickTest = "isEulerian";
         makeCorsRequest('POST','http://localhost:'+portData+'/isEulerian/', digraph2M2Constructor(nodes,links));
       });      
 
-      // Checks to see if users graph is a Forest
-      $("#isForest").on("click", function() {
-        clickTest = "isForest";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isForest/', digraph2M2Constructor(nodes,links));
+      // Checks to see if users graph is strongly connected
+      $("#isStronglyConnected").on("click", function() {
+        clickTest = "isStronglyConnected";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isStronglyConnected/', digraph2M2Constructor(nodes,links));
       });      
 
-      // Checks to see if users graph is Perfect
-      $("#isPerfect").on("click", function() {
-        clickTest = "isPerfect";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isPerfect/', digraph2M2Constructor(nodes,links));
+      // Checks to see if users graph is weakly connected
+      $("#isWeaklyConnected").on("click", function() {
+        clickTest = "isWeaklyConnected";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isWeaklyConnected/', digraph2M2Constructor(nodes,links));
       });      
-
-      // Checks to see if users graph is Regular
-      $("#isRegular").on("click", function() {
-        clickTest = "isRegular";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isRegular/', digraph2M2Constructor(nodes,links));
-      });      
-
-      // Checks to see if users graph is Simple
-      $("#isSimple").on("click", function() {
-        clickTest = "isSimple";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isSimple/', digraph2M2Constructor(nodes,links));
-      });      
-
-      // Checks to see if users graph is a Tree
-      $("#isTree").on("click", function() {
-        clickTest = "isTree";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isTree/', digraph2M2Constructor(nodes,links));
-      });      
-
-      // Computes the chromatic number of the user's graph
-      $("#chromaticNumber").on("click", function() {
-        clickTest = "chromaticNumber";
-        makeCorsRequest('POST','http://localhost:'+portData+'/chromaticNumber/', digraph2M2Constructor(nodes,links));
-      });          
-    
-      // Computes the independence number of the user's graph
-      $("#independenceNumber").on("click", function() {
-        clickTest = "independenceNumber";
-        makeCorsRequest('POST','http://localhost:'+portData+'/independenceNumber/', digraph2M2Constructor(nodes,links));
-      });    
-        
-      // Computes the clique number of the user's graph
-      $("#cliqueNumber").on("click", function() {
-        clickTest = "cliqueNumber";
-        makeCorsRequest('POST','http://localhost:'+portData+'/cliqueNumber/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes degeneracy of the user's graph
-      $("#degeneracy").on("click", function() {
-        clickTest = "degeneracy";
-        makeCorsRequest('POST','http://localhost:'+portData+'/degeneracy/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes density of the user's graph
-      $("#density").on("click", function() {
-        clickTest = "density";
-        makeCorsRequest('POST','http://localhost:'+portData+'/density/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes diameter of the user's graph
-      $("#diameter").on("click", function() {
-        clickTest = "diameter";
-        makeCorsRequest('POST','http://localhost:'+portData+'/diameter/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes edge connectivity of the user's graph
-      $("#edgeConnectivity").on("click", function() {
-        clickTest = "edgeConnectivity";
-        makeCorsRequest('POST','http://localhost:'+portData+'/edgeConnectivity/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes minimal degree of the user's graph
-      $("#minimalDegree").on("click", function() {
-        clickTest = "minimalDegree";
-        makeCorsRequest('POST','http://localhost:'+portData+'/minimalDegree/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes number of components of the user's graph
-      $("#numberOfComponents").on("click", function() {
-        clickTest = "numberOfComponents";
-        makeCorsRequest('POST','http://localhost:'+portData+'/numberOfComponents/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes number of triangles of the user's graph
-      $("#numberOfTriangles").on("click", function() {
-        clickTest = "numberOfTriangles";
-        makeCorsRequest('POST','http://localhost:'+portData+'/numberOfTriangles/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes radius of the user's graph
-      $("#radius").on("click", function() {
-        clickTest = "radius";
-        makeCorsRequest('POST','http://localhost:'+portData+'/radius/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes vertex connectivity of the user's graph
-      $("#vertexConnectivity").on("click", function() {
-        clickTest = "vertexConnectivity";
-        makeCorsRequest('POST','http://localhost:'+portData+'/vertexConnectivity/', digraph2M2Constructor(nodes,links));
-      });   
-        
-      // Computes vertex cover number of the user's graph
-      $("#vertexCoverNumber").on("click", function() {
-        clickTest = "vertexCoverNumber";
-        makeCorsRequest('POST','http://localhost:'+portData+'/vertexCoverNumber/', digraph2M2Constructor(nodes,links));
-      });   
         
       // Ends the browser session and outputs the information to M2
       $("#endSession").on("click", function() {
