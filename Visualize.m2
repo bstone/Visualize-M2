@@ -1245,6 +1245,10 @@ visualize(P, Verbose=>true)
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize P2
 visualize(P2,FixExtremeElements => true)
+
+G=graph({})
+visualize(G,Verbose=>true)
+
 R = QQ[x,y,z]
 I = ideal(x*y^2,x^2*z,y*z^2)
 P = lcmLattice I
