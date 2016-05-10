@@ -115,7 +115,7 @@ function initializeBuilder() {
   console.log(nodes);
   console.log(links);
     
-  //constrString = graph2M2Constructor(nodes,links);
+  //constrString = digraph2M2Constructor(nodes,links);
     
   // (Brett) Removing incidence and adjacency matrices.
   /*incMatrix = getIncidenceMatrix(nodes,links);
@@ -473,7 +473,7 @@ function restart() {
         menuDefaults();
       }
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
       
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -510,7 +510,7 @@ function restart() {
         d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
       }
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
 
     });
 
@@ -583,7 +583,7 @@ function mousedown() {
   // d3.select("#isCM").html("isCM");
   menuDefaults();
 
-  //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+  //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
     
   // (Brett) Removing incidence and adjacency matrices for now.
   /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -664,7 +664,7 @@ function keydown() {
       // d3.select("#isCM").html("isCM");      
       menuDefaults();
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
       document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
@@ -817,37 +817,20 @@ function updateWindowSize2d() {
 
 // Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
 
-function graph2M2Constructor( nodeSet, edgeSet ){
+function digraph2M2Constructor( nodeSet, edgeSet ){
   var strEdges = "{";
   var e = edgeSet.length;
+  var strNodes = "{";
+  var d = nodeSet.length;
   for( var i = 0; i < e; i++ ){
     if(i != (e-1)){
-      strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}, ";
+      strNodes = strNodes + (nodeSet[i].name).toString() + ", ";
     }
     else{
-      strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}}";
+      strNodes = strNodes + (nodeSet[i].name).toString() + "}";
     }
   }
-  // determine if the singleton set is empty
-        var card = 0
-  var singSet = singletons(nodeSet, edgeSet);
-  card = singSet.length; // cardinality of singleton set
-  if ( card != 0 ){
-    var strSingSet = "{";
-    for(var i = 0; i < card; i++ ){
-      if(i != (card - 1) ){
-        strSingSet = strSingSet + "" + (singSet[i]).toString() + ", ";
-      }
-      else{
-        strSingSet = strSingSet + "" + (singSet[i]).toString();
-      }
-    }
-    strSingSet = strSingSet + "}";
-    return "graph(" + strEdges + ", Singletons => "+ strSingSet + ")";
-  }
-  else{
-    return "graph(" + strEdges + ")";
-  }
+  return "digraph(" + strNodes + "," + arraytoM2Matrix(getAdjacencyMatrix(nodeSet,edgeSet)) + ")";
 
 }
 
@@ -908,8 +891,8 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
   }
 
   for (var i = 0; i < edgeSet.length; i++) {
-    adjMatrix[edgeSet[i].source.id][edgeSet[i].target.id] = 1; // Set matrix entries corresponding to adjacencies to 1.
-    adjMatrix[edgeSet[i].target.id][edgeSet[i].source.id] = 1;
+    if(edgeSet[i].right) { adjMatrix[edgeSet[i].source.id][edgeSet[i].target.id] = 1;} // Set matrix entries corresponding to adjacencies to 1.
+    if(edgeSet[i].left) { adjMatrix[edgeSet[i].target.id][edgeSet[i].source.id] = 1;}
   }
 
   return adjMatrix;
@@ -918,6 +901,28 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
 // Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
 function arraytoM2Matrix (arr){
   var str = "matrix{{";
+  for(var i = 0; i < arr.length; i++){
+    for(var j = 0; j < arr[i].length; j++){
+      str = str + arr[i][j].toString();
+      if(j == arr[i].length - 1){
+        str = str + "}";
+            } else {
+        str = str + ",";
+      }
+    }
+    if(i < arr.length-1){
+      str = str + ",{";
+    } else {
+      str = str + "}";
+    }
+  }
+
+  return str;
+}
+
+// Takes a rectangular array of arrays and returns a list which can be copy/pasted into M2.
+function arraytoM2List (arr){
+  var str = "{{";
   for(var i = 0; i < arr.length; i++){
     for(var j = 0; j < arr[i].length; j++){
       str = str + arr[i][j].toString();
@@ -1028,106 +1033,18 @@ function onclickResults(m2Response) {
     if (clickTest == "hasEulerianTrail"){
       d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail :: <b>"+m2Response+"</b>");
     } 
-    
-    if (clickTest == "hasOddHole"){
-      d3.select("#hasOddHole").html("&nbsp;&nbsp; hasOddHole :: <b>"+m2Response+"</b>");
-    } 
-    
-    if (clickTest == "isBipartite"){
-      d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite :: <b>"+m2Response+"</b>");
-    } 
-
-    else if (clickTest == "isChordal") {
-      d3.select("#isChordal").html("&nbsp;&nbsp; isChordal :: <b>"+m2Response+"</b>");    
-    } 
-
-    else if (clickTest == "isCM") {
-      d3.select("#isCM").html("&nbsp;&nbsp; isCM :: <b>"+m2Response+"</b>");    
-    }
-
-    else if (clickTest == "isConnected") {
-      d3.select("#isConnected").html("&nbsp;&nbsp; isConnected :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isCyclic") {
-      d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic :: <b>"+m2Response+"</b>");    
-    }    
 
     else if (clickTest == "isEulerian") {
       d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian :: <b>"+m2Response+"</b>");    
     }    
 
-    else if (clickTest == "isForest") {
-      d3.select("#isForest").html("&nbsp;&nbsp; isForest :: <b>"+m2Response+"</b>");    
+    else if (clickTest == "isStronglyConnected") {
+      d3.select("#isStronglyConnected").html("&nbsp;&nbsp; isStronglyConnected :: <b>"+m2Response+"</b>");    
     }    
 
-    else if (clickTest == "isPerfect") {
-      d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect :: <b>"+m2Response+"</b>");    
+    else if (clickTest == "isWeaklyConnected") {
+      d3.select("#isWeaklyConnected").html("&nbsp;&nbsp; isWeaklyConnected :: <b>"+m2Response+"</b>");    
     }    
-
-    else if (clickTest == "isRegular") {
-      d3.select("#isRegular").html("&nbsp;&nbsp; isRegular :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isSimple") {
-      d3.select("#isSimple").html("&nbsp;&nbsp; isSimple :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isTree") {
-      d3.select("#isTree").html("&nbsp;&nbsp; isTree :: <b>"+m2Response+"</b>");    
-    }
-    
-    else if (clickTest == "chromaticNumber") {
-      d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "independenceNumber") {
-      d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "cliqueNumber") {
-      d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "degeneracy") {
-      d3.select("#degeneracy").html("&nbsp;&nbsp; degeneracy :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "density") {
-      d3.select("#density").html("&nbsp;&nbsp; density :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "diameter") {
-      d3.select("#diameter").html("&nbsp;&nbsp; diameter :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "edgeConnectivity") {
-      d3.select("#edgeConnectivity").html("&nbsp;&nbsp; edgeConnectivity :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "minimalDegree") {
-      d3.select("#minimalDegree").html("&nbsp;&nbsp; minimalDegree :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "numberOfComponents") {
-      d3.select("#numberOfComponents").html("&nbsp;&nbsp; numberOfComponents :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "numberOfTriangles") {
-      d3.select("#numberOfTriangles").html("&nbsp;&nbsp; numberOfTriangles :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "radius") {
-      d3.select("#radius").html("&nbsp;&nbsp; radius :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "vertexConnectivity") {
-      d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "vertexCoverNumber") {
-      d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber :: <b>"+m2Response+"</b>");    
-    }  
     
 }
 
@@ -1136,31 +1053,9 @@ function onclickResults(m2Response) {
 // It changes the menu items to default.
 function menuDefaults() {
   d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail");
-  d3.select("#hasOddHole").html("&nbsp;&nbsp; hasOddHole");
-  d3.select("#isCM").html("&nbsp;&nbsp; isCM");
-  d3.select("#isChordal").html("&nbsp;&nbsp; isChordal");
-  d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite");
-  d3.select("#isConnected").html("&nbsp;&nbsp; isConnected");  
-  d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic");  
   d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian");  
-  d3.select("#isForest").html("&nbsp;&nbsp; isForest");  
-  d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect");  
-  d3.select("#isRegular").html("&nbsp;&nbsp; isRegular");  
-  d3.select("#isSimple").html("&nbsp;&nbsp; isSimple");  
-  d3.select("#isTree").html("&nbsp;&nbsp; isTree");
-  d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber");
-  d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber");
-  d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber");
-  d3.select("#degeneracy").html("&nbsp;&nbsp; degeneracy");
-  d3.select("#density").html("&nbsp;&nbsp; density");
-  d3.select("#diameter").html("&nbsp;&nbsp; diameter");
-  d3.select("#edgeConnectivity").html("&nbsp;&nbsp; edgeConnectivity");
-  d3.select("#minimalDegree").html("&nbsp;&nbsp; minimalDegree");
-  d3.select("#numberOfComponents").html("&nbsp;&nbsp; numberOfComponents");
-  d3.select("#numberOfTriangles").html("&nbsp;&nbsp; numberOfTriangles");
-  d3.select("#radius").html("&nbsp;&nbsp; radius");
-  d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity");
-  d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber");
+  d3.select("#isStronglyConnected").html("&nbsp;&nbsp; isStronglyConnected");  
+  d3.select("#isWeaklyConnected").html("&nbsp;&nbsp; isWeaklyConnected");
 }
 
 
