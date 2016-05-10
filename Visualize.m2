@@ -1351,6 +1351,7 @@ visualize G3
 restart
 loadPackage"Graphs"
 loadPackage"Visualize"
+openPort"8080"
 G = digraph({ {1,{2,3}} , {2,{3}} , {3,{1}}})
 visualize G
 
