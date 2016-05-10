@@ -1447,14 +1447,13 @@ visualize D1
 D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
 visualize D2
 
+-- tom examples
 -- Posets
 restart
---path=path|{"~/Desktop/githup/Visualize-M2"}
---loadPackage "Posets"
 loadPackage "Visualize"
 openPort "8080"
 P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
-visualize P
+visualize(P, Verbose=>true)
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize P2
 visualize(P2,FixExtremeElements => true)
