@@ -184,6 +184,8 @@
     document.getElementById("canvasElement3d").style.width = window.innerWidth;
     document.getElementById("canvasElement3d").style.width = window.innerHeight - 125;
 
+    window.addEventListener('resize', updateWindowSize2d, false);
+
     $(document).ready(function(){
 
       $("#editToggle").on("click", function(){
@@ -247,7 +249,7 @@
       }
 
     }, false);
-  	window.addEventListener('resize', updateWindowSize2d, false);
+  	//window.addEventListener('resize', updateWindowSize2d, false);
     //window.onresize = updateWindowSize2d;
     </script>
 

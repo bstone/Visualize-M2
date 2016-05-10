@@ -590,6 +590,7 @@ function setAllNodesFixed() {
   force.start();
 }
 
+/* this is the old update window function
 function updateWindowSize2d() {
         var svg = document.getElementById("canvasElement2d");
         svg.attr("width", window.innerWidth-20).attr("height", window.innerHeight-20);
@@ -597,6 +598,27 @@ function updateWindowSize2d() {
         svg.style.height = window.innerHeight - 20;
         svg.width = window.innerWidth;
         svg.height = window.innerHeight - 20;*/
+/*}
+*/
+
+// this function is copied from the visGraph2d.js file
+function updateWindowSize2d() {
+    console.log("resizing window");
+    //var svg = document.getElementById("canvasElement2d");
+    
+    // get width/height with container selector (body also works)
+    // or use other method of calculating desired values
+    var width = window.innerWidth-10;
+    var height = window.innerHeight-10;
+
+    // set attrs and 'resume' force 
+    //svg.attr('width', width);
+    //svg.attr('height', height);
+    svg.style.width = width;
+    svg.style.height = height;
+    svg.width = width;
+    svg.height = height;
+    force.size([width, height]).resume();
 }
 
 // Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
