@@ -55,6 +55,7 @@ export {
 --     "heightFunction",
 --     "relHeightFunction",
 --     "visOutput", -- do we even use this?
+
      
     -- Server
      "openPort",
@@ -359,7 +360,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
 
 visualize(Digraph) := {VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
-    local keyPosition; local vertexSet;
+    local keyPosition; local vertexSet; local browserOutput;
     
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
@@ -400,10 +401,13 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => basePath |"Visuali
 
     searchReplace("visArray",arrayString, visTemp); -- Replace visArray in the visDigraph html file by the adjacency matrix.
     searchReplace("visLabels",vertexString, visTemp); -- Replace visLabels in the visDigraph html file by the ordered list of vertices.
-    
+    searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
+
     show new URL from { "file://"|visTemp };
     
-    return visTemp;
+    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
+        
+    return browserOutput;
 )
 
 
@@ -445,8 +449,6 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
     
     return visTemp;
 )
-
-
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
@@ -503,7 +505,6 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
 )
 
 
-{*
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
@@ -530,7 +531,6 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize
     
     return visTemp;
 )
-*}
 
 --input: a String of a path to a directory
 --output: Copies the needed files and libraries to path
@@ -611,6 +611,26 @@ copyJS(String) := opts -> dst -> (
     
     return "Created directories at "|dst;
 )
+
+
+-- The server workflow is as follows.
+-- 0. Load Visualize.m2
+-- 1. User opens port :: openPort("8000")
+--                    :: If any port is open an error occurs.
+--                    :: Sometimes the error is thrown when no port
+--                    :: is open. This usually occurs right after a
+--                    :: port has been closed. It takes a bit of time
+--                    :: for M2 to realize no port is open. 
+--                    :: Maybe this is an issue with the garbage collector?
+-- 2. Define graph :: G = graph(....)
+-- 3. Run visualize :: H = visualize G
+--                  :: This will open the website and start
+--                  :: communication with the server. 
+--                  :: When the user ends session, output is 
+--                  :: sent back to M2 and assigned to H.
+-- 4. End session to export info to browser;
+-- 5. Keep working and visualizeing objects;
+-- 6. When finished, user closes port :: closePort() (or restart M2).
 
 
 
@@ -1001,21 +1021,6 @@ document {
      Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
      if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
 
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph2.png", "alt" => "Modified Graph"),      
-     
-     PARA "Once exporting we obtain the following graph.",
-     
-     EXAMPLE {
-	 "H = graph({{1,4},{2,4},{0,3},{0,4},{2,3}},Singletons => {5})"
-	 },
-     
-     PARA {"You can now perform more operations to it in Macaulay2 and then send it back to the browser with ", TO "visualize",
-     ". For example you might want to look at the spanning forest of ", TT "H", "."},
-     
-     EXAMPLE {
-	 "K = spanningForest H"
-	 },
 
      PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
      open with a new graph, the spanning forest of ", TT "H", "."},
@@ -1288,7 +1293,6 @@ document {
      Macaulay2 session."
      }
 
-
 document {
      Key => (closePort),
      Headline => "closes and open port",
@@ -1311,18 +1315,6 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
-
-restart
-uninstallPackage"Visualize"
-restart
-installPackage"Visualize"
-viewHelp Visualize
-viewHelp SimpleDoc
-
-
-
-
-
 
 -----------------------------
 -----------------------------
@@ -1434,13 +1426,14 @@ visualize S
 
 -- branden
 -- (options Visualize).Configuration
-uninstallPackage"Graphs"
-restart
-loadPackage"Graphs"
-peek loadedFiles
-path
+
 --Graphs test
 restart
+
+loadPackage"Visualize"
+openPort "8081"
+G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+
 installPackage"Visualize"
 viewHelp Visualize
 
@@ -1450,6 +1443,7 @@ path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage"Visualize"
 openPort "8081"
 G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
@@ -1465,6 +1459,19 @@ G = graph({{x_1, x_0}, {x_3, x_0}, {x_3, x_1}, {x_4, x_0}}, Singletons => {x_2, 
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
+
+-- Digraphs
+restart
+loadPackage"Visualize"
+openPort "8081"
+G = digraph({ {1,{2,3}} , {2,{3}} , {3,{1}}})
+visualize G
+
+D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
+visualize D1
+D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
+visualize D2
+
 
 closePort()
 
@@ -1512,11 +1519,10 @@ copyTemplate(currentDirectory() | "Visualize/templates/visGraph/visGraph-templat
 
 restart
 uninstallPackage"Graphs"
-uninstallPackage"Visualize"
 restart
 loadPackage"Graphs"
-installPackage"Visualize"
-viewHelp Visualize
+loadPackage"Visualize"
+
 -- Old Graphs
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visGraph G
