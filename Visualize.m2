@@ -416,7 +416,7 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
 --output: The poset in the browswer
 --
 
-visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
 
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local nodeString; local relationString; local browserOutput;
@@ -1456,14 +1456,17 @@ visualize D2
 -- tom examples
 -- Posets
 restart
+path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage "Visualize"
-openPort "8080"
+openPort "8081"
 --P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
 --visualize(P, Verbose=>true)
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize(P2,FixExtremeElements => true,Verbose=>true)
 visualize P2
 visualize(oo, Verbose=>true)
+
+closePort()
 
 G=graph({})
 visualize(G,Verbose=>true)
