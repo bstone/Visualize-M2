@@ -127,6 +127,7 @@
     </style>
     <script type="text/javascript">
       //global variables
+      activeSession = true;
       curEdit = false;
   	  curView = "2d";
       menuOpen = false;
@@ -148,6 +149,7 @@
         {"source":4,"target":3,"value":1}
 	   ];*/
       dataLinks = visRelations;
+      portData = visPort; // initializes port from user
       forceOn = false;
     </script>
   </head>
@@ -161,6 +163,7 @@
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn on force</a>
             <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
+            <a id="endSession" href="#" class="list-group-item">End session</a> 
           </div>
         </div>
 
@@ -200,6 +203,21 @@
       $("#exportTikz").on("click", function() {
         exportTikz();
       })
+
+      // Ends the browser session and outputs the information to M2
+      $("#endSession").on("click", function() {
+        if(activeSession) {
+          //$(this).html("Session Terminated");
+          //$(this).html(<p style="color: #ffffff; background-color: #ff0000">Session terminated</p>);
+          document.getElementById("endSession").style.color = 'white';
+          document.getElementById("endSession").style.backgroundColor = 'red';
+          document.getElementById("endSession").innerHTML = "Session terminated";
+          makeCorsRequest('POST','http://localhost:'+portData+'/end/',graph2M2Constructor(nodes,links));
+          activeSession = !activeSession;
+        } else {
+          return;
+        }
+      });      
 
       initializeBuilder();
       disableEditing();
