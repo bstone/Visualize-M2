@@ -354,7 +354,9 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
     
     show new URL from { "file://"|visTemp };
     
-    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
+--    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
+    browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
+
         
     return browserOutput;
 )
@@ -406,7 +408,8 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
 
     show new URL from { "file://"|visTemp };
     
-    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
+--    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
+    browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
         
     return browserOutput;
 )
@@ -452,7 +455,8 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     
     show new URL from { "file://"|visTemp };
  
-    browserOutput = openPosetServer(inOutPort, Verbose => opts.Verbose);
+--    browserOutput = openPosetServer(inOutPort, Verbose => opts.Verbose);
+    browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
     
     return browserOutput; 
     --return visTemp;
@@ -677,8 +681,8 @@ installMethod(closePort, () -> (
 -- input: File, an in-out port for communicating with the browser
 -- output: whatever the browser sends
 --
-openGraphServer = method(Options =>{Verbose => true})
-openGraphServer File := opts -> S -> (
+openServer = method(Options =>{Verbose => true})
+openServer File := opts -> S -> (
  
 local server; local fun; local listener; 
 local httpHeader; local testKey; 
@@ -689,7 +693,7 @@ testKey = " ";
 listener = S;
 
 server = () -> (
-    stderr << "-- Visualizing graph. Your browser should open automatically." << endl <<  "-- Click 'End Session' in the browser when finished." << endl;
+    stderr << "-- Visualizing. Your browser should open automatically." << endl <<  "-- Click 'End Session' in the browser when finished." << endl;
     while true do (
         wait {listener};
         g := openInOut listener; -- this should be interruptable! (Dan's Comment, not sure what it means)
@@ -707,42 +711,42 @@ server = () -> (
 	
 	-- hasEulerianTrail
 	if match("^POST /hasEulerianTrail/(.*) ",r) then (
-	    testKey = "hasEulerianTrail";
+	    -- testKey = "hasEulerianTrail";
 	    fun = identity;
 	    u = toString( hasEulerianTrail indexLabelGraph value data );
 	)	
 	
 	-- hasOddHole
 	else if match("^POST /hasOddHole/(.*) ",r) then (
-	    testKey = "hasOddHole";
+	    -- testKey = "hasOddHole";
 	    fun = identity;
 	    u = toString( hasOddHole indexLabelGraph value data );
 	)	
 	
 	-- isCM
 	else if match("^POST /isCM/(.*) ",r) then (
-	    testKey = "isCM";
+	    -- testKey = "isCM";
 	    fun = identity;
 	    u = toString( isCM indexLabelGraph value data );
 	)	
 
 	-- isBipartite
 	else if match("^POST /isBipartite/(.*) ",r) then (
-	    testKey = "isBipartite";
+	    -- testKey = "isBipartite";
 	    fun = identity;
 	    u = toString( isBipartite indexLabelGraph value data );
 	)	
 
 	-- isChordal
 	else if match("^POST /isChordal/(.*) ",r) then (
-	    testKey = "isChordal";
+	    -- testKey = "isChordal";
 	    fun = identity;
 	    u = toString( isChordal indexLabelGraph value data );
 	)	
 	
 	-- isConnected
 	else if match("^POST /isConnected/(.*) ",r) then (
-	    testKey = "isConnected";
+	    -- testKey = "isConnected";
 	    fun = identity;
 	    print"isConnected else if in M2";
 	    u = toString( isConnected indexLabelGraph value data );
@@ -750,140 +754,140 @@ server = () -> (
 
     	-- isCyclic
 	else if match("^POST /isCyclic/(.*) ",r) then (
-	    testKey = "isCyclic";
+	    -- testKey = "isCyclic";
 	    fun = identity;
 	    u = toString( isCyclic indexLabelGraph value data );
 	)		
 
     	-- isEulerian
 	else if match("^POST /isEulerian/(.*) ",r) then (
-	    testKey = "isEulerian";
+	    -- testKey = "isEulerian";
 	    fun = identity;
 	    u = toString( isEulerian indexLabelGraph value data );
 	)		
 
     	-- isForest
 	else if match("^POST /isForest/(.*) ",r) then (
-	    testKey = "isForest";
+	    -- testKey = "isForest";
 	    fun = identity;
 	    u = toString( isForest indexLabelGraph value data );
 	)		
 
     	-- isPerfect
 	else if match("^POST /isPerfect/(.*) ",r) then (
-	    testKey = "isPerfect";
+	    -- testKey = "isPerfect";
 	    fun = identity;
 	    u = toString( isPerfect indexLabelGraph value data );
 	)		
 
     	-- isRegular
 	else if match("^POST /isRegular/(.*) ",r) then (
-	    testKey = "isRegular";
+	    -- testKey = "isRegular";
 	    fun = identity;
 	    u = toString( isRegular indexLabelGraph value data );
 	)		
 
     	-- isSimple
 	else if match("^POST /isSimple/(.*) ",r) then (
-	    testKey = "isSimple";
+	    -- testKey = "isSimple";
 	    fun = identity;
 	    u = toString( isSimple indexLabelGraph value data );
 	)		
 
     	-- isTree
 	else if match("^POST /isTree/(.*) ",r) then (
-	    testKey = "isTree";
+	    -- testKey = "isTree";
 	    fun = identity;
 	    u = toString( isTree indexLabelGraph value data );
 	)
     
         -- chromaticNumber
 	else if match("^POST /chromaticNumber/(.*) ",r) then (
-	    testKey = "chromaticNumber";
+	    -- testKey = "chromaticNumber";
 	    fun = identity;
 	    u = toString( chromaticNumber indexLabelGraph value data );
 	)			
 	
 	-- independenceNumber
 	else if match("^POST /independenceNumber/(.*) ",r) then (
-	    testKey = "independenceNumber";
+	    -- testKey = "independenceNumber";
 	    fun = identity;
 	    u = toString( independenceNumber indexLabelGraph value data );
 	)			
 	
 	-- cliqueNumber
 	else if match("^POST /cliqueNumber/(.*) ",r) then (
-	    testKey = "cliqueNumber";
+	    -- testKey = "cliqueNumber";
 	    fun = identity;
 	    u = toString( cliqueNumber indexLabelGraph value data );
 	)			
 	
 	-- degeneracy
 	else if match("^POST /degeneracy/(.*) ",r) then (
-	    testKey = "degeneracy";
+	    -- testKey = "degeneracy";
 	    fun = identity;
 	    u = toString( degeneracy indexLabelGraph value data );
 	)			
 	
 	-- density
 	else if match("^POST /density/(.*) ",r) then (
-	    testKey = "density";
+	    -- testKey = "density";
 	    fun = identity;
 	    u = toString( density indexLabelGraph value data );
 	)			
 	
 	-- diameter
 	else if match("^POST /diameter/(.*) ",r) then (
-	    testKey = "diameter";
+	    -- testKey = "diameter";
 	    fun = identity;
 	    u = toString( diameter indexLabelGraph value data );
 	)			
 	
 	-- edgeConnectivity
 	else if match("^POST /edgeConnectivity/(.*) ",r) then (
-	    testKey = "edgeConnectivity";
+	    -- testKey = "edgeConnectivity";
 	    fun = identity;
 	    u = toString( edgeConnectivity indexLabelGraph value data );
 	)			
 	
 	-- minimalDegree
 	else if match("^POST /minimalDegree/(.*) ",r) then (
-	    testKey = "minimalDegree";
+	    -- testKey = "minimalDegree";
 	    fun = identity;
 	    u = toString( minimalDegree indexLabelGraph value data );
 	)			
 	
 	-- numberOfComponents
 	else if match("^POST /numberOfComponents/(.*) ",r) then (
-	    testKey = "numberOfComponents";
+	    -- testKey = "numberOfComponents";
 	    fun = identity;
 	    u = toString( numberOfComponents indexLabelGraph value data );
 	)			
 	
 	-- numberOfTriangles
 	else if match("^POST /numberOfTriangles/(.*) ",r) then (
-	    testKey = "numberOfTriangles";
+	    -- testKey = "numberOfTriangles";
 	    fun = identity;
 	    u = toString( numberOfTriangles indexLabelGraph value data );
 	)			
 	
 	-- radius
 	else if match("^POST /radius/(.*) ",r) then (
-	    testKey = "radius";
+	    -- testKey = "radius";
 	    fun = identity;
 	    if not isConnected indexLabelGraph value data then u = "Not connected." else u = toString( radius indexLabelGraph value data );
 	)			
 	
 	-- vertexConnectivity
 	else if match("^POST /vertexConnectivity/(.*) ",r) then (
-	    testKey = "";
+	    -- testKey = "";
 	    fun = identity;
 	    u = toString( vertexConnectivity indexLabelGraph value data );
 	)			
 	
 	-- vertexCoverNumber
 	else if match("^POST /vertexCoverNumber/(.*) ",r) then (
-	    testKey = "vertexCoverNumber";
+	    -- testKey = "vertexCoverNumber";
 	    fun = identity;
 	    u = toString( vertexCoverNumber indexLabelGraph value data );
 	)			
