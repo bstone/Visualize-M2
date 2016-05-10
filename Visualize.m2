@@ -1736,10 +1736,11 @@ visGraph A
 -- Utah Demo
 
 restart
+
 path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage "Visualize"
-openPort "8081"
-
+openPort "8080"
+closePort()
 -- Graphs
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 
@@ -1752,7 +1753,7 @@ visualize oo
 wheelGraph 8
 visualize oo
 
-generalizedPetersenGraph(3,4)
+generalizedPetersenGraph(3,3)
 visualize oo
 
 completeGraph(70)
@@ -1803,3 +1804,7 @@ J = ideal"x4,xyz3,yz2,xz3,z6,y5"
 visualize J
 
 closePort()
+
+
+-- semi definite programming
+-- pablo parillo maybe at MIT
