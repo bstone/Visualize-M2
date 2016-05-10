@@ -69,7 +69,8 @@ export {
 ------------------------------------------------------------
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
-basePath = currentFileDirectory
+basePath = currentFileDirectory -- created this because copyJS would not handle 
+    	    	    	    	-- currentFileDirectory for some reason.
 
 -- (options Visualize).Configuration
 
@@ -414,9 +415,12 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
 --input: A poset
 --output: The poset in the browswer
 --
-visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+
+visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+
     local labelList; local groupList; local relList; local visTemp;
-    local numNodes; local nodeString; local relationString;
+    local numNodes; local nodeString; local relationString; local browserOutput;
+    
     
     labelList = P_*;
     if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
@@ -444,10 +448,14 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
     
     searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
     searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
+    searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
     
     show new URL from { "file://"|visTemp };
+ 
+    browserOutput = openPosetServer(inOutPort, Verbose => opts.Verbose);
     
-    return visTemp;
+    return browserOutput; 
+    --return visTemp;
 )
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
@@ -929,7 +937,92 @@ H := server();
 
 return H;
 )
+ 
 
+
+
+-- input: File, an in-out port for communicating with the browser
+-- output: whatever the browser sends
+--
+openPosetServer = method(Options =>{Verbose => true})
+openPosetServer File := opts -> S -> (
+ 
+local server; local fun; local listener; 
+local httpHeader; local testKey; 
+local u;
+
+
+testKey = " ";
+listener = S;
+
+server = () -> (
+    stderr << "-- Visualizing poset. Your browser should open automatically." << endl <<  "-- Click 'End Session' in the browser when finished." << endl;
+    while true do (
+        wait {listener};
+        g := openInOut listener; -- this should be interruptable! (Dan's Comment, not sure what it means)
+        r := read g;
+        if opts.Verbose then stderr << "request: " << stack lines r << endl << endl;
+        r = lines r;
+	
+        if #r == 0 then (close g; continue);
+	
+	data := last r;
+        r = first r;
+	
+	-- Begin handling requests from browser
+	---------------------------------------
+	
+		 
+	-- End Session   
+        if match("^POST /end/(.*) ",r) then (
+	    R := value data;
+	    return R;
+	)
+	
+	-- Error to catch typos and bad requests
+	else (
+	    error ("There was no match to the request: "|r);
+	    );	   
+	
+	-- Determines the output based on the testKey
+--	if (testKey == "isCM") then ( u = toString( cmTest value data ) );
+--	if (testKey == "isBipartite") then ( u = toString( isBipartite value data ) );	
+--	if (testKey == "isChordal") then ( u = toString( isChordal value data ) );	
+--	if (testKey == "isConnected") then ( u = toString( isConnected value data ) );	
+--	if (testKey == "isCyclic") then ( u = toString( isCyclic value data ) );			
+--	if (testKey == "isEulerian") then ( u = toString( isEulerian value data ) );			
+--	if (testKey == "isForest") then ( u = toString( isForest value data ) );			
+--	if (testKey == "isPerfect") then ( u = toString( isPerfect value data ) );			
+--	if (testKey == "isRegular") then ( u = toString( isRegular value data ) );			
+--	if (testKey == "isSimple") then ( u = toString( isSimple value data ) );			
+--	if (testKey == "isTree") then ( u = toString( isTree value data ) );			
+	
+	send := httpHeader fun u; 
+	
+	if opts.Verbose then stderr << "response: " << stack lines send << endl << endl;	  
+	
+	g << send << close;
+	);
+    );
+
+httpHeader = ss -> concatenate(
+     -- for documentation of http protocol see http://www.w3.org/Protocols/rfc2616/rfc2616.html
+     -- This header is not up to the standards, but I am not sure it matters for local transmissions.
+     -- I believe you are supposed to have a different header for different requests.
+     "HTTP/1.1 200 OK
+Server: Macaulay2
+Access-Control-Allow-Origin: *
+Connection: close
+Content-Length: ", toString length ss, "
+Content-type: text/html; charset=utf-8
+
+", ss);
+
+H := server();
+
+return H;
+)
+  
 
 --------------------------------------------------
 -- DOCUMENTATION
@@ -1316,10 +1409,12 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
+run"pwd"
+
 restart
-run "pwd"
 uninstallPackage"Visualize"
 restart
+path = path|{"~/GitHub/Visualize-M2/"}
 installPackage"Visualize"
 viewHelp Visualize
 
@@ -1349,6 +1444,7 @@ visualize G3
 restart
 loadPackage"Graphs"
 loadPackage"Visualize"
+openPort"8080"
 G = digraph({ {1,{2,3}} , {2,{3}} , {3,{1}}})
 visualize G
 
@@ -1357,15 +1453,25 @@ visualize D1
 D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
 visualize D2
 
+-- tom examples
 -- Posets
 restart
-loadPackage "Posets"
+path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage "Visualize"
-P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
-visualize P
+openPort "8081"
+--P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
+--visualize(P, Verbose=>true)
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
+visualize(P2,FixExtremeElements => true,Verbose=>true)
 visualize P2
-visualize(P2,FixExtremeElements => true)
+visualize(oo, Verbose=>true)
+
+closePort()
+
+G=graph({})
+visualize(G,Verbose=>true)
+visualize G
+
 R = QQ[x,y,z]
 I = ideal(x*y^2,x^2*z,y*z^2)
 P = lcmLattice I
