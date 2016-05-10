@@ -34,12 +34,12 @@
 function initializeBuilder() {
   // Set up SVG for D3.
 
-    width = window.innerWidth - 20,
-    height = window.innerHeight - 20,
+    width = window.innerWidth - 10,
+    height = window.innerHeight - 10,
     hPadding = 20,
     vPadding = 20;
 
-var color = d3.scale.category20();
+color = d3.scale.category10();
 
  svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -556,7 +556,7 @@ function keyup() {
   }
 }
 
-/*function disableEditing() {
+function disableEditing() {
   //circle.call(drag);
   svg.classed('shift', true);
   selected_node = null;
@@ -576,7 +576,7 @@ function keyup() {
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
 
   restart();
-}*/
+}
 
 function enableEditing() {
   circle
