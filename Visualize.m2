@@ -794,12 +794,26 @@ server = () -> (
 	    u = toString( isSimple indexLabelGraph value data );
 	)		
 
-    	-- isTree
+    	-- isStronglyConnected
+	else if match("^POST /isStronglyConnected/(.*) ",r) then (
+	    -- testKey = "isStronglyConnected";
+	    fun = identity;
+	    u = toString( isStronglyConnected indexLabelGraph value data );
+	)	
+	
+	-- isTree
 	else if match("^POST /isTree/(.*) ",r) then (
 	    -- testKey = "isTree";
 	    fun = identity;
 	    u = toString( isTree indexLabelGraph value data );
 	)
+    
+        -- isWeaklyConnected
+	else if match("^POST /isWeaklyConnected/(.*) ",r) then (
+	    -- testKey = "isWeaklyConnected";
+	    fun = identity;
+	    u = toString( isWeaklyConnected indexLabelGraph value data );
+	)	
     
         -- chromaticNumber
 	else if match("^POST /chromaticNumber/(.*) ",r) then (
