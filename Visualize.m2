@@ -516,7 +516,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
     return visTemp;
 )
 
-
+{*
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
@@ -543,6 +543,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize
     
     return visTemp;
 )
+*}
 
 --input: a String of a path to a directory
 --output: Copies the needed files and libraries to path
@@ -1043,8 +1044,7 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
---     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
-     
+    
      }
 
 
@@ -1117,13 +1117,13 @@ document {
      PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
      Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
      if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
-
+     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
 
      PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
      open with a new graph, the spanning forest of ", TT "H", "."},
      
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph3.png", "alt" => "Spanning Forest"),      
+     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph3.png", "alt" => "Original graph entered into M2"), 
      
      PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
      Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
@@ -1132,7 +1132,7 @@ document {
 	 "closePort()"
 	 },
      
---     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
+     Caveat => "When editing is enabled, you can still move the nodes around by pressing SHIFT and then clicking on the nodes."
      
      }
  
@@ -1140,40 +1140,32 @@ document {
      Key => VisPath,
      Headline => "an option to define a path save visualizations",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}
      }
 
 document {
      Key => VisTemplate,
-     Headline => "an option to define a path to a user defined template",
+     Headline => "an option defining the template path",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
      }
  
 document {
      Key => Warning,
      Headline => "an option to squelch warnings",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings."}
      }
 
 document {
      Key => FixExtremeElements,
      Headline => "an option that brett created",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA "I don't know what this is."
      }
 
 
@@ -1182,10 +1174,7 @@ document {
      Key => [(visualize,Poset),FixExtremeElements],
      Headline => "an option that brett created",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA "I don't know what this is."
      }
  
 document {
@@ -1307,7 +1296,8 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session."
      }
- 
+
+
 document {
      Key => [(visualize,Ideal),Warning],
      Headline => "an option that brett created",
@@ -1317,6 +1307,7 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session."
      }
+
 
 document {
      Key => [(visualize,Poset),Warning],
@@ -1391,13 +1382,49 @@ document {
      }
 
 document {
-     Key => (closePort),
-     Headline => "closes and open port",
+     Key => [(visualize,Graph),Verbose],
+     Headline => "opens a port",
      
      PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Digraph),Verbose],
+     Headline => "opens a port",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+
+document {
+     Key => [(visualize,Poset),Verbose],
+     Headline => "opens a port",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+
+document {
+     Key => (closePort),
+     Headline => "closes and open port",
+     
+     PARA {"When a port is opened with the ", TO "openPort", " method, ", TT "closePort()", 
+	 " is used to close the port. If the user forgets to close the port, closing or restarting
+	 Macaulay2 will automatically close the port."},
+     
+      EXAMPLE {
+	 "openPort \"8080\"",
+	 "closePort()"
+	 },
      }
 
 
