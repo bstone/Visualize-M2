@@ -41,7 +41,7 @@ function initializeBuilder() {
 
 var color = d3.scale.category20();
 
-var svg = d3.select("body").append("svg")
+ svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
     .attr("id", "canvasElement2d");

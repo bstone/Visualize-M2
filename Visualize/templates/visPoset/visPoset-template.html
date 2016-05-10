@@ -168,7 +168,7 @@
         </div>
 
         <div class="container">
-          <div id="canvasElement3d"></div>
+          <div id="canvasElement2d"></div>
         </div>
 
 
@@ -181,8 +181,8 @@
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
-    document.getElementById("canvasElement3d").style.width = window.innerWidth;
-    document.getElementById("canvasElement3d").style.height = window.innerHeight - 125;
+    document.getElementById("canvasElement2d").style.width = window.innerWidth;//change here switched 3 to 2
+    document.getElementById("canvasElement2d").style.height = window.innerHeight - 125;//change here switched 3 to 2
 
     window.addEventListener('resize', updateWindowSize2d, false);
 
