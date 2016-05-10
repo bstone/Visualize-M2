@@ -627,6 +627,8 @@ function updateWindowSize2d() {
 function poset2M2Constructor( nodeSet, edgeSet ){
   var strEdges = "{";
   var e = edgeSet.length;
+  var t = nodeSet.length;
+  var strVerts = "{";
   for( var i = 0; i < e; i++ ){
     if(i != (e-1)){
       strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}, ";
@@ -635,8 +637,17 @@ function poset2M2Constructor( nodeSet, edgeSet ){
       strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}}";
     }
   }
+
+  for( var i = 0; i < t; i++ ){
+    if(i != (t-1)){
+      strVerts = strVerts + "{" + (nodeSet[i].name).toString() +  "}, ";
+    }
+    else{
+      strVerts = strVerts + "{" + (nodeSet[i].name).toString() + "}}";
+    }
+  }
   // determine if the singleton set is empty
-        var card = 0
+ /*       var card = 0
   var singSet = singletons(nodeSet, edgeSet);
   card = singSet.length; // cardinality of singleton set
   if ( card != 0 ){
@@ -651,10 +662,10 @@ function poset2M2Constructor( nodeSet, edgeSet ){
     }
     strSingSet = strSingSet + "}";
     return "poset(" + strEdges + ", Singletons => "+ strSingSet + ")";
-  }
-  else{
-    return "poset(" + strEdges + ")";
-  }
+  }*/
+  //else{
+    return "poset(" + strVerts + "," + strEdges + ")";
+  //}
 
 }
 

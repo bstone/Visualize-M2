@@ -1452,14 +1452,16 @@ visualize D2
 restart
 loadPackage "Visualize"
 openPort "8080"
-P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
-visualize(P, Verbose=>true)
+--P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
+--visualize(P, Verbose=>true)
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
+visualize(P2,FixExtremeElements => true,Verbose=>true)
 visualize P2
-visualize(P2,FixExtremeElements => true)
+visualize oo
 
 G=graph({})
 visualize(G,Verbose=>true)
+visualize G
 
 R = QQ[x,y,z]
 I = ideal(x*y^2,x^2*z,y*z^2)
