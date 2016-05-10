@@ -61,7 +61,7 @@
         stroke-width: 0;
       }
     
-      .node {
+     /* .node {
           stroke: #fff;
           stroke-width: 1.5px;
       }
@@ -69,7 +69,7 @@
       .link {
           stroke: #999;
           stroke-opacity: .6;
-      }
+      }*/
 
       circle.node {
         stroke-width: 0px;
@@ -181,8 +181,8 @@
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
-    document.getElementById("canvasElement2d").style.width = window.innerWidth;//change here switched 3 to 2
-    document.getElementById("canvasElement2d").style.height = window.innerHeight - 125;//change here switched 3 to 2
+    document.getElementById("canvasElement2d").style.width = window.innerWidth-10;//change here switched 3 to 2
+    document.getElementById("canvasElement2d").style.height = window.innerHeight - 10;//change here switched 3 to 2
 
     window.addEventListener('resize', updateWindowSize2d, false);
 
