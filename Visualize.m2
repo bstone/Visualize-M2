@@ -48,12 +48,14 @@ export {
      
     -- Helpers 
 --     "runServer",
-     "toArray", -- Don't need to export?
-     "getCurrPath", -- Don't need to export?
-     "copyTemplate",-- Don't need to export?
-     "replaceInFile",-- Don't need to export?
-     "heightFunction",
-     "relHeightFunction",
+--     "toArray", -- Don't need to export?
+--     "getCurrPath", -- Don't need to export?
+--     "copyTemplate",-- Don't need to export?
+--     "replaceInFile",-- Don't need to export?
+--     "heightFunction",
+--     "relHeightFunction",
+--     "visOutput", -- do we even use this?
+
      
     -- Server
      "openPort",
@@ -67,6 +69,7 @@ export {
 ------------------------------------------------------------
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
+basePath = currentFileDirectory
 
 -- (options Visualize).Configuration
 
@@ -139,6 +142,7 @@ replaceInFile(String, String, String) := (patt, repl, fileName) -> (
 --    	 where template file is located.
 --output: A file with visKey replaced with visString.
 --
+{*
 visOutput = method(Options => {VisPath => currentDirectory()})
 visOutput(String,String,String) := opts -> (visKey,visString,visTemplate) -> (
     local fileName; local openFile; local PATH;
@@ -151,6 +155,7 @@ visOutput(String,String,String) := opts -> (visKey,visString,visTemplate) -> (
                   
     return (show new URL from { "file://"|PATH }, fileName);
     )
+*}
 
 -- input: path to an html file
 -- output: a copy of the input file in a temporary folder
@@ -194,8 +199,8 @@ copyTemplate(String,String) := (src,dst) -> (
 
 -- input:
 -- output:
-searchReplace = method(Options => {VisPath => currentDirectory()})
-searchReplace(String,String,String) := opts -> (oldString,newString,visSrc) -> (
+searchReplace = method() --Options => {VisPath => currentDirectory()}) -- do we use VisPath?
+searchReplace(String,String,String) := (oldString,newString,visSrc) -> (
     local visFilePathTemp;
     
     visFilePathTemp = temporaryFileName();
@@ -241,11 +246,10 @@ relHeightFunction(Poset) := P -> (
 --
 visualize = method(Options => true)
 
-visualize(Ideal) := {VisPath => defaultPath, VisTemplate => currentDirectory() |"Visualize/templates/visIdeal/visIdeal", Warning => true} >> opts -> J -> (
+visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList;
-    -- local A;
-    
+        
     R = ring J;
     numVar = rank source vars R;
     varList = flatten entries vars R;
@@ -265,7 +269,7 @@ visualize(Ideal) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
 	    );
 	
 	arrayList = apply( flatten entries gens J, m -> flatten exponents m);	
-	arrayList = toArray arrayList;
+arrayList = toArray arrayList;
 	arrayString = toString arrayList;
 	
 	searchReplace("visArray",arrayString, visTemp);
@@ -304,10 +308,9 @@ visualize(Ideal) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
 --input: A graph
 --output: the graph in the browswer
 --
-visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
+visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
-    
     
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
@@ -355,7 +358,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
     return browserOutput;
 )
 
-visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()|"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
+visualize(Digraph) := {VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
     
@@ -411,7 +414,7 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()
 --input: A poset
 --output: The poset in the browswer
 --
-visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local nodeString; local relationString;
     
@@ -449,7 +452,7 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
-visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
@@ -469,10 +472,10 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 
     if dim D>2 then (
 	error "3-dimensional simplicial complexes not implemented yet.";
- 	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
+ 	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
     )
     else (
-	visTemplate = currentDirectory() | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"
+	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"
     );
    
     if opts.VisPath =!= null 
@@ -505,7 +508,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
-visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
+visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSurface/Graphulus-Surface.html", Warning => true} >> opts -> P -> (
     local visTemp; local stringList;
         
     if opts.VisPath =!= null 
@@ -535,7 +538,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | 
 --caveat: Checks to see if files exist. If they do exist, the user
 --        must give permission to continue. Continuing will overwrite
 --        current files and cannont be undone.
-copyJS = method(Options => {Warning => true} )
+copyJS = method(Options => {Warning => true})
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
     local cssdir; local fontdir; local imagedir;
@@ -548,25 +551,23 @@ copyJS(String) := opts -> dst -> (
             
     -- get list of filenames in js/
     jsdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/js/")
+	    readDirectory(basePath|"Visualize/js/")
 	    ));
-    
+
     -- get list of filenames in css/
     cssdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/css/")
+	    readDirectory(basePath|"Visualize/css/")
 	    ));
-    
+
     -- get list of filenames in fonts/
     fontdir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/fonts/")
+	    readDirectory(basePath|"Visualize/fonts/")
 	    ));
-    
+
     -- get list of filenames in images/    
     imagedir = delete("..",delete(".",
-	    readDirectory(currentDirectory()|"Visualize/images/")
+	    readDirectory(basePath|"Visualize/images/")
 	    ));
-    
-
 
     if opts.Warning == true
     then (
@@ -603,10 +604,10 @@ copyJS(String) := opts -> dst -> (
 		);
 	);
     
-    copyDirectory(currentDirectory()|"Visualize/js/",dst|"js/");
-    copyDirectory(currentDirectory()|"Visualize/css/",dst|"css/");
-    copyDirectory(currentDirectory()|"Visualize/fonts/",dst|"fonts/");
-    copyDirectory(currentDirectory()|"Visualize/images/",dst|"images/");
+    copyDirectory(basePath|"Visualize/js/",dst|"js/");
+    copyDirectory(basePath|"Visualize/css/",dst|"css/");
+    copyDirectory(basePath|"Visualize/fonts/",dst|"fonts/");
+    copyDirectory(basePath|"Visualize/images/",dst|"images/");
     
     return "Created directories at "|dst;
 )
@@ -934,63 +935,373 @@ return H;
 -- DOCUMENTATION
 --------------------------------------------------
 
-
 beginDocumentation()
-needsPackage "SimpleDoc"
-debug SimpleDoc
 
-multidoc ///
-  Node
-     Key
-     	 Visualize
-     Headline 
-     	 A package to help visualize algebraic objects in the browser using javascript.
-     Description
-       Text
-     	 We use really rediculusly cools things to do really cool things.
-     Caveat
-     	 Let's see.
-  Node
-    Key
-       visualize
-    Headline
-       Creates staircase diagram for an ideal
-    Usage
-       visIdeal I
-    Inputs
-       I: Ideal
-         An ideal in a ring with 2 or 3 variables.
-    Outputs
-       visTemp: String
-         Path to html containg polytope.
-    Description
-     Text
-       We are able to see the interactive staircase diagram. More stuff
-       should be here about the convext hull and other stuff.	    
-///
+document {
+     Key => Visualize,
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+--     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
+     
+     }
 
 
-end
+document {
+     Key => visualize,
+     Headline => "creates an interactive object in a modern browser",
+     
+     PARA "Given an open port, this method will create an interactive visualization of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate the 
+     object, and run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+               
+     PARA "The workflow for this package is as follows:",
+     
+     UL{ "1. Load or install the package."},
+     
+     UL{{"2. Open a port with ", TT "openPort", " method for communication with the browser. 
+	     It is up to the user to choose port and also to close the port when finished."}},
+     
+     UL{"3. Define an object you wish to visualize. For example, a graph, poset, digraph, etc."},
+     
+     UL{{"4. Run ", TT "visualize", " method. This will open the browser with an interactive
+	     interface. This session is in communication with Macaulay2 through the open port above.
+	     At this point you can edit and manipulate the created object."}},
+     
+     UL{"5. End the session and export work back to Macaulay2."},
+     
+     UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
+     
+     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2."}},
+     
+     }
 
-doc ///
-  Key
-    (visIdeal, Ideal)
-  Headline
-    Creates staircase diagram for an ideal
-  Usage
-    visIdeal I
---  Inputs
---    I:Ideal
---      An ideal in a ring with 2 or 3 variables.
-  Outputs
-    An interactive html file that is opened in the user's default browser.
-  Description
-    Text
-      We are able to see the interactive staircase diagram. More stuff
-      should be here about the convext hull and other stuff. 
-///
 
-end
+
+document {
+     Key => (visualize,Graph),
+     Headline => "visualizes a graph in a modern browser",
+     Usage => " H = visualize G",
+     Inputs => {
+	 "G" => Graph => " a graph",
+--	 Verbose => Boolean => " prints server communication in the M2 buffer",
+--	 VisPath => String => " a path where the visualization will be created and saved",
+--	 VisTemplate => String => " a path to a user created/modified template",
+--	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath"
+	 },
+	 
+     
+     PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     
+     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
+     an object to visualize.",
+
+     EXAMPLE {
+	 "openPort \"8080\"",
+	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
+     browser will open with the following interactive image."},
+     
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
+     Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
+     if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
+
+
+     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
+     open with a new graph, the spanning forest of ", TT "H", "."},
+     
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph3.png", "alt" => "Spanning Forest"),      
+     
+     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
+     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
+     
+     EXAMPLE {
+	 "closePort()"
+	 },
+     
+--     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
+     
+     }
+ 
+ document {
+     Key => VisPath,
+     Headline => "an option to define a path save visualizations",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => VisTemplate,
+     Headline => "an option to define a path to a user defined template",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+ 
+document {
+     Key => Warning,
+     Headline => "an option to squelch warnings",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => FixExtremeElements,
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+
+
+document {
+     Key => [(visualize,Poset),FixExtremeElements],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+ 
+document {
+     Key => [(visualize,Digraph),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Graph),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Ideal),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Poset),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,SimplicialComplex),VisPath],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Digraph),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Graph),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Ideal),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Poset),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,SimplicialComplex),VisTemplate],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Digraph),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Graph),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+ 
+document {
+     Key => [(visualize,Ideal),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,Poset),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => [(visualize,SimplicialComplex),Warning],
+     Headline => "an option that brett created",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+
+
+document {
+     Key => (visualize,Ideal),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => (visualize,Digraph),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => (visualize,Poset),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => (visualize,SimplicialComplex),
+     Headline => "A package to help visualize algebraic objects in the browser using javascript",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => {openPort,(openPort,String)},
+     Headline => "opens a port",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
+
+document {
+     Key => (closePort),
+     Headline => "closes and open port",
+     
+     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session."
+     }
 
 
 -------------------------------------------------------------------------------------------
@@ -1118,12 +1429,25 @@ visualize S
 
 --Graphs test
 restart
+
 loadPackage"Visualize"
 openPort "8081"
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+
+installPackage"Visualize"
+viewHelp Visualize
+
+restart
+run "pwd"
+path = path|{"~/GitHub/Visualize-M2/"}
+loadPackage"Visualize"
+openPort "8081"
+G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
+closePort()
 
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 H = visualize ( G, VisPath => "/Users/bstone/Desktop/Test/",Verbose => true)
@@ -1166,7 +1490,7 @@ I = ideal"a2,ab,b2c,c5,b4"
 visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
-
+y
 
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
