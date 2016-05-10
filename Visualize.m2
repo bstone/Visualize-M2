@@ -48,12 +48,12 @@ export {
      
     -- Helpers 
 --     "runServer",
---     "toArray", -- Don't need to export?
---     "getCurrPath", -- Don't need to export?
---     "copyTemplate",-- Don't need to export?
---     "replaceInFile",-- Don't need to export?
---     "heightFunction",
---     "relHeightFunction",
+     "toArray", -- Don't need to export?
+     "getCurrPath", -- Don't need to export?
+     "copyTemplate",-- Don't need to export?
+     "replaceInFile",-- Don't need to export?
+     "heightFunction",
+     "relHeightFunction",
      
     -- Server
      "openPort",
@@ -357,7 +357,7 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => currentDirectory() |
 
 visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()|"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
-    local keyPosition; local vertexSet;
+    local keyPosition; local vertexSet; local browserOutput;
     
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
@@ -398,10 +398,13 @@ visualize(Digraph) := {VisPath => defaultPath, VisTemplate => currentDirectory()
 
     searchReplace("visArray",arrayString, visTemp); -- Replace visArray in the visDigraph html file by the adjacency matrix.
     searchReplace("visLabels",vertexString, visTemp); -- Replace visLabels in the visDigraph html file by the ordered list of vertices.
-    
+    searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
+
     show new URL from { "file://"|visTemp };
     
-    return visTemp;
+    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
+        
+    return browserOutput;
 )
 
 
@@ -443,8 +446,6 @@ visualize(Poset) := {FixExtremeElements => false, VisPath => defaultPath, VisTem
     
     return visTemp;
 )
-
-
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
@@ -501,7 +502,6 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => currentD
 )
 
 
-{*
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
@@ -528,7 +528,6 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => currentDirectory() | 
     
     return visTemp;
 )
-*}
 
 --input: a String of a path to a directory
 --output: Copies the needed files and libraries to path
@@ -611,6 +610,26 @@ copyJS(String) := opts -> dst -> (
     
     return "Created directories at "|dst;
 )
+
+
+-- The server workflow is as follows.
+-- 0. Load Visualize.m2
+-- 1. User opens port :: openPort("8000")
+--                    :: If any port is open an error occurs.
+--                    :: Sometimes the error is thrown when no port
+--                    :: is open. This usually occurs right after a
+--                    :: port has been closed. It takes a bit of time
+--                    :: for M2 to realize no port is open. 
+--                    :: Maybe this is an issue with the garbage collector?
+-- 2. Define graph :: G = graph(....)
+-- 3. Run visualize :: H = visualize G
+--                  :: This will open the website and start
+--                  :: communication with the server. 
+--                  :: When the user ends session, output is 
+--                  :: sent back to M2 and assigned to H.
+-- 4. End session to export info to browser;
+-- 5. Keep working and visualizeing objects;
+-- 6. When finished, user closes port :: closePort() (or restart M2).
 
 
 
@@ -915,176 +934,63 @@ return H;
 -- DOCUMENTATION
 --------------------------------------------------
 
+
 beginDocumentation()
+needsPackage "SimpleDoc"
+debug SimpleDoc
 
-document {
-     Key => Visualize,
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session.",
-     
---     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
-     
-     }
-
-
-document {
-     Key => visualize,
-     Headline => "creates an interactive object in a modern browser",
-     
-     PARA "Given an open port, this method will create an interactive visualization of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session.",
-               
-     PARA "The workflow for this package is as follows",
-     
-     UL{ "1. Load or install the package."},
-     
-     UL{{"2. Open a port with ", TT "openPort", " method for communication with the browser. 
-	     It is up to the user to choose port and also to close the port when finished."}},
-     
-     UL{"3. Define an object you wish to visualize. For example, a graph, poset, digraph, etc."},
-     
-     UL{{"4. Run ", TT "visualize", " method. This will open the browser with an interactive
-	     interface. This session is in communication with Macaulay2 through the open port above.
-	     At this point you can edit and manipulate the created object."}},
-     
-     UL{"5. End the session and export work back to Macaulay2."},
-     
-     UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
-     
-     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2"}},
-     
-     }
+multidoc ///
+  Node
+     Key
+     	 Visualize
+     Headline 
+     	 A package to help visualize algebraic objects in the browser using javascript.
+     Description
+       Text
+     	 We use really rediculusly cools things to do really cool things.
+     Caveat
+     	 Let's see.
+  Node
+    Key
+       visualize
+    Headline
+       Creates staircase diagram for an ideal
+    Usage
+       visIdeal I
+    Inputs
+       I: Ideal
+         An ideal in a ring with 2 or 3 variables.
+    Outputs
+       visTemp: String
+         Path to html containg polytope.
+    Description
+     Text
+       We are able to see the interactive staircase diagram. More stuff
+       should be here about the convext hull and other stuff.	    
+///
 
 
+end
 
-document {
-     Key => (visualize,Graph),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session.",
-     
-     
-     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
-     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
-     an object to visualize.",
+doc ///
+  Key
+    (visIdeal, Ideal)
+  Headline
+    Creates staircase diagram for an ideal
+  Usage
+    visIdeal I
+--  Inputs
+--    I:Ideal
+--      An ideal in a ring with 2 or 3 variables.
+  Outputs
+    An interactive html file that is opened in the user's default browser.
+  Description
+    Text
+      We are able to see the interactive staircase diagram. More stuff
+      should be here about the convext hull and other stuff. 
+///
 
-     EXAMPLE {
-	 "openPort \"8080\"",
-	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
-	 },
-     
-     PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
-     browser will open with the following interactive image."},
-     
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
-     
-     PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
-     Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
-     if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
-
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph2.png", "alt" => "Modified Graph"),      
-     
-     PARA "Once exporting we obtain the following graph.",
-     
-     EXAMPLE {
-	 "H = graph({{1,4},{2,4},{0,3},{0,4},{2,3}},Singletons => {5})"
-	 },
-     
-     PARA {"You can now perform more operations to it in Macaulay2 and then send it back to the browser with ", TO "visualize",
-     ". For example you might want to look at the spanning forest of ", TT "H", "."},
-     
-     EXAMPLE {
-	 "K = spanningForest H"
-	 },
-
-     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
-     open with a new graph, the spanning forest of ", TT "H", "."},
-     
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph3.png", "alt" => "Spanning Forest"),      
-     
-     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
-     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
-     
-     EXAMPLE {
-	 "closePort()"
-	 },
-     
---     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
-     
-     }
-
-document {
-     Key => (visualize,Ideal),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-document {
-     Key => (visualize,Digraph),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-document {
-     Key => (visualize,Poset),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-document {
-     Key => (visualize,SimplicialComplex),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-document {
-     Key => openPort,
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-
-document {
-     Key => closePort,
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
+end
 
 
 -------------------------------------------------------------------------------------------
@@ -1098,18 +1004,6 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
-
-restart
-uninstallPackage"Visualize"
-restart
-installPackage"Visualize"
-viewHelp Visualize
-viewHelp SimpleDoc
-
-
-
-
-
 
 -----------------------------
 -----------------------------
@@ -1221,18 +1115,12 @@ visualize S
 
 -- branden
 -- (options Visualize).Configuration
-uninstallPackage"Graphs"
-restart
-loadPackage"Graphs"
-peek loadedFiles
-path
+
 --Graphs test
 restart
-installPackage"Visualize"
-viewHelp Visualize
 loadPackage"Visualize"
-openPort "8080"
-G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+openPort "8081"
+G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
@@ -1247,6 +1135,19 @@ G = graph({{x_1, x_0}, {x_3, x_0}, {x_3, x_1}, {x_4, x_0}}, Singletons => {x_2, 
 H = visualize (G, Verbose => true)
 K = spanningForest H
 J = visualize K
+
+-- Digraphs
+restart
+loadPackage"Visualize"
+openPort "8081"
+G = digraph({ {1,{2,3}} , {2,{3}} , {3,{1}}})
+visualize G
+
+D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
+visualize D1
+D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
+visualize D2
+
 
 closePort()
 
@@ -1294,11 +1195,10 @@ copyTemplate(currentDirectory() | "Visualize/templates/visGraph/visGraph-templat
 
 restart
 uninstallPackage"Graphs"
-uninstallPackage"Visualize"
 restart
 loadPackage"Graphs"
-installPackage"Visualize"
-viewHelp Visualize
+loadPackage"Visualize"
+
 -- Old Graphs
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visGraph G
