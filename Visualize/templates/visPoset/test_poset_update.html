@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Macaulay2: Poset Visualization</title>
+    <title>Macaulay2: visPoset</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/BootSideMenu.css" rel="stylesheet">
     <style>
@@ -45,14 +45,14 @@
         stroke-dasharray: 10,2;
       }
 
-      path.link.highlighted {
-        fill: none;
-        /* stroke: #B6B6B6; */
-        stroke: #FF0000;
-        stroke-width: 4px;
-        cursor: default;
-      }
-      
+
+
+
+
+
+
+
+
       path.link.dragline {
         pointer-events: none;
       }
@@ -65,32 +65,26 @@
           stroke: #fff;
           stroke-width: 1.5px;
       }
-
       .link {
           stroke: #999;
           stroke-opacity: .6;
       }
-
       circle.node {
         stroke-width: 0px;
         cursor: pointer;
       }
-
       circle.node.reflexive {
         stroke: #000 !important;
         stroke-width: 2.5px;
       }
-
       text {
         font: 12px sans-serif;
         pointer-events: none;
       }
-
       text.id {
         text-anchor: middle;
         font-weight: bold;
       }
-
       #canvasElement3d {
         background-color: #FFF;
         cursor: default;
@@ -98,7 +92,6 @@
         z-index: 0;
         padding-bottom: 10px;
       }
-
       #constructorString {
         -o-user-select: text;
         -moz-user-select: text;
@@ -107,7 +100,6 @@
         z-index: 100;
         padding-bottom: 5px;
       }
-
       #incString {
         -o-user-select: text;
         -moz-user-select: text;
@@ -127,29 +119,27 @@
     </style>
     <script type="text/javascript">
       //global variables
-      activeSession = true;
       curEdit = false;
-  	  curView = "2d";
+        curView = "2d";
       menuOpen = false;
-  /*    dataNodes = [
-		{"name": "1", "group":0},
-		{"name": "2", "group":1},
-		{"name": "3", "group":1},
-		{"name": "4", "group":2},
-		{"name": "5", "group":1},
-		{"name": "6", "group":2}
-	   ];*/
-      dataNodes = visNodes;
-    /*  dataLinks = [
-		{"source":0,"target":1,"value":1},
-		{"source":0,"target":2,"value":2},
-		{"source":0,"target":4,"value":3},
-		{"source":1,"target":3,"value":1},
-		{"source":2,"target":5,"value":2},
+      dataNodes = [
+      {"name": "1", "group":0},
+      {"name": "2", "group":1},
+      {"name": "3", "group":1},
+      {"name": "4", "group":2},
+      {"name": "5", "group":1},
+      {"name": "6", "group":2}
+         ];
+    //  dataNodes = visNodes;
+      dataLinks = [
+      {"source":0,"target":1,"value":1},
+      {"source":0,"target":2,"value":2},
+      {"source":0,"target":4,"value":3},
+      {"source":1,"target":3,"value":1},
+      {"source":2,"target":5,"value":2},
         {"source":4,"target":3,"value":1}
-	   ];*/
-      dataLinks = visRelations;
-      portData = visPort; // initializes port from user
+         ];
+      // dataLinks = visRelations;
       forceOn = false;
     </script>
   </head>
@@ -163,12 +153,29 @@
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn on force</a>
             <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
-            <a id="endSession" href="#" class="list-group-item">End session</a> 
-          </div>
+            <a href="#collapse1" data-toggle="collapse" class="list-group-item">Boolean tests &#9662;</a>
+                <div id="collapse1" class="panel-collapse collapse">
+                    <a id="hasEulerianTrail" href="#" class="list-group-item"> &nbsp;&nbsp; hasEulerianTrail</a>
+                    <a id="hasOddHole" href="#" class="list-group-item"> &nbsp;&nbsp; hasOddHole</a>
+                    <a id="isBipartite" href="#" class="list-group-item"> &nbsp;&nbsp; isBipartite</a>
+                    <a id="isChordal" href="#" class="list-group-item"> &nbsp;&nbsp; isChordal</a>
+                    <a id="isCM" href="#" class="list-group-item"> &nbsp;&nbsp; isCM</a>
+                    <a id="isConnected" href="#" class="list-group-item"> &nbsp;&nbsp; isConnected</a>
+                    <a id="isCyclic" href="#" class="list-group-item"> &nbsp;&nbsp; isCyclic</a>
+                    <a id="isEulerian" href="#" class="list-group-item"> &nbsp;&nbsp; isEulerian</a>
+                    <a id="isForest" href="#" class="list-group-item"> &nbsp;&nbsp; isForest</a>
+                    <a id="isPerfect" href="#" class="list-group-item"> &nbsp;&nbsp; isPerfect</a>
+                    <a id="isRegular" href="#" class="list-group-item"> &nbsp;&nbsp; isRegular</a>
+                    <a id="isSimple" href="#" class="list-group-item"> &nbsp;&nbsp; isSimple</a>
+                    <a id="isTree" href="#" class="list-group-item"> &nbsp;&nbsp; isTree</a>
+                </div>
+             <a id="endSession" href="#" class="list-group-item">End session</a>            
+
+	  </div>
         </div>
 
         <div class="container">
-          <div id="canvasElement2d"></div>
+          <div id="canvasElement3d"></div>
         </div>
 
 
@@ -181,14 +188,12 @@
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
-    document.getElementById("canvasElement2d").style.width = window.innerWidth;//change here switched 3 to 2
-    document.getElementById("canvasElement2d").style.height = window.innerHeight - 125;//change here switched 3 to 2
-
-    window.addEventListener('resize', updateWindowSize2d, false);
+    document.getElementById("canvasElement3d").style.width = window.innerWidth;
+    document.getElementById("canvasElement3d").style.width = window.innerHeight - 125;
 
     $(document).ready(function(){
 
-      $("#editToggle").on("click", function(){
+     $("#editToggle").on("click", function(){
         if(curEdit) {
           $(this).html("Enable editing");
           curEdit = !curEdit;
@@ -198,34 +203,27 @@
           curEdit = !curEdit;
           enableEditing();
         }
-      });
+     });
 
-      $("#reset").on("click", resetGraph);
-      $("#forceToggle").on("click", toggleForce);
-      $("#exportTikz").on("click", function() {
+     $("#reset").on("click", resetGraph);
+
+     $("#forceToggle").on("click", toggleForce);
+
+     $("#exportTikz").on("click", function() {
         exportTikz();
       })
 
-      // Ends the browser session and outputs the information to M2
-      $("#endSession").on("click", function() {
-        if(activeSession) {
-          //$(this).html("Session Terminated");
-          //$(this).html(<p style="color: #ffffff; background-color: #ff0000">Session terminated</p>);
-          document.getElementById("endSession").style.color = 'white';
-          document.getElementById("endSession").style.backgroundColor = 'red';
-          document.getElementById("endSession").innerHTML = "Session terminated";
-          makeCorsRequest('POST','http://localhost:'+portData+'/end/',poset2M2Constructor(nodes,links));
-          activeSession = !activeSession;
-        } else {
-          return;
-        }
-      });      
 
-      initializeBuilder();
+
+
+
+
+
+
+
+    initializeBuilder();
       disableEditing();
     });
-
-
     function toggleForce() {
       if (forceOn) {
         setAllNodesFixed();
@@ -237,9 +235,7 @@
       }
       forceOn = !forceOn;
     }
-
     window.addEventListener("mousedown", function(e) {
-
       if (!menuOpen) return;
       tempMenu = document.getElementById("popupMenu");
       if ( (e.clientX < tempMenu.offsetLeft) || (e.clientY > tempMenu.offsetTop + tempMenu.offsetHeight) ) {
@@ -247,9 +243,8 @@
         tempMenu.style.visibility = "hidden";
         menuOpen = false;
       }
-
     }, false);
-  	//window.addEventListener('resize', updateWindowSize2d, false);
+      window.addEventListener('resize', updateWindowSize2d, false);
     //window.onresize = updateWindowSize2d;
     </script>
 
