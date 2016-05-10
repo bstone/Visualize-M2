@@ -640,10 +640,10 @@ function poset2M2Constructor( nodeSet, edgeSet ){
 
   for( var i = 0; i < t; i++ ){
     if(i != (t-1)){
-      strVerts = strVerts + "{" + (nodeSet[i].name).toString() +  "}, ";
+      strVerts = strVerts + (nodeSet[i].name).toString() +  ", ";
     }
     else{
-      strVerts = strVerts + "{" + (nodeSet[i].name).toString() + "}}";
+      strVerts = strVerts + (nodeSet[i].name).toString() + "}";
     }
   }
   // determine if the singleton set is empty

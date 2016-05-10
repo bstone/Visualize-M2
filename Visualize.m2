@@ -1457,7 +1457,7 @@ openPort "8080"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize(P2,FixExtremeElements => true,Verbose=>true)
 visualize P2
-visualize oo
+visualize(oo, Verbose=>true)
 
 G=graph({})
 visualize(G,Verbose=>true)
