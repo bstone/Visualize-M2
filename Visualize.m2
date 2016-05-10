@@ -69,7 +69,8 @@ export {
 ------------------------------------------------------------
 
 defaultPath = (options Visualize).Configuration#"DefaultPath"
-basePath = currentFileDirectory
+basePath = currentFileDirectory -- created this because copyJS would not handle 
+    	    	    	    	-- currentFileDirectory for some reason.
 
 -- (options Visualize).Configuration
 
