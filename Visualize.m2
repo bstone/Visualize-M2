@@ -1015,7 +1015,7 @@ document {
      browser will open with the following interactive image."},
      
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
      
      PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
      Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
@@ -1315,6 +1315,13 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
+
+restart
+run "pwd"
+uninstallPackage"Visualize"
+restart
+installPackage"Visualize"
+viewHelp Visualize
 
 -----------------------------
 -----------------------------
