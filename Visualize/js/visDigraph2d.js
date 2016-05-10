@@ -115,7 +115,7 @@ function initializeBuilder() {
   console.log(nodes);
   console.log(links);
     
-  //constrString = graph2M2Constructor(nodes,links);
+  //constrString = digraph2M2Constructor(nodes,links);
     
   // (Brett) Removing incidence and adjacency matrices.
   /*incMatrix = getIncidenceMatrix(nodes,links);
@@ -473,7 +473,7 @@ function restart() {
         menuDefaults();
       }
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
       
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -510,7 +510,7 @@ function restart() {
         d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
       }
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
 
     });
 
@@ -583,7 +583,7 @@ function mousedown() {
   // d3.select("#isCM").html("isCM");
   menuDefaults();
 
-  //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+  //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
     
   // (Brett) Removing incidence and adjacency matrices for now.
   /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -664,7 +664,7 @@ function keydown() {
       // d3.select("#isCM").html("isCM");      
       menuDefaults();
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
       document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
@@ -817,37 +817,20 @@ function updateWindowSize2d() {
 
 // Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
 
-function graph2M2Constructor( nodeSet, edgeSet ){
+function digraph2M2Constructor( nodeSet, edgeSet ){
   var strEdges = "{";
   var e = edgeSet.length;
+  var strNodes = "{";
+  var d = nodeSet.length;
   for( var i = 0; i < e; i++ ){
     if(i != (e-1)){
-      strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}, ";
+      strNodes = strNodes + (nodeSet[i].name).toString() + ", ";
     }
     else{
-      strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}}";
+      strNodes = strNodes + (nodeSet[i].name).toString() + "}";
     }
   }
-  // determine if the singleton set is empty
-        var card = 0
-  var singSet = singletons(nodeSet, edgeSet);
-  card = singSet.length; // cardinality of singleton set
-  if ( card != 0 ){
-    var strSingSet = "{";
-    for(var i = 0; i < card; i++ ){
-      if(i != (card - 1) ){
-        strSingSet = strSingSet + "" + (singSet[i]).toString() + ", ";
-      }
-      else{
-        strSingSet = strSingSet + "" + (singSet[i]).toString();
-      }
-    }
-    strSingSet = strSingSet + "}";
-    return "graph(" + strEdges + ", Singletons => "+ strSingSet + ")";
-  }
-  else{
-    return "graph(" + strEdges + ")";
-  }
+  return "digraph(" + strNodes + "," + arraytoM2Matrix(getAdjacencyMatrix(nodeSet,edgeSet)) + ")";
 
 }
 
@@ -908,8 +891,8 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
   }
 
   for (var i = 0; i < edgeSet.length; i++) {
-    adjMatrix[edgeSet[i].source.id][edgeSet[i].target.id] = 1; // Set matrix entries corresponding to adjacencies to 1.
-    adjMatrix[edgeSet[i].target.id][edgeSet[i].source.id] = 1;
+    if(edgeSet[i].right) { adjMatrix[edgeSet[i].source.id][edgeSet[i].target.id] = 1;} // Set matrix entries corresponding to adjacencies to 1.
+    if(edgeSet[i].left) { adjMatrix[edgeSet[i].target.id][edgeSet[i].source.id] = 1;}
   }
 
   return adjMatrix;
@@ -918,6 +901,28 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
 // Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
 function arraytoM2Matrix (arr){
   var str = "matrix{{";
+  for(var i = 0; i < arr.length; i++){
+    for(var j = 0; j < arr[i].length; j++){
+      str = str + arr[i][j].toString();
+      if(j == arr[i].length - 1){
+        str = str + "}";
+            } else {
+        str = str + ",";
+      }
+    }
+    if(i < arr.length-1){
+      str = str + ",{";
+    } else {
+      str = str + "}";
+    }
+  }
+
+  return str;
+}
+
+// Takes a rectangular array of arrays and returns a list which can be copy/pasted into M2.
+function arraytoM2List (arr){
+  var str = "{{";
   for(var i = 0; i < arr.length; i++){
     for(var j = 0; j < arr[i].length; j++){
       str = str + arr[i][j].toString();
