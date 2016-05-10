@@ -214,7 +214,7 @@
           document.getElementById("endSession").style.color = 'white';
           document.getElementById("endSession").style.backgroundColor = 'red';
           document.getElementById("endSession").innerHTML = "Session terminated";
-          makeCorsRequest('POST','http://localhost:'+portData+'/end/',"you are mom"/*graph2M2Constructor(nodes,links)*/);
+          makeCorsRequest('POST','http://localhost:'+portData+'/end/',poset2M2Constructor(nodes,links));
           activeSession = !activeSession;
         } else {
           return;

@@ -363,7 +363,7 @@ function restart() {
         links.push(link);
       }
 
-      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
       
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -392,7 +392,7 @@ function restart() {
         d3.select(this.parentNode).select("text").text(function(d) {return d.name});
       }
 
-      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
 
       var maxLength = d3.max(nodes, function(d) {
         return d.name.length;
@@ -459,7 +459,7 @@ function mousedown() {
   node.y = point[1];
   nodes.push(node);
 
-  document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+  document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
     
   // (Brett) Removing incidence and adjacency matrices for now.
   /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -533,7 +533,7 @@ function keydown() {
       selected_link = null;
       selected_node = null;
 
-      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
       document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
@@ -622,9 +622,9 @@ function updateWindowSize2d() {
 }
 
 
-// Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
+// Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.
 
-function graph2M2Constructor( nodeSet, edgeSet ){
+function poset2M2Constructor( nodeSet, edgeSet ){
   var strEdges = "{";
   var e = edgeSet.length;
   for( var i = 0; i < e; i++ ){
@@ -650,10 +650,10 @@ function graph2M2Constructor( nodeSet, edgeSet ){
       }
     }
     strSingSet = strSingSet + "}";
-    return "graph(" + strEdges + ", Singletons => "+ strSingSet + ")";
+    return "poset(" + strEdges + ", Singletons => "+ strSingSet + ")";
   }
   else{
-    return "graph(" + strEdges + ")";
+    return "poset(" + strEdges + ")";
   }
 
 }
