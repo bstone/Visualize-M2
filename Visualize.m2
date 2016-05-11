@@ -1137,10 +1137,40 @@ document {
      
      }
  
- document {
-     Key => VisPath,
-     Headline => "an option to define a path save visualizations",
+document {
+     Key => (visualize,Ideal),
+     Headline => "visualizes an ideal in the browser",
      
+     PARA "Make Graphs perfect and copy with pics"
+     }
+
+document {
+     Key => (visualize,Digraph),
+     Headline => "visualizes a digraph in the browser",
+     
+     PARA "Make Graphs perfect and copy with pics"
+     }
+
+document {
+     Key => (visualize,Poset),
+     Headline => "visualizes a poset in the browser",
+     
+     PARA "Make Graphs perfect and copy with pics"
+     }
+
+document {
+     Key => (visualize,SimplicialComplex),
+     Headline => "visualizes a simplicial complex in the browser",
+     
+     PARA "Make Graphs perfect and copy with pics"
+
+     }
+
+ 
+document {
+     Key => VisPath,
+     Headline => "an option to define a path to save visualizations",
+          
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
 	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}
@@ -1159,7 +1189,7 @@ document {
      Headline => "an option to squelch warnings",
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
      }
 
 document {
@@ -1180,237 +1210,230 @@ document {
  
 document {
      Key => [(visualize,Digraph),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of Digraphs",
+     Usage => "H = visualize (D, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"D" => Digraph => "a Digraph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
 
 document {
      Key => [(visualize,Graph),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of Graphs",
+     Usage => "H = visualize (G, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"G" => Graph => "a graph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
+
 
 document {
      Key => [(visualize,Ideal),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of Ideals",
+     Usage => "H = visualize (I, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"I" => Ideal => "an ideal"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
 
 document {
      Key => [(visualize,Poset),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of Posets",
+     Usage => "H = visualize (P, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"P" => Poset => "a poset"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
+
 
 document {
      Key => [(visualize,SimplicialComplex),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of simplicial complexes",
+     Usage => "H = visualize (S, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
+
 
 document {
      Key => [(visualize,Digraph),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (D, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"D" => Digraph => "a digraph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+
      }
 
 document {
      Key => [(visualize,Graph),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (G, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"G" => Graph => "a graph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
      }
 
 document {
      Key => [(visualize,Ideal),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (I, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"I" => Ideal => "an ideal"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+
      }
 
 document {
      Key => [(visualize,Poset),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (P, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"P" => Poset => "a poset"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+
      }
 
 document {
      Key => [(visualize,SimplicialComplex),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (S, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+
      }
 
 document {
      Key => [(visualize,Digraph),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (D, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"D" => Digraph => "a digraph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
 
 document {
      Key => [(visualize,Graph),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (G, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"G" => Graph => "a graph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
 
 
 document {
      Key => [(visualize,Ideal),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (I, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"I" => Ideal => "an ideal"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
 
 
 document {
      Key => [(visualize,Poset),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (P, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"P" => Poset => "a poset"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
 
 document {
      Key => [(visualize,SimplicialComplex),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (S, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
 
 
 
-document {
-     Key => (visualize,Ideal),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-document {
-     Key => (visualize,Digraph),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-document {
-     Key => (visualize,Poset),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-document {
-     Key => (visualize,SimplicialComplex),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
-
-document {
-     Key => {openPort,(openPort,String)},
-     Headline => "opens a port",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
 
 document {
      Key => [(visualize,Graph),Verbose],
-     Headline => "opens a port",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     Headline => "an to view communication between Macaulay2 server and browser ",
+     Usage => "H = visualize (G, Verbose => true)",     
+     Inputs => {"G" => Graph => "a graph"},
+
+     PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
+	 The communication will be displayed in the instance of Macaulay2."}
      }
 
 document {
      Key => [(visualize,Digraph),Verbose],
-     Headline => "opens a port",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     Headline => "an to view communication between Macaulay2 server and browser ",
+     Usage => "H = visualize (D, Verbose => true)",     
+     Inputs => {"D" => Digraph => "a digraph"},
+
+     PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
+	 The communication will be displayed in the instance of Macaulay2."}
+
      }
 
 
 document {
      Key => [(visualize,Poset),Verbose],
+     Headline => "an to view communication between Macaulay2 server and browser ",
+     Usage => "H = visualize (P, Verbose => true)",     
+     Inputs => {"P" => Poset => "a poset"},
+
+     PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
+	 The communication will be displayed in the instance of Macaulay2."}
+     }
+
+document {
+     Key => {openPort,(openPort,String)},
      Headline => "opens a port",
+     Usage => "openPort N",
+     Inputs => {"N" => String => "a port number"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"In order to use the ", TO "visualize", " method, the user must first open a port on their machine. This
+	 can be dangerous."},
+	 
+     EXAMPLE {
+	 "openPort \"8080\"",
+	 },
+     
+     PARA {"Once a port is open, another instance of ", TO "openPort", " will not be allowed to open another port. 
+	 Hence the user can only open one port at a time with this method. Once finished visualizing, you can close the 
+	 port with the ", TO "closePort", " method."},
+	 
+     EXAMPLE {
+	 "closePort()",
+	 },	 
+
+    PARA "Restarting Macaulay2 will also close the port."
      }
 
 
