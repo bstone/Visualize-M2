@@ -1656,7 +1656,7 @@ restart
 
 path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage "Visualize"
-openPort "8080"
+openPort "8081"
 closePort()
 -- Graphs
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
