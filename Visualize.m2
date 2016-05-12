@@ -1732,3 +1732,15 @@ M =
 A = graph M
 visGraph A
 
+isRigid = method();
+isRigid(Graph) := G->(
+    local rigidity;
+    local i;
+    rigidity=true;
+    if #edges G < 2*#vertices G-3 then rigidity = false
+     else
+    (for i in subsets vertices G do(
+    if #edges inducedSubgraph(G,i)>2*#i-3 then rigidity = false;););
+    return rigidity;
+    )
+

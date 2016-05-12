@@ -79,16 +79,22 @@ color = d3.scale.category10();
     
   drag = force.drag()
     .on("dragstart", dragstart);
-    
-  link = svg.selectAll(".link")
+
+// Handles to link and node element groups.
+  //path = svg.append('svg:g').selectAll('path');
+  //circle = svg.append('svg:g').selectAll('g');
+  
+  path = svg.append('svg:g').selectAll("path");
+  /*
       .data(links)
     .enter().append("line")
       .attr("class", "link")
       .attr("y1", function(d) {return d.source.y;})
       .attr("y2", function(d) {return d.target.y;})
       .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-  
-  node = svg.selectAll(".node")
+  */
+  circle = svg.append('svg:g').selectAll("g");
+  /*
       .data(nodes)
     .enter().append("circle")
       .attr("class", "node")
@@ -97,7 +103,7 @@ color = d3.scale.category10();
       .attr("cy", function(d) {return d.y;})
       .style("fill", function(d) { return color(d.group); })
       .call(force.drag);
-  
+  */
   // Brett: Need to fix this.
 
  /* var maxLength = d3.max(nodes, function(d) { return d.name.length; });
@@ -118,10 +124,10 @@ color = d3.scale.category10();
   	.attr("id","constructorString");*/
 
 force.on("tick", function() {
-    link.attr("x1", function(d) { return d.source.x; })
+    path.attr("x1", function(d) { return d.source.x; })
         .attr("x2", function(d) { return d.target.x; });
     
-    node.attr("cx", function(d) { return d.x; })
+    circle.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y =  height-vPadding-d.group*rowSep;});
 });
 }
@@ -235,6 +241,9 @@ function restart() {
   // Add new links.
   path.enter().append('svg:path')
     .attr('class', 'link')
+    .attr("y1", function(d) {return d.source.y;})
+    .attr("y2", function(d) {return d.target.y;})
+    .style("stroke-width", function(d) { return Math.sqrt(d.value); })
     // If a link is currently selected, set 'selected: true'.
     .classed('selected', function(d) { return d === selected_link; })
     // If the edge is directed towards the source or target, attach an arrow.
@@ -284,6 +293,11 @@ function restart() {
   g.append('svg:circle')
     .attr('class', 'node')
     .attr('r', 12)
+    //.attr("r", 10)
+      .attr("cx", function(d) {return d.x;})
+      .attr("cy", function(d) {return d.y;})
+      .style("fill", function(d) { return color(d.group); })
+
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
