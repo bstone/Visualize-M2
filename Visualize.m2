@@ -1728,19 +1728,4 @@ G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5
 -- displayGraph A
 visGraph G
 
-M = 
-A = graph M
-visGraph A
-
-isRigid = method();
-isRigid(Graph) := G->(
-    local rigidity;
-    local i;
-    rigidity=true;
-    if #edges G < 2*#vertices G-3 then rigidity = false
-     else
-    (for i in subsets vertices G do(
-    if #edges inducedSubgraph(G,i)>2*#i-3 then rigidity = false;););
-    return rigidity;
-    )
 
