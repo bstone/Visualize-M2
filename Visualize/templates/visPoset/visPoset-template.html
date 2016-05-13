@@ -180,6 +180,22 @@
                     <a id="isSimple" href="#" class="list-group-item"> &nbsp;&nbsp; isSimple</a>
                     <a id="isTree" href="#" class="list-group-item"> &nbsp;&nbsp; isTree</a>
                 </div>
+                <a href="#collapse2" data-toggle="collapse" class="list-group-item">Numerical invariants &#9662;</a>
+                <div id="collapse2" class="panel-collapse collapse">
+                    <a id="chromaticNumber" href="#" class="list-group-item"> &nbsp;&nbsp; chromaticNumber</a>
+                    <a id="independenceNumber" href="#" class="list-group-item"> &nbsp;&nbsp; independenceNumber</a>
+                    <a id="cliqueNumber" href="#" class="list-group-item"> &nbsp;&nbsp; cliqueNumber</a>
+                    <a id="degeneracy" href="#" class="list-group-item"> &nbsp;&nbsp; degeneracy</a>
+                    <a id="density" href="#" class="list-group-item"> &nbsp;&nbsp; density</a>
+                    <a id="diameter" href="#" class="list-group-item"> &nbsp;&nbsp; diameter</a>
+                    <a id="edgeConnectivity" href="#" class="list-group-item"> &nbsp;&nbsp; edgeConnectivity</a>
+                    <a id="minimalDegree" href="#" class="list-group-item"> &nbsp;&nbsp; minimalDegree</a>
+                    <a id="numberOfComponents" href="#" class="list-group-item"> &nbsp;&nbsp; numberOfComponents</a>
+                    <a id="numberOfTriangles" href="#" class="list-group-item"> &nbsp;&nbsp; numberOfTriangles</a>
+                    <a id="radius" href="#" class="list-group-item"> &nbsp;&nbsp; radius</a>
+                    <a id="vertexConnectivity" href="#" class="list-group-item"> &nbsp;&nbsp; vertexConnectivity</a>
+                    <a id="vertexCoverNumber" href="#" class="list-group-item"> &nbsp;&nbsp; vertexCoverNumber</a>
+                </div>
             <a id="endSession" href="#" class="list-group-item">End session</a> 
           </div>
         </div>
@@ -217,12 +233,38 @@
         }
       });
 
+      $("#highlightToggle").on("click", function(){
+        if(curHighlight) {
+          $(this).html("Highlight Neighbors");
+          unHighlightAll();
+          curHighlight = !curHighlight;
+        } else {
+          $(this).html("Disable Highlighting");
+          enableHighlight();
+          curHighlight = !curHighlight;
+        }
+      });
+
       $("#reset").on("click", resetGraph);
+      
       $("#forceToggle").on("click", toggleForce);
+      
       $("#exportTikz").on("click", function() {
         exportTikz();
       })
 
+      // Begin browser-M2 communication.
+      // For each item, a line in the function `onclickResults()`
+      // located in `visGraph2d.js` must be added. 
+      // 
+      // If you wish to delete the text to make it vanish when the graph is edited
+      // search for 'menuDefaults()'.
+
+      // Checks to see if users graph is chordal
+      $("#isChordal").on("click", function() {
+        clickTest = "isChordal";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isChordal/', poset2M2Constructor(nodes,links));
+      }); 
       // Ends the browser session and outputs the information to M2
       $("#endSession").on("click", function() {
         if(activeSession) {
