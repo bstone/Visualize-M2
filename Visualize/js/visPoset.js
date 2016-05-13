@@ -5,7 +5,7 @@
 
   var svg = null;
   nodes = null;
-   lastNodeId = null,
+  var lastNodeId = null,
     links = null;
 
   var constrString = null;
@@ -31,35 +31,15 @@
 
   var drag = null;
 
-// Helps determine what menu button was clicked.
-  var clickTest = null; 
-
-  var scriptSource = (function(scripts) {
-    var scripts = document.getElementsByTagName('script'),
-        script = scripts[scripts.length - 1];
-
-    if (script.getAttribute.length !== undefined) {
-        return script.src
-    }
-
-    return script.getAttribute('src', -1)
-    }());
-    
-    // Just get the current directory that contains the html file.
-    scriptSource = scriptSource.substring(0, scriptSource.length - 16);
-      
-    console.log(scriptSource);
-
 function initializeBuilder() {
   // Set up SVG for D3.
 
-    width = window.innerWidth - 10,
-    height = window.innerHeight - 10,
-    colors = d3.scale.category10(),
+    width = window.innerWidth - 20,
+    height = window.innerHeight - 20,
     hPadding = 20,
     vPadding = 20;
 
-//color = d3.scale.category10();
+var color = d3.scale.category20();
 
  svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -84,7 +64,7 @@ function initializeBuilder() {
 
     for(var i=0; i<nodes.length;i++){
       nodes[i].fixed = true;
-	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
+    nodes[i].y = height-vPadding-nodes[i].group*rowSep;
       groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
       nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
     }
@@ -99,22 +79,16 @@ function initializeBuilder() {
     
   drag = force.drag()
     .on("dragstart", dragstart);
-
-// Handles to link and node element groups.
-  //path = svg.append('svg:g').selectAll('path');
-  //circle = svg.append('svg:g').selectAll('g');
-  
-  path = svg.append('svg:g').selectAll("path");
-  /*
+    
+  link = svg.selectAll(".link")
       .data(links)
     .enter().append("line")
       .attr("class", "link")
       .attr("y1", function(d) {return d.source.y;})
       .attr("y2", function(d) {return d.target.y;})
       .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-  */
-  circle = svg.append('svg:g').selectAll("g");
-  /*
+  
+  node = svg.selectAll(".node")
       .data(nodes)
     .enter().append("circle")
       .attr("class", "node")
@@ -123,7 +97,7 @@ function initializeBuilder() {
       .attr("cy", function(d) {return d.y;})
       .style("fill", function(d) { return color(d.group); })
       .call(force.drag);
-  */
+  
   // Brett: Need to fix this.
 
  /* var maxLength = d3.max(nodes, function(d) { return d.name.length; });
@@ -140,14 +114,14 @@ function initializeBuilder() {
 
   // Add a paragraph containing the Macaulay2 poset constructor string below the svg.
 /*  d3.select("body").append("p")
-  	.text("Macaulay2 Constructor: " + constrString)
-  	.attr("id","constructorString");*/
+    .text("Macaulay2 Constructor: " + constrString)
+    .attr("id","constructorString");*/
 
 force.on("tick", function() {
-    path.attr("x1", function(d) { return d.source.x; })
+    link.attr("x1", function(d) { return d.source.x; })
         .attr("x2", function(d) { return d.target.x; });
     
-    circle.attr("cx", function(d) { return d.x; })
+    node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y =  height-vPadding-d.group*rowSep;});
 });
 }
@@ -261,9 +235,6 @@ function restart() {
   // Add new links.
   path.enter().append('svg:path')
     .attr('class', 'link')
-    .attr("y1", function(d) {return d.source.y;})
-    .attr("y2", function(d) {return d.target.y;})
-    .style("stroke-width", function(d) { return Math.sqrt(d.value); })
     // If a link is currently selected, set 'selected: true'.
     .classed('selected', function(d) { return d === selected_link; })
     // If the edge is directed towards the source or target, attach an arrow.
@@ -310,40 +281,12 @@ function restart() {
   // Add new nodes.
   var g = circle.enter().append('svg:g');
 
-
-
-
-/*g.append('svg:circle')
-    .attr('class', 'node')
-    .attr('r', 12)
-    .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
-    .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
-    .classed('reflexive', function(d) { return d.reflexive; })
-    .classed('highlighted',function(d) {return d.highlighted;})
-    .on('mouseover', function(d) {
-      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
-      // then do nothing.
-      if (!mousedown_node || d === mousedown_node) return;
-      // Otherwise enlarge the target node.
-      d3.select(this).attr('transform', 'scale(1.1)');
-    })
-
-*/
-
-
-
-
   g.append('svg:circle')
     .attr('class', 'node')
     .attr('r', 12)
-    //.attr("r", 10)
-     // .attr("cx", function(d) {return d.x;})
-     // .attr("cy", function(d) {return d.y;})
-     // .style("fill", function(d) { return color(d.group); })
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
-    .classed('highlighted',function(d) {return d.highlighted;})
     .on('mouseover', function(d) {
       // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
       // then do nothing.
@@ -613,7 +556,7 @@ function keyup() {
   }
 }
 
-function disableEditing() {
+/*function disableEditing() {
   //circle.call(drag);
   svg.classed('shift', true);
   selected_node = null;
@@ -633,7 +576,7 @@ function disableEditing() {
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
 
   restart();
-}
+}*/
 
 function enableEditing() {
   circle
