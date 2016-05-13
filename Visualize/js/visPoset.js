@@ -5,7 +5,7 @@
 
   var svg = null;
   nodes = null;
-  var lastNodeId = null,
+   lastNodeId = null,
     links = null;
 
   var constrString = null;
@@ -31,15 +31,35 @@
 
   var drag = null;
 
+// Helps determine what menu button was clicked.
+  var clickTest = null; 
+
+  var scriptSource = (function(scripts) {
+    var scripts = document.getElementsByTagName('script'),
+        script = scripts[scripts.length - 1];
+
+    if (script.getAttribute.length !== undefined) {
+        return script.src
+    }
+
+    return script.getAttribute('src', -1)
+    }());
+    
+    // Just get the current directory that contains the html file.
+    scriptSource = scriptSource.substring(0, scriptSource.length - 16);
+      
+    console.log(scriptSource);
+
 function initializeBuilder() {
   // Set up SVG for D3.
 
     width = window.innerWidth - 10,
     height = window.innerHeight - 10,
+    colors = d3.scale.category10(),
     hPadding = 20,
     vPadding = 20;
 
-color = d3.scale.category10();
+//color = d3.scale.category10();
 
  svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -290,17 +310,40 @@ function restart() {
   // Add new nodes.
   var g = circle.enter().append('svg:g');
 
+
+
+
+/*g.append('svg:circle')
+    .attr('class', 'node')
+    .attr('r', 12)
+    .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
+    .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
+    .classed('reflexive', function(d) { return d.reflexive; })
+    .classed('highlighted',function(d) {return d.highlighted;})
+    .on('mouseover', function(d) {
+      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
+      // then do nothing.
+      if (!mousedown_node || d === mousedown_node) return;
+      // Otherwise enlarge the target node.
+      d3.select(this).attr('transform', 'scale(1.1)');
+    })
+
+*/
+
+
+
+
   g.append('svg:circle')
     .attr('class', 'node')
     .attr('r', 12)
     //.attr("r", 10)
-      .attr("cx", function(d) {return d.x;})
-      .attr("cy", function(d) {return d.y;})
-      .style("fill", function(d) { return color(d.group); })
-
+     // .attr("cx", function(d) {return d.x;})
+     // .attr("cy", function(d) {return d.y;})
+     // .style("fill", function(d) { return color(d.group); })
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
+    .classed('highlighted',function(d) {return d.highlighted;})
     .on('mouseover', function(d) {
       // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
       // then do nothing.
