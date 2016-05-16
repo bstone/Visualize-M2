@@ -129,6 +129,7 @@
       //global variables
       activeSession = true;
       curEdit = false;
+      tikzGenerated = false;
   	  curView = "2d";
       menuOpen = false;
   /*    dataNodes = [
@@ -148,7 +149,8 @@
 		{"source":2,"target":5,"value":2},
         {"source":4,"target":3,"value":1}
 	   ];*/
-      dataLinks = visRelations;
+      dataData = visRelations;
+      labelData = visLabels;
       portData = visPort; // initializes port from user
       forceOn = false;
     </script>
@@ -208,7 +210,9 @@
   <script src="js/jquery-1.11.3.min.js"></script>
   <script src="js/BootSideMenu.js"></script>
   <script src="js/d3.v3.js"></script>
-  <script src="js/visPoset.js"></script>
+  <script src="js/visPosetTomNew.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/clipboard.min.js"></script>
 
   <script type="text/javascript">
 //    $('#side').BootSideMenu({side:"right"});

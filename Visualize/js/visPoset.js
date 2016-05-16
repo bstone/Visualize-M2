@@ -34,10 +34,10 @@
 function initializeBuilder() {
   // Set up SVG for D3.
 
-    width = window.innerWidth - 20,
-    height = window.innerHeight - 20,
-    hPadding = 20,
-    vPadding = 20;
+    width = window.innerWidth - 10,
+    height = window.innerHeight - 10,
+    hPadding = 10,
+    vPadding = 10;
 
 var color = d3.scale.category20();
 
