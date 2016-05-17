@@ -20,8 +20,8 @@
 
   var maxGroup = 1;
   var rowSep = 20;
-  var hPadding = 20;
-  var vPadding = 20;
+  var hPadding = 30;
+  var vPadding = 30;
 
   var force = null;
 
@@ -201,7 +201,7 @@ function initializeBuilder() {
 
 }
 
-function resetGraph() {
+function resetPoset() {
     
   // Set the 'fixed' attribute to false for all nodes and then restart the force layout.
   var groupFreq = [];
@@ -216,10 +216,14 @@ function resetGraph() {
   for(var i=0; i < nodes.length;i++){
       // Set the nodes as fixed by default and specify their initial x and y values to be evenly spaced along their level.
 	  nodes[i].y = height-vPadding-(nodes[i].group)*rowSep;
-      groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
+      groupCount[nodes[i].group]=groupCount[nodes[i].group]+1;
+      console.log(height-vPadding-(nodes[i].group)*rowSep);
       nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
+      console.log(groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1)));
       nodes[i].fixed = true;
   }
+  // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
+  if(forceOn) toggleForce();
   
   restart();
 }
@@ -772,7 +776,12 @@ function setAllNodesFixed() {
   for (var i = 0; i<nodes.length; i++) {
     nodes[i].fixed = true;
   }
+}
 
+function setAllNodesUnfixed() {
+  for (var i = 0; i<nodes.length; i++) {
+    nodes[i].fixed = false;
+  }
 }
 
 function updateWindowSize2d() {
@@ -795,9 +804,9 @@ function updateWindowSize2d() {
     force.size([width, height]).resume();
 }
 
-// Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
+// Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.
 
-function graph2M2Constructor( nodeSet, edgeSet ){
+function poset2M2Constructor( nodeSet, edgeSet ){
   var strEdges = "{";
   var e = edgeSet.length;
   for( var i = 0; i < e; i++ ){
