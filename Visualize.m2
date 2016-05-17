@@ -1480,11 +1480,12 @@ openPort "8081"
 P = poset ({1,2,3,4,5}, {{1,2},{2,3},{3,5},{1,4},{4,5}})
 visualize(P, Verbose=>true)
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
+closePort()
 visualize(P2,FixExtremeElements => true,Verbose=>true)
 visualize P2
 visualize(oo, Verbose=>true)
 
-closePort()
+
 
 G=graph({})
 visualize(G,Verbose=>true)
