@@ -61,7 +61,7 @@
         stroke-width: 0;
       }
     
-     /* .node {
+      .node {
           stroke: #fff;
           stroke-width: 1.5px;
       }
@@ -69,7 +69,7 @@
       .link {
           stroke: #999;
           stroke-opacity: .6;
-      }*/
+      }
 
       circle.node {
         stroke-width: 0px;
@@ -129,81 +129,41 @@
       //global variables
       activeSession = true;
       curEdit = false;
-      tikzGenerated = false;
-  	  curView = "2d";
       curHighlight = false;
       menuOpen = false;
   /*    dataNodes = [
-		{"name": "1", "group":0},
-		{"name": "2", "group":1},
-		{"name": "3", "group":1},
-		{"name": "4", "group":2},
-		{"name": "5", "group":1},
-		{"name": "6", "group":2}
-	   ];*/
+    {"name": "1", "group":0},
+    {"name": "2", "group":1},
+    {"name": "3", "group":1},
+    {"name": "4", "group":2},
+    {"name": "5", "group":1},
+    {"name": "6", "group":2}
+     ];*/
       dataNodes = visNodes;
     /*  dataLinks = [
-		{"source":0,"target":1,"value":1},
-		{"source":0,"target":2,"value":2},
-		{"source":0,"target":4,"value":3},
-		{"source":1,"target":3,"value":1},
-		{"source":2,"target":5,"value":2},
+    {"source":0,"target":1,"value":1},
+    {"source":0,"target":2,"value":2},
+    {"source":0,"target":4,"value":3},
+    {"source":1,"target":3,"value":1},
+    {"source":2,"target":5,"value":2},
         {"source":4,"target":3,"value":1}
-	   ];*/
-      /*dataData = visRelations; //visNodes;
-      labelData = visNodes; //visRelations;  // don't have visLabels defined in Visualize.m2 yet.  need this
-      portData = visPort; // initializes port from user
-      forceOn = false;
-*/
-
+     ];*/
       dataLinks = visRelations;
       portData = visPort; // initializes port from user
       forceOn = false;
+      tikzGenerated = false;
     </script>
   </head>
 
   <body>
 
         <div id="side">
-          <h2>&#8202;&#8202;Menu</h2>
+          <h2>Menu</h2>
           <div class="list-group">
             <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn on force</a>
             <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
-
-            <a href="#collapse1" data-toggle="collapse" class="list-group-item">Boolean tests &#9662;</a>
-                <div id="collapse1" class="panel-collapse collapse">
-                    <a id="hasEulerianTrail" href="#" class="list-group-item"> &nbsp;&nbsp; hasEulerianTrail</a>
-                    <a id="hasOddHole" href="#" class="list-group-item"> &nbsp;&nbsp; hasOddHole</a>
-                    <a id="isBipartite" href="#" class="list-group-item"> &nbsp;&nbsp; isBipartite</a>
-                    <a id="isChordal" href="#" class="list-group-item"> &nbsp;&nbsp; isChordal</a>
-                    <a id="isCM" href="#" class="list-group-item"> &nbsp;&nbsp; isCM</a>
-                    <a id="isConnected" href="#" class="list-group-item"> &nbsp;&nbsp; isConnected</a>
-                    <a id="isCyclic" href="#" class="list-group-item"> &nbsp;&nbsp; isCyclic</a>
-                    <a id="isEulerian" href="#" class="list-group-item"> &nbsp;&nbsp; isEulerian</a>
-                    <a id="isForest" href="#" class="list-group-item"> &nbsp;&nbsp; isForest</a>
-                    <a id="isPerfect" href="#" class="list-group-item"> &nbsp;&nbsp; isPerfect</a>
-                    <a id="isRegular" href="#" class="list-group-item"> &nbsp;&nbsp; isRegular</a>
-                    <a id="isSimple" href="#" class="list-group-item"> &nbsp;&nbsp; isSimple</a>
-                    <a id="isTree" href="#" class="list-group-item"> &nbsp;&nbsp; isTree</a>
-                </div>
-                <a href="#collapse2" data-toggle="collapse" class="list-group-item">Numerical invariants &#9662;</a>
-                <div id="collapse2" class="panel-collapse collapse">
-                    <a id="chromaticNumber" href="#" class="list-group-item"> &nbsp;&nbsp; chromaticNumber</a>
-                    <a id="independenceNumber" href="#" class="list-group-item"> &nbsp;&nbsp; independenceNumber</a>
-                    <a id="cliqueNumber" href="#" class="list-group-item"> &nbsp;&nbsp; cliqueNumber</a>
-                    <a id="degeneracy" href="#" class="list-group-item"> &nbsp;&nbsp; degeneracy</a>
-                    <a id="density" href="#" class="list-group-item"> &nbsp;&nbsp; density</a>
-                    <a id="diameter" href="#" class="list-group-item"> &nbsp;&nbsp; diameter</a>
-                    <a id="edgeConnectivity" href="#" class="list-group-item"> &nbsp;&nbsp; edgeConnectivity</a>
-                    <a id="minimalDegree" href="#" class="list-group-item"> &nbsp;&nbsp; minimalDegree</a>
-                    <a id="numberOfComponents" href="#" class="list-group-item"> &nbsp;&nbsp; numberOfComponents</a>
-                    <a id="numberOfTriangles" href="#" class="list-group-item"> &nbsp;&nbsp; numberOfTriangles</a>
-                    <a id="radius" href="#" class="list-group-item"> &nbsp;&nbsp; radius</a>
-                    <a id="vertexConnectivity" href="#" class="list-group-item"> &nbsp;&nbsp; vertexConnectivity</a>
-                    <a id="vertexCoverNumber" href="#" class="list-group-item"> &nbsp;&nbsp; vertexCoverNumber</a>
-                </div>
             <a id="endSession" href="#" class="list-group-item">End session</a> 
           </div>
         </div>
@@ -217,15 +177,13 @@
   <script src="js/BootSideMenu.js"></script>
   <script src="js/d3.v3.js"></script>
   <script src="js/visPoset.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/clipboard.min.js"></script>
 
   <script type="text/javascript">
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
-    document.getElementById("canvasElement2d").style.width = window.innerWidth-10;//change here switched 3 to 2
-    document.getElementById("canvasElement2d").style.height = window.innerHeight - 10;//change here switched 3 to 2
+    document.getElementById("canvasElement2d").style.width = window.innerWidth;//change here switched 3 to 2
+    document.getElementById("canvasElement2d").style.height = window.innerHeight - 125;//change here switched 3 to 2
 
     window.addEventListener('resize', updateWindowSize2d, false);
 
@@ -243,38 +201,12 @@
         }
       });
 
-      $("#highlightToggle").on("click", function(){
-        if(curHighlight) {
-          $(this).html("Highlight Neighbors");
-          unHighlightAll();
-          curHighlight = !curHighlight;
-        } else {
-          $(this).html("Disable Highlighting");
-          enableHighlight();
-          curHighlight = !curHighlight;
-        }
-      });
-
-      $("#reset").on("click", resetGraph);
-      
+      $("#reset").on("click", resetPoset);
       $("#forceToggle").on("click", toggleForce);
-      
       $("#exportTikz").on("click", function() {
         exportTikz();
       })
 
-      // Begin browser-M2 communication.
-      // For each item, a line in the function `onclickResults()`
-      // located in `visGraph2d.js` must be added. 
-      // 
-      // If you wish to delete the text to make it vanish when the graph is edited
-      // search for 'menuDefaults()'.
-
-      // Checks to see if users graph is chordal
-      $("#isChordal").on("click", function() {
-        clickTest = "isChordal";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isChordal/', poset2M2Constructor(nodes,links));
-      }); 
       // Ends the browser session and outputs the information to M2
       $("#endSession").on("click", function() {
         if(activeSession) {
@@ -301,7 +233,8 @@
         document.getElementById("forceToggle").innerHTML = "Turn on force";
       }
       else {
-        resetGraph();
+        setAllNodesUnfixed();
+        restart();
         document.getElementById("forceToggle").innerHTML = "Turn off force";
       }
       forceOn = !forceOn;
@@ -318,7 +251,7 @@
       }
 
     }, false);
-  	//window.addEventListener('resize', updateWindowSize2d, false);
+    //window.addEventListener('resize', updateWindowSize2d, false);
     //window.onresize = updateWindowSize2d;
     </script>
 
@@ -326,3 +259,4 @@
 
 
 </html>
+
