@@ -911,8 +911,6 @@ server = () -> (
 	-- End Session   
 	else if match("^POST /end/(.*) ",r) then (
 	    R := value data;
-	    print value data;
-	    print data;
 	    return R;
 	)
 	
