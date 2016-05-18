@@ -64,7 +64,7 @@ var svg = d3.select("body").append("svg")
 
     for(var i=0; i<nodes.length;i++){
       nodes[i].fixed = true;
-	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
+    nodes[i].y = height-vPadding-nodes[i].group*rowSep;
       groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
       nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
     }
@@ -114,8 +114,8 @@ var svg = d3.select("body").append("svg")
 
   // Add a paragraph containing the Macaulay2 poset constructor string below the svg.
 /*  d3.select("body").append("p")
-  	.text("Macaulay2 Constructor: " + constrString)
-  	.attr("id","constructorString");*/
+    .text("Macaulay2 Constructor: " + constrString)
+    .attr("id","constructorString");*/
 
 force.on("tick", function() {
     link.attr("x1", function(d) { return d.source.x; })
