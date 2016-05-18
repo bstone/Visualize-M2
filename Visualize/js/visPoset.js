@@ -34,14 +34,14 @@
 function initializeBuilder() {
   // Set up SVG for D3.
 
-    width = window.innerWidth - 10,
-    height = window.innerHeight - 10,
-    hPadding = 10,
-    vPadding = 10;
+    width = window.innerWidth - 20,
+    height = window.innerHeight - 20,
+    hPadding = 20,
+    vPadding = 20;
 
 var color = d3.scale.category20();
 
- svg = d3.select("body").append("svg")
+var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
     .attr("id", "canvasElement2d");
@@ -363,7 +363,7 @@ function restart() {
         links.push(link);
       }
 
-      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
       
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -392,7 +392,7 @@ function restart() {
         d3.select(this.parentNode).select("text").text(function(d) {return d.name});
       }
 
-      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
 
       var maxLength = d3.max(nodes, function(d) {
         return d.name.length;
@@ -459,7 +459,7 @@ function mousedown() {
   node.y = point[1];
   nodes.push(node);
 
-  document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
+  document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
     
   // (Brett) Removing incidence and adjacency matrices for now.
   /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -533,7 +533,7 @@ function keydown() {
       selected_link = null;
       selected_node = null;
 
-      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
       document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
@@ -590,7 +590,6 @@ function setAllNodesFixed() {
   force.start();
 }
 
-/*this is the old update window function
 function updateWindowSize2d() {
         var svg = document.getElementById("canvasElement2d");
         svg.attr("width", window.innerWidth-20).attr("height", window.innerHeight-20);
@@ -598,37 +597,13 @@ function updateWindowSize2d() {
         svg.style.height = window.innerHeight - 20;
         svg.width = window.innerWidth;
         svg.height = window.innerHeight - 20;*/
-//}
-
-
-// this function is copied from the visGraph2d.js file
-function updateWindowSize2d() {
-    console.log("resizing window");
-    //var svg = document.getElementById("canvasElement2d");
-    
-    // get width/height with container selector (body also works)
-    // or use other method of calculating desired values
-    var width = window.innerWidth-10;
-    var height = window.innerHeight-10;
-
-    // set attrs and 'resume' force 
-    //svg.attr('width', width);
-    //svg.attr('height', height);
-    svg.style.width = width;
-    svg.style.height = height;
-    svg.width = width;
-    svg.height = height;
-    force.size([width, height]).resume();
 }
 
+// Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
 
-// Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.
-
-function poset2M2Constructor( nodeSet, edgeSet ){
+function graph2M2Constructor( nodeSet, edgeSet ){
   var strEdges = "{";
   var e = edgeSet.length;
-  var t = nodeSet.length;
-  var strVerts = "{";
   for( var i = 0; i < e; i++ ){
     if(i != (e-1)){
       strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}, ";
@@ -637,17 +612,8 @@ function poset2M2Constructor( nodeSet, edgeSet ){
       strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}}";
     }
   }
-
-  for( var i = 0; i < t; i++ ){
-    if(i != (t-1)){
-      strVerts = strVerts + (nodeSet[i].name).toString() +  ", ";
-    }
-    else{
-      strVerts = strVerts + (nodeSet[i].name).toString() + "}";
-    }
-  }
   // determine if the singleton set is empty
- /*       var card = 0
+        var card = 0
   var singSet = singletons(nodeSet, edgeSet);
   card = singSet.length; // cardinality of singleton set
   if ( card != 0 ){
@@ -661,11 +627,11 @@ function poset2M2Constructor( nodeSet, edgeSet ){
       }
     }
     strSingSet = strSingSet + "}";
-    return "poset(" + strEdges + ", Singletons => "+ strSingSet + ")";
-  }*/
-  //else{
-    return "poset(" + strVerts + "," + strEdges + ")";
-  //}
+    return "graph(" + strEdges + ", Singletons => "+ strSingSet + ")";
+  }
+  else{
+    return "graph(" + strEdges + ")";
+  }
 
 }
 
@@ -790,203 +756,6 @@ console.log(points);
 
   alert(edges);
 }
-
-// -----------------------------------------
-// Begin Server Stuff
-// -----------------------------------------
-
-
-// Add a response for each id from the side menu
-function onclickResults(m2Response) {
-    
-    if (clickTest == "hasEulerianTrail"){
-      d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail :: <b>"+m2Response+"</b>");
-    } 
-    
-    if (clickTest == "hasOddHole"){
-      d3.select("#hasOddHole").html("&nbsp;&nbsp; hasOddHole :: <b>"+m2Response+"</b>");
-    } 
-    
-    if (clickTest == "isBipartite"){
-      d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite :: <b>"+m2Response+"</b>");
-    } 
-
-    else if (clickTest == "isChordal") {
-      d3.select("#isChordal").html("&nbsp;&nbsp; isChordal :: <b>"+m2Response+"</b>");    
-    } 
-
-    else if (clickTest == "isCM") {
-      d3.select("#isCM").html("&nbsp;&nbsp; isCM :: <b>"+m2Response+"</b>");    
-    }
-
-    else if (clickTest == "isConnected") {
-      d3.select("#isConnected").html("&nbsp;&nbsp; isConnected :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isCyclic") {
-      d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isEulerian") {
-      d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isForest") {
-      d3.select("#isForest").html("&nbsp;&nbsp; isForest :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isPerfect") {
-      d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isRegular") {
-      d3.select("#isRegular").html("&nbsp;&nbsp; isRegular :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isSimple") {
-      d3.select("#isSimple").html("&nbsp;&nbsp; isSimple :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isTree") {
-      d3.select("#isTree").html("&nbsp;&nbsp; isTree :: <b>"+m2Response+"</b>");    
-    }
-    
-    else if (clickTest == "chromaticNumber") {
-      d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "independenceNumber") {
-      d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "cliqueNumber") {
-      d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "degeneracy") {
-      d3.select("#degeneracy").html("&nbsp;&nbsp; degeneracy :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "density") {
-      d3.select("#density").html("&nbsp;&nbsp; density :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "diameter") {
-      d3.select("#diameter").html("&nbsp;&nbsp; diameter :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "edgeConnectivity") {
-      d3.select("#edgeConnectivity").html("&nbsp;&nbsp; edgeConnectivity :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "minimalDegree") {
-      d3.select("#minimalDegree").html("&nbsp;&nbsp; minimalDegree :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "numberOfComponents") {
-      d3.select("#numberOfComponents").html("&nbsp;&nbsp; numberOfComponents :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "numberOfTriangles") {
-      d3.select("#numberOfTriangles").html("&nbsp;&nbsp; numberOfTriangles :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "radius") {
-      d3.select("#radius").html("&nbsp;&nbsp; radius :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "vertexConnectivity") {
-      d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "vertexCoverNumber") {
-      d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber :: <b>"+m2Response+"</b>");    
-    }  
-    
-}
-
-
-// Anytime the graph is edited by user we call this function.
-// It changes the menu items to default.
-function menuDefaults() {
-  d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail");
-  d3.select("#hasOddHole").html("&nbsp;&nbsp; hasOddHole");
-  d3.select("#isCM").html("&nbsp;&nbsp; isCM");
-  d3.select("#isChordal").html("&nbsp;&nbsp; isChordal");
-  d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite");
-  d3.select("#isConnected").html("&nbsp;&nbsp; isConnected");  
-  d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic");  
-  d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian");  
-  d3.select("#isForest").html("&nbsp;&nbsp; isForest");  
-  d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect");  
-  d3.select("#isRegular").html("&nbsp;&nbsp; isRegular");  
-  d3.select("#isSimple").html("&nbsp;&nbsp; isSimple");  
-  d3.select("#isTree").html("&nbsp;&nbsp; isTree");
-  d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber");
-  d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber");
-  d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber");
-  d3.select("#degeneracy").html("&nbsp;&nbsp; degeneracy");
-  d3.select("#density").html("&nbsp;&nbsp; density");
-  d3.select("#diameter").html("&nbsp;&nbsp; diameter");
-  d3.select("#edgeConnectivity").html("&nbsp;&nbsp; edgeConnectivity");
-  d3.select("#minimalDegree").html("&nbsp;&nbsp; minimalDegree");
-  d3.select("#numberOfComponents").html("&nbsp;&nbsp; numberOfComponents");
-  d3.select("#numberOfTriangles").html("&nbsp;&nbsp; numberOfTriangles");
-  d3.select("#radius").html("&nbsp;&nbsp; radius");
-  d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity");
-  d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber");
-}
-
-
-// Create the XHR object.
-function createCORSRequest(method, url) {
-  var xhr = new XMLHttpRequest();                    
-  if ("withCredentials" in xhr) {
-    // XHR for Chrome/Firefox/Opera/Safari.
-    xhr.open(method, url, true);
-  } else if (typeof XDomainRequest != "undefined") {
-    // XDomainRequest for IE.
-    xhr = new XDomainRequest();
-    xhr.open(method, url);
-  } else {
-    // CORS not supported.
-    xhr = null;
-  }
-
-  return xhr;
-}
- 
-// Make the actual CORS request.
-function makeCorsRequest(method,url,browserData) {
-  // All HTML5 Rocks properties support CORS.
-  // var url ='http://localhost:8000/fcn2/';
- 
-  var xhr = createCORSRequest(method, url);
-  if (!xhr) {
-    alert('CORS not supported');
-    return;
-  }
- 
-  // Response handlers.
-  xhr.onload = function() {
-    var responseText = xhr.responseText;
-
-    onclickResults(responseText);      
-
-  };
- 
-  //xhr.onerror = function() {
-  //  alert('Woops, there was an error making the request.');
-  //};
-
-  xhr.send(browserData);
-}
-
-// -----------------------------------------
-// End Server Stuff
-// -----------------------------------------
-
-
 
 function stopForce() {
   force.stop();
