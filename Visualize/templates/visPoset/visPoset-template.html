@@ -129,7 +129,7 @@
       //global variables
       activeSession = true;
       curEdit = false;
-  	  curView = "2d";
+      curHighlight = false;
       menuOpen = false;
   /*    dataNodes = [
 		{"name": "1", "group":0},
@@ -151,6 +151,7 @@
       dataLinks = visRelations;
       portData = visPort; // initializes port from user
       forceOn = false;
+      tikzGenerated = false;
     </script>
   </head>
 
@@ -200,7 +201,7 @@
         }
       });
 
-      $("#reset").on("click", resetGraph);
+      $("#reset").on("click", resetPoset);
       $("#forceToggle").on("click", toggleForce);
       $("#exportTikz").on("click", function() {
         exportTikz();
@@ -232,7 +233,8 @@
         document.getElementById("forceToggle").innerHTML = "Turn on force";
       }
       else {
-        resetGraph();
+        setAllNodesUnfixed();
+        restart();
         document.getElementById("forceToggle").innerHTML = "Turn off force";
       }
       forceOn = !forceOn;

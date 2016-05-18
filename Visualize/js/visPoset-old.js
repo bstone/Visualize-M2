@@ -4,8 +4,8 @@
       colors = null;
 
   var svg = null;
-  var nodes = null,
-    lastNodeId = null,
+  nodes = null;
+  var lastNodeId = null,
     links = null;
 
   var constrString = null;
@@ -14,16 +14,7 @@
   var incMatrixString = null;
   var adjMatrixString = null;
 
-  var width  = window.innerWidth-10;
-  var height = window.innerHeight-10;
-  var colors = d3.scale.category10();
-
-  var maxGroup = 1;
-  var rowSep = 20;
-  var hPadding = 30;
-  var vPadding = 30;
-
-  var force = null;
+  //var force = null;
 
   var drag_line = null;
 
@@ -40,192 +31,106 @@
 
   var drag = null;
 
- // Helps determine what menu button was clicked.
-  var clickTest = null; 
-
-  var scriptSource = (function(scripts) {
-    var scripts = document.getElementsByTagName('script'),
-        script = scripts[scripts.length - 1];
-
-    if (script.getAttribute.length !== undefined) {
-        return script.src
-    }
-
-    return script.getAttribute('src', -1)
-    }());
-    
-    // Just get the current directory that contains the html file.
-    scriptSource = scriptSource.substring(0, scriptSource.length - 16);
-      
-    console.log(scriptSource);
-
 function initializeBuilder() {
   // Set up SVG for D3.
-  
-  svg = d3.select('body')
-    .append('svg')
-    .attr('width', width)
-    .attr('height', height)
-    .attr('id', 'canvasElement2d');
 
-  // Set up initial nodes and links
-  //  - nodes are known by 'id', not by index in array.
-  //  - reflexive edges are indicated on the node (as a bold black circle).
-  //  - links are always source < target; edge directions are set by 'left' and 'right'.
-  //var data = dataData;
-  //var names = labelData;
+    width = window.innerWidth - 20,
+    height = window.innerHeight - 20,
+    hPadding = 20,
+    vPadding = 20;
 
-  nodes = dataNodes;
-  links = dataLinks;
-  
-  // Compute the maximum level of the nodes in the poset.
-  maxGroup = d3.max(nodes, function(d) {return d.group;});
-  // Compute the distance between levels in the poset.
-  rowSep = (height-2*vPadding)/maxGroup;
-  var groupFreq = [];
-  var groupCount = [];
-  for (var i=0; i<maxGroup+1; i++){
-    groupFreq.push(0);
-    groupCount.push(0);
-  }
+var color = d3.scale.category20();
+
+ svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("id", "canvasElement2d");
+
+    nodes = dataNodes;
+    links = dataLinks;
     
-  console.log("maxGroup: " + maxGroup);
+    var maxGroup = d3.max(nodes, function(d) {return d.group;});
+    var rowSep = (height-2*vPadding)/maxGroup;
+    var groupFreq = [];
+    var groupCount = [];
+    for (var i=0; i<maxGroup+1; i++){
+      groupFreq.push(0);
+      groupCount.push(0);
+    }
+    
+    console.log("maxGroup: " + maxGroup);
 
-  nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
-  
-  for(var i=0; i < nodes.length;i++){
-      // Set the nodes as fixed by default and specify their initial x and y values to be evenly spaced along their level.
+    nodes.forEach(function(d) {groupFreq[d.group]=groupFreq[d.group]+1;});
+
+    for(var i=0; i<nodes.length;i++){
       nodes[i].fixed = true;
-      nodes[i].id = i;
 	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
       groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
       nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
-  }
-
-  /*
-  lastNodeId = data.length;
-  nodes = [];
-  links = [];
-  for (var i = 0; i<data.length; i++) {
-
-      nodes.push( {name: names[i], id: i, reflexive:false, highlighted:false } );
-
-  }
-  for (var i = 0; i<data.length; i++) {
-      for (var j = 0; j < i ; j++) {
-          if (data[i][j] != 0) {
-              links.push( { source: nodes[i], target: nodes[j], left: false, right: false, highlighted:false} );
-          }
-      }
-  }
-  */
-    
-  //constrString = graph2M2Constructor(nodes,links);
-    
-  // (Brett) Removing incidence and adjacency matrices.
-  /*incMatrix = getIncidenceMatrix(nodes,links);
-  adjMatrix = getAdjacencyMatrix(nodes,links);
-  incMatrixString = arraytoM2Matrix(incMatrix);
-  adjMatrixString = arraytoM2Matrix(adjMatrix);*/
-
-  // Add a paragraph containing the Macaulay2 graph constructor string below the svg.
-  /* d3.select("body").append("p")
-  	.text("Macaulay2 Constructor: " + constrString)
-  	.attr("id","constructorString");
-  */
-
-  // (Brett) Removing incidence and adjacency matrices.
-    
-/*  d3.select("body").append("p")
-  	.text("Incidence Matrix: " + incMatrixString)
-  	.attr("id","incString");
-
-  d3.select("body").append("p")
-  	.text("Adjacency Matrix: " + adjMatrixString)
-  	.attr("id","adjString");*/
-
-  // Initialize D3 force layout.
+    }
+ 
   force = d3.layout.force()
-      .nodes(nodes)
-      .links(links)
-      .size([width, height])
-      .linkDistance(150)
-      .charge(-500)
-      .on('tick', tick);
-
-  // When a node begins to be dragged by the user, call the function dragstart.
+    .charge(-700)
+    .linkDistance(240)
+    .size([width, height])
+    .nodes(nodes)
+    .links(links)
+    .start();
+    
   drag = force.drag()
     .on("dragstart", dragstart);
-
-  // Line displayed when dragging new nodes.
-  drag_line = svg.append('svg:path')
-    .attr('class', 'link dragline hidden')
-    .attr('d', 'M0,0L0,0');
-
-  // Handles to link and node element groups.
-  path = svg.append('svg:g').selectAll('path');
-  circle = svg.append('svg:g').selectAll('g');
-
-  // Mouse event variables.
-  selected_node = null;
-  selected_link = null;
-  mousedown_link = null;
-  mousedown_node = null;
-  mouseup_node = null;
     
-  // Define which functions should be called for various mouse events on the svg.
-  svg.on('mousedown', mousedown)
-    .on('mousemove', mousemove)
-    .on('mouseup', mouseup);
-
-  // Define which functions should be called when a key is pressed and released.
-  d3.select(window)
-    .on('keydown', keydown)
-    .on('keyup', keyup);
-    
-  // The restart() function updates the graph.
-  restart();
+  link = svg.selectAll(".link")
+      .data(links)
+    .enter().append("line")
+      .attr("class", "link")
+      .attr("y1", function(d) {return d.source.y;})
+      .attr("y2", function(d) {return d.target.y;})
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+  
+  node = svg.selectAll(".node")
+      .data(nodes)
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", 10)
+      .attr("cx", function(d) {return d.x;})
+      .attr("cy", function(d) {return d.y;})
+      .style("fill", function(d) { return color(d.group); })
+      .call(force.drag);
   
   // Brett: Need to fix this.
-  /*
-  var maxLength = d3.max(nodes, function(d) { return d.name.length; });
+
+ /* var maxLength = d3.max(nodes, function(d) { return d.name.length; });
 
   console.log("maxLength: " + maxLength + "\n");
 
   if(maxLength < 4){
-        document.getElementById("nodeText").style.fill = 'white';
+    d3.selectAll("text").classed("fill", "White");
   } else {
-        document.getElementById("nodeText").style.fill = 'black';
-  }
-  */
+    d3.selectAll("text").classed("fill", "White");
+  }*/
 
+  // constrString = graph2M2Constructor(nodes,links);
+
+  // Add a paragraph containing the Macaulay2 poset constructor string below the svg.
+/*  d3.select("body").append("p")
+  	.text("Macaulay2 Constructor: " + constrString)
+  	.attr("id","constructorString");*/
+
+force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("x2", function(d) { return d.target.x; });
+    
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y =  height-vPadding-d.group*rowSep;});
+});
 }
 
-function resetPoset() {
-  
-  // Set the x-coordinate of each node to the original fixed layout.
-  var groupFreq = [];
-  var groupCount = [];
-  for (var i=0; i<maxGroup+1; i++){
-    groupFreq.push(0);
-    groupCount.push(0);
-  }
-  nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
-  for( var i = 0; i < nodes.length; i++ ){
-    groupCount[nodes[i].group]=groupCount[nodes[i].group]+1;
-    nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
-    nodes[i].px = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
-  }
-   
-  setAllNodesFixed();
-  
-  // Calling tick() here is crucial so that the locations of the nodes are updated.
-  tick();
+function resetGraph() {
+  // Set the 'fixed' attribute to false for all nodes and then restart the force layout.
+  nodes.forEach(function(d) {d.fixed = false;});
     
-  // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
-  if(forceOn) toggleForce();
-  
-  restart();
+  force.start();
 }
 
 function dragstart(d) {
@@ -242,33 +147,6 @@ function resetMouseVars() {
 
 // Update force layout (called automatically by the force layout simulation each iteration).
 function tick() {
-  
-  // Make sure all nodes stay at the height corresponding to their group.
-  for( var i = 0; i < nodes.length; i++ ){
-    nodes[i].y = height-vPadding-(nodes[i].group)*rowSep;
-    nodes[i].py = height-vPadding-(nodes[i].group)*rowSep;
-  }
-    
-    // Restrict the nodes to be contained within a 15 pixel margin around the svg.
-  circle.attr('transform', function(d) {
-    if (d.x > width - 15) {
-      d.x = width - 15;
-    }
-    else if (d.x < 15) {
-      d.x = 15;
-    }
-    /*
-    if (d.y > height - 15) {
-      d.y = height - 15;
-    }
-    else if (d.y < 15) {
-      d.y = 15;
-    }*/
-    
-    // Visually update the locations of the nodes based on the force simulation.
-    return 'translate(' + d.x + ',' + d.y + ')';
-  });
-    
   // Draw directed edges with proper padding from node centers.
   path.attr('d', function(d) {
     // For each edge, calculate the distance from the source to the target
@@ -322,6 +200,24 @@ function tick() {
     return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
   });
 
+  // Restrict the nodes to be contained within a 15 pixel margin around the svg.
+  circle.attr('transform', function(d) {
+    if (d.x > width - 15) {
+      d.x = width - 15;
+    }
+    else if (d.x < 15) {
+      d.x = 15;
+    }
+    if (d.y > height - 15) {
+      d.y = height - 15;
+    }
+    else if (d.y < 15) {
+      d.y = 15;
+    }
+    
+    // Visually update the locations of the nodes based on the force simulation.
+    return 'translate(' + d.x + ',' + d.y + ')';
+  });
 }
 
 // Update graph (called when needed).
@@ -330,9 +226,8 @@ function restart() {
   path = path.data(links);
 
   // Update existing links.
-  // If a link is currently selected, set 'selected: true'.  If a link should be highlighted, set 'highlighted: true'.
-  path.classed('highlighted', function(d) {return d.highlighted; })
-    .classed('selected', function(d) { return d === selected_link; })
+  // If a link is currently selected, set 'selected: true'.
+  path.classed('selected', function(d) { return d === selected_link; })
     // If the edge is directed towards the source or target, attach an arrow.
     .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
@@ -340,8 +235,6 @@ function restart() {
   // Add new links.
   path.enter().append('svg:path')
     .attr('class', 'link')
-    // If a link should be highlighted, set 'highlighted: true'.
-    .classed('highlighted', function(d) {return d.highlighted; })
     // If a link is currently selected, set 'selected: true'.
     .classed('selected', function(d) { return d === selected_link; })
     // If the edge is directed towards the source or target, attach an arrow.
@@ -366,8 +259,6 @@ function restart() {
       
       // Since we selected or unselected a link, set all nodes to be unselected.
       selected_node = null;
-      // If highlighting neighbors is turned on, un-highlight all nodes and links since there is no currently selected node.
-      if(curHighlight) unHighlightAll();
       
       // Update all properties of the graph.
       restart();
@@ -385,9 +276,7 @@ function restart() {
     // If a node is currently selected, then make it brighter.
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     // Set the 'reflexive' attribute to true for all reflexive nodes.
-    //.classed('reflexive', function(d) { return d.reflexive; });
-    .classed('highlighted', function(d) { return d.highlighted; })
-    .attr('group', function(d) {return d.group;});
+    .classed('reflexive', function(d) { return d.reflexive; });
 
   // Add new nodes.
   var g = circle.enter().append('svg:g');
@@ -398,7 +287,6 @@ function restart() {
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
-    .classed('highlighted',function(d) {return d.highlighted;})
     .on('mouseover', function(d) {
       // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
       // then do nothing.
@@ -415,21 +303,14 @@ function restart() {
     })
     .on('mousedown', function(d) {
       // If either the shift key is held down or editing is disabled, do nothing.
-      // Brett: Add back in the following line if we don't want selected nodes brightened in non-editing mode.
-      //if(d3.event.shiftKey || !curEdit) return;
-      if(d3.event.shiftKey) return;
+      if(d3.event.shiftKey || !curEdit) return;
 
       // Otherwise, select node.
       mousedown_node = d;
       
       // If the node that the user clicked was already selected, then unselect it.
-      if(mousedown_node === selected_node) { selected_node = null; 
-            if(curHighlight) unHighlightAll(); }
-      //Brett: Add the following line back in if we don't want nodes to be brightened in non-editing mode.
-      //else if(curEdit) { selected_node = mousedown_node;
-      else {selected_node = mousedown_node;
-            if(curHighlight) highlightAllNeighbors(selected_node);
-      };
+      if(mousedown_node === selected_node) selected_node = null;
+      else if(curEdit) selected_node = mousedown_node;
       selected_link = null;
 
       // reposition drag line
@@ -440,6 +321,7 @@ function restart() {
 
       restart();
     })
+
     .on('mouseup', function(d) {
       if(!mousedown_node) return;
 
@@ -467,24 +349,21 @@ function restart() {
         target = mousedown_node;
         direction = 'left';
       }
-      
+
       var link;
       link = links.filter(function(l) {
         return (l.source === source && l.target === target);
       })[0];
 
-      // Graph Changed :: adding new links
       if(link) {
         link[direction] = false;
       } else {
         link = {source: source, target: target, left: false, right: false};
         link[direction] = false;
         links.push(link);
-        // Graph is updated here so we change some items to default.
-        menuDefaults();
       }
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
       
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -493,35 +372,37 @@ function restart() {
       // select new link
       if (curEdit) selected_link = link;
       selected_node = null;
-      if (curHighlight) unHighlightAll();
       restart();
     })
 
   .on('dblclick', function(d) {
       name = "";
-      var letters = /^[0-9a-zA-Z]+$/;
       while (name=="") {
-        name = prompt('Enter new label name.', d.name);
-        // Check whether the user has entered any illegal characters (including spaces).
-        if (!(letters.test(name))) {
-            alert('Please input alphanumeric characters only with no spaces.');
-            name = "";
-        }
+        name = prompt('enter new label name', d.name);
         if (name==d.name) {
           return;
         }
         else if (checkName(name)) {
-          alert('Sorry, a node with that name already exists.')
+          alert('sorry a node with that name already exists')
           name = "";
         }
       }
-      
       if(name != null) {
         d.name = name;
-        d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
+        d3.select(this.parentNode).select("text").text(function(d) {return d.name});
       }
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
+
+      var maxLength = d3.max(nodes, function(d) {
+        return d.name.length;
+      });
+
+      if(maxLength < 4){
+        d3.selectAll("text").classed("fill", 0xfefcff);
+      } else {
+        d3.selectAll("text").classed("fill", 0x000000);
+      }
 
     });
 
@@ -532,18 +413,6 @@ function restart() {
       .attr('class', 'id noselect')
       .attr("pointer-events", "none")
       .text(function(d) { return d.name; });
-
-  /*
-  var maxLength = d3.max(nodes, function(d) {
-        return d.name.length;
-  });
-      
-  if(maxLength < 4){
-        document.getElementById("nodeText").style.fill = 'white';
-  } else {
-        document.getElementById("nodeText").style.fill = 'black';
-  }
-  */
 
   // remove old nodes
   circle.exit().remove();
@@ -585,16 +454,12 @@ function mousedown() {
     curName = curName.substring(0, curName.length - 1) + getNextAlpha(curName.slice(-1));
   }
 
-  // Graph Changed :: adding nodes
-  node = {id: lastNodeId++, group: 0, name: curName, reflexive: false, highlighted: false};
+  node = {id: lastNodeId++, name: curName, reflexive: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
-  // Graph is updated here so we change some items to default 
-  // d3.select("#isCM").html("isCM");
-  menuDefaults();
 
-  //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+  document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
     
   // (Brett) Removing incidence and adjacency matrices for now.
   /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
@@ -607,10 +472,8 @@ function mousemove() {
   if(!mousedown_node) return;
 
   // update drag line
-  if(curEdit){
   drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
-  }
-    
+
   restart();
 }
 
@@ -663,21 +526,14 @@ function keydown() {
       if(curEdit && selected_node) {
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
-        if(curHighlight) unHighlightAll();
       } else if(curEdit && selected_link) {
 
         links.splice(links.indexOf(selected_link), 1);
-        if(curHighlight) unHighlightAll();
       }
       selected_link = null;
-      if(curEdit) {selected_node = null;}
+      selected_node = null;
 
-      // Graph Changed :: deleted nodes and links
-      // as a result we change some items to default
-      // d3.select("#isCM").html("isCM");      
-      menuDefaults();
-
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+      document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + poset2M2Constructor(nodes,links);
       // (Brett) Removing incidence and adjacency matrices for now.
       /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
       document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
@@ -700,14 +556,12 @@ function keyup() {
   }
 }
 
-function disableEditing() {
-  circle.call(drag);
+/*function disableEditing() {
+  //circle.call(drag);
   svg.classed('shift', true);
   selected_node = null;
   selected_link = null;
-  if(curHighlight) unHighlightAll();
 
-  /*
   for (var i = 0; i<nodes.length; i++) {
     nodes[i].selected = false;
   }
@@ -720,10 +574,9 @@ function disableEditing() {
   path.classed('selected', false)
     .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
-  */
 
   restart();
-}
+}*/
 
 function enableEditing() {
   circle
@@ -732,69 +585,31 @@ function enableEditing() {
   svg.classed('shift', false);
 }
 
-function enableHighlight() {
-  // If there is no currently selected node, then just return (negating the value of curHighlight).
-  if(selected_node == null) return;
-  highlightAllNeighbors(selected_node);
-  console.log("curHighlight: "+curHighlight);
-}
-
-function unHighlightAll() {
-    // Un-highlight all nodes.
-    for (var i = 0; i<nodes.length; i++) {
-       nodes[i].highlighted = false;
-    }
-    
-    // Un-highlight all links.
-    for (var i = 0; i<links.length; i++) {
-       links[i].highlighted = false;
-    }
-    
-    // Update graph based on changes to nodes and links.
-    restart();
-}
-
-function highlightAllNeighbors(n) {
-    // Highlight all nodes that are neighbors with the given node n.
-    for (var i = 0; i<nodes.length; i++) {
-       console.log(areNeighbors(nodes[i],n));
-       nodes[i].highlighted = areNeighbors(nodes[i],n);
-    }
-    
-    // Highlight all links that have the given node n as a source or target.
-    for (var i = 0; i<links.length; i++) {
-       links[i].highlighted = ((links[i].source === n) || (links[i].target === n));
-    }
-    
-    // Update graph based on changes to nodes and links.
-    restart();
-}
-
-function areNeighbors(node1,node2) {
-    return links.some( function(l) {return (((l.source === node1) && (l.target === node2)) || ((l.target === node1) && (l.source === node2)));});
-}
-
 function setAllNodesFixed() {
-  for (var i = 0; i<nodes.length; i++) {
-    nodes[i].fixed = true;
-  }
+  nodes.forEach(function(d) {d.fixed = true;});
+  force.start();
 }
 
-function setAllNodesUnfixed() {
-  for (var i = 0; i<nodes.length; i++) {
-    nodes[i].fixed = false;
-  }
-}
+/*this is the old update window function
+function updateWindowSize2d() {
+        var svg = document.getElementById("canvasElement2d");
+        svg.attr("width", window.innerWidth-20).attr("height", window.innerHeight-20);
+        /*svg.style.width = window.innerWidth;
+        svg.style.height = window.innerHeight - 20;
+        svg.width = window.innerWidth;
+        svg.height = window.innerHeight - 20;*/
+//}
 
+
+// this function is copied from the visGraph2d.js file
 function updateWindowSize2d() {
     console.log("resizing window");
     //var svg = document.getElementById("canvasElement2d");
     
     // get width/height with container selector (body also works)
     // or use other method of calculating desired values
-    width = window.innerWidth-10;
-    height = window.innerHeight-10;
-    rowSep = (height-2*vPadding)/maxGroup;
+    var width = window.innerWidth-10;
+    var height = window.innerHeight-10;
 
     // set attrs and 'resume' force 
     //svg.attr('width', width);
@@ -806,11 +621,14 @@ function updateWindowSize2d() {
     force.size([width, height]).resume();
 }
 
+
 // Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.
 
 function poset2M2Constructor( nodeSet, edgeSet ){
   var strEdges = "{";
   var e = edgeSet.length;
+  var t = nodeSet.length;
+  var strVerts = "{";
   for( var i = 0; i < e; i++ ){
     if(i != (e-1)){
       strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}, ";
@@ -819,8 +637,17 @@ function poset2M2Constructor( nodeSet, edgeSet ){
       strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}}";
     }
   }
+
+  for( var i = 0; i < t; i++ ){
+    if(i != (t-1)){
+      strVerts = strVerts + (nodeSet[i].name).toString() +  ", ";
+    }
+    else{
+      strVerts = strVerts + (nodeSet[i].name).toString() + "}";
+    }
+  }
   // determine if the singleton set is empty
-        var card = 0
+ /*       var card = 0
   var singSet = singletons(nodeSet, edgeSet);
   card = singSet.length; // cardinality of singleton set
   if ( card != 0 ){
@@ -834,11 +661,11 @@ function poset2M2Constructor( nodeSet, edgeSet ){
       }
     }
     strSingSet = strSingSet + "}";
-    return "graph(" + strEdges + ", Singletons => "+ strSingSet + ")";
-  }
-  else{
-    return "graph(" + strEdges + ")";
-  }
+    return "poset(" + strEdges + ", Singletons => "+ strSingSet + ")";
+  }*/
+  //else{
+    return "poset(" + strVerts + "," + strEdges + ")";
+  //}
 
 }
 
@@ -865,6 +692,21 @@ function singletons(nodeSet, edgeSet){
   }
   return singSet;
 }
+
+// Brett working code - figuring out data loops in JS - ignore this
+
+// d3.select("body").selectAll("p").data(links).enter().append("p").text(function(d) {return [d.source.id,d.target.id]});
+
+// var vertices = [];
+// var edges = [];
+
+// for (var i = 0; i < nodes.length; i++) {
+//     vertices.push(nodes[i].id);          //Add new node to 'vertices' array
+// }
+
+// for (var i = 0; i < links.length; i++) {
+//     edges.push({source: links[i].source.id , target: links[i].target.id});      //Add new edge pair to 'edges' array
+// }
 
 // Constructs the incidence matrix for a graph as a multidimensional array.
 function getIncidenceMatrix (nodeSet, edgeSet){
@@ -928,85 +770,25 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
-function exportTikz (event){
+function exportTikz (nodeSet, edgeSet){
   var points = [];
-  for(var i = 0; i < nodes.length; i++){
-    points[i] = [nodes[i].x.toString()+"/"+nodes[i].y.toString()+"/"+nodes[i].id+"/"+nodes[i].name];
+  for(var i = 0; i < nodeSet.length; i++){
+    points[i] = [nodeSet[i].x,nodeSet[i].y];
   }
 
   var edges = [];
-  for(var j = 0; j < links.length; j++){
-    edges[j] = [ links[j].source.id.toString()+"/"+links[j].target.id.toString() ];
+  for(var j = 0; j < edgeSet.length; j++){
+    edges[j] = [ edgeSet[j].source.id , edgeSet[j].target.id ];
   }
 
-  var tikzTex = "";
-//  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
-  tikzTex =  "\\begin{tikzpicture}\n         \\newcommand*\\points{"+points+"}\n          \\newcommand*\\edges{"+edges+"}\n          \\newcommand*\\scale{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}\n      % \\points is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges is edge set in the form Source ID/Target ID\n      % \\scale makes the picture able to be viewed on the page\n";  
-    
-  if(!tikzGenerated){
-    var tikzDiv = document.createElement("div");
-    tikzDiv.id = "tikzHolder";
-    tikzDiv.className = "list-group-item";
-    var tikzInput = document.createElement("input");
-    tikzInput.value = "";
-    tikzInput.id = "tikzTextBox";
-    tikzInput.size = "15";
-    tikzInput.style = "vertical-align:middle;";
-    var tikzButton = document.createElement("button");
-    tikzButton.id = "copyButton";
-    tikzButton.style = "vertical-align:middle;";
-    //tikzButton.dataClipboardTarget = "#tikzTextBox";
-    tikzButton.type = "button";
-    var clipboardImg = document.createElement("img");
-    clipboardImg.src = scriptSource+"images/32px-Octicons-clippy.png";
-    clipboardImg.alt = "Copy to clipboard";
-    clipboardImg.style = "width:19px;height:19px;";
-    tikzButton.appendChild(clipboardImg);
-    tikzDiv.appendChild(tikzInput);
-    tikzDiv.appendChild(tikzButton);
-    var listGroup = document.getElementById("menuList");
-    listGroup.insertBefore(tikzDiv,listGroup.childNodes[10]);
-    document.getElementById("copyButton").setAttribute("data-clipboard-target","#tikzTextBox");
-    clipboard = new Clipboard('#copyButton');
-    clipboard.on('error', function(e) {
-        window.alert("Press enter, then CTRL-C or CMD-C to copy")
-    });  
-    tikzGenerated = true;
-  }
-  document.getElementById("tikzTextBox").value = tikzTex;
-  /*  
-  var tikzTextArea = document.createElement("textarea");
-  tikzTextArea.setAttribute("type", "hidden"); 
-  document.getElementById("body").appendChild(tikzTextArea);
-  tikzTextArea.value += tikzTex;
-    
-  event.preventDefault();
-  tikzTextArea.select(); // Select the input node's contents
-  var succeeded;
-  try {
-    // Copy it to the clipboard
-    succeeded = document.execCommand("copy");
-  } catch (e) {
-    succeeded = false;
-  }
-  if (succeeded) {
-    console.log("Copy successful.");
-  } else {
-    console.log("Copy failed.");
-  }
-  */
-    
-// tikzTextArea.select().focus();
-//  $('#container').append('To copy emails to clipboard, press: Ctrl+C, then Enter <br />  <textarea id="tikzTex">'+tikzTex+'</textarea>');
-//  $('#tikzTex').select().focus();
+console.log(points);
+console.log(links[0].source.id);
+console.log(links.length);
+console.log(edgeSet);
+console.log(links);
+console.log(points);
 
-//console.log(tikzTex.length);
-//  if (tikzTex.length < 2001){
-//    window.prompt("Copy this text the best way you can.", tikzTex );
-//  } else {
-//    alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
-//  }
-    
+  alert(edges);
 }
 
 // -----------------------------------------
@@ -1203,6 +985,7 @@ function makeCorsRequest(method,url,browserData) {
 // -----------------------------------------
 // End Server Stuff
 // -----------------------------------------
+
 
 
 function stopForce() {

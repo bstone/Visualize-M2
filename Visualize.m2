@@ -22,7 +22,7 @@ newPackage(
     	Date => "June 1, 2015",
     	Authors => {       
      	     {Name => "Brett Barwick", Email => "Brett@barwick.edu", HomePage => "http://math.bard.edu/~bstone/"},	     
-	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu"},	     
+	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu", HomePage => "http://math.bu.edu/people/tomenk"},	     
 -- Contributing Author	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
 -- Contributing Author	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
 	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
@@ -1745,6 +1745,10 @@ visualize D2
 
 
 -- Posets
+restart
+path = path|{"~/GitHub/Visualize-M2/"}
+loadPackage "Visualize"
+openPort "8081"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize P2
 visualize(P2,FixExtremeElements => true)
