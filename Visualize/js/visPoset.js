@@ -928,6 +928,94 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
+// Given the relation matrix for a poset, this function returns an array consisting of all relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_j <= node_i in the partial order.
+function allPosetRelations (relMatrix){
+    var tempArr = [];
+    var n = relMatrix.length;
+    for(var i=0; i < n; i++){
+        for(var j=i; j < n; j++){
+            if relMatrix[i][j] == 1 then tempArr.push([i,j]);
+            if relMatrix[j][i] == 1 then tempArr.push([j,i]);
+        }
+    }
+    
+    return tempArr;
+}
+
+// Given the relation matrix for a poset, this function returns an array consisting of minimal covering relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_j <= node_i in the partial order.  This algorithm is the same as the one used in Posets.m2.
+function minimalPosetRelations (relMatrix){
+    n = relMatrix.length;
+    var outputArr = [];
+    var gtp = [];
+    for(var i=0; i < n; i++){
+        var temp = [];
+        for(var j=0; j < n; j++){
+            if((i != j) && (relMatrix[i][j] == 1)){temp.push(j)};
+        }
+        gtp.push(temp);
+    }
+    for(var i=0; i < n; i++){
+        var gtgtp = [];
+        var tempIndices = gtp[i];
+        for(var j=0; j < tempIndices.length; j++){
+            gtgtp.push(gtp[tempIndices[j]]);            
+        }
+        gtgtp = removeDuplicates(flattenArray(gtgtp));
+        var trimIndices = setDifference(tempIndices,gtgtp);
+        for(var j=0; j < trimIndices.length; j++){
+            outputArr.push([i,trimIndices[j]]);            
+        }        
+    }
+    
+    return outputArr;    
+}
+
+
+
+// Given a nested array of arrays, this flattens the array by one level.
+function flattenArray (arr) {
+    return [].concat.apply([], arr);
+}
+
+// Eliminate all duplicate entries in an array.
+function eliminateDuplicates(arr) {
+  var i,
+      len=arr.length,
+      out=[],
+      obj={};
+
+  for (i=0;i<len;i++) {
+    obj[arr[i]]=0;
+  }
+  for (i in obj) {
+    out.push(i);
+  }
+  return out;
+}
+
+// Take the set-theoretic difference of two arrays.  (i.e., Return the result of removing from the first array all common elements of the second array.)
+function setDifference(arr1,arr2) {
+    var len1 = arr1.length;
+    var len2 = arr2.length;
+    var delIndices = [];
+    for(var i =0; i < len1; i++){
+        for(var j=0; k < len2; j++){
+            // If arr1[i] appears in arr2, then delete it.
+            if(arr1[i] == arr2[j]){delIndices.push(i);}            
+        }
+    }
+    delIndices = eliminateDuplicates(delIndices);
+    var offset = 0;
+    // Remove all elements of arr1 where common elements with arr2 were found.
+    for(var i=0; i < delIndices.length; i++){
+        arr1.splice(delIndices[i]-offset,1);
+        offset = offset+1;        
+    }
+    
+    return arr1;
+}
+
+
 function exportTikz (event){
   var points = [];
   for(var i = 0; i < nodes.length; i++){

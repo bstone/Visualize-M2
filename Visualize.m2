@@ -439,7 +439,8 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
 
     nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
     relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
-
+    relMatrixString = toString toArray entries P.RelationMatrix;
+  
     if opts.VisPath =!= null 
     then (
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visPoset template to a temporary directory.
@@ -450,8 +451,10 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
     );
     
-    searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
+    --searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
+    searchReplace("visLabels",labelString, visTemp); -- Replace visLabels in the visPoset html file by the labels of the nodes in the same order as the ground set of P.
     searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
+    searchReplace("visRelMatrix",relMatrixString, visTemp); -- Replace visRelMatrix in the visPoset html file by the relation matrix of the poset.
     searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
     
     show new URL from { "file://"|visTemp };
