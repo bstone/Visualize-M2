@@ -660,7 +660,7 @@ openPort String := F -> (
     else(
 	portTest = true;
 	inOutPortNum = F;
-	F = "$:"|F;
+	F = "$localhost:"|F;
 	inOutPort = openListener F;
 	print("--Port " | toString inOutPort | " is now open.");    
 	);  
@@ -911,6 +911,8 @@ server = () -> (
 	-- End Session   
 	else if match("^POST /end/(.*) ",r) then (
 	    R := value data;
+	    print value data;
+	    print data;
 	    return R;
 	)
 	
@@ -1537,7 +1539,7 @@ installPackage"Visualize"
 viewHelp Visualize
 
 restart
-run "pwd"
+
 path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage"Visualize"
 openPort "8081"
@@ -1582,7 +1584,7 @@ viewHelp Graphs
 -- ideal tests
 restart
 loadPackage"Visualize"
-openPort "8081"
+openPort "8080"
 R = QQ[a,b,c]
 I = ideal"a2,ab,b2c,c5,b4"
 -- I = ideal"x4,xyz3,yz,xz,z6,y5"
@@ -1712,12 +1714,12 @@ closePort()
 -- Graphs
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 
-visualize G
+visualize( G, Verbose => true )
 visualize(G, VisPath => "/Users/bstone/Desktop/Test/")
-
+n
 cycleGraph 9
 visualize oo
-
+run"pwd"
 wheelGraph 8
 visualize oo
 
@@ -1776,3 +1778,5 @@ closePort()
 
 -- semi definite programming
 -- pablo parillo maybe at MIT
+
+viewHelp openListener
