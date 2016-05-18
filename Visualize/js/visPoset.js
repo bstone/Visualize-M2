@@ -928,6 +928,69 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
+// ----------- Functions for computations with posets ---------
+
+// Still need: heightFunction, relHeightFunction
+// reflexiveClosure, transitiveClosure?
+
+// Given the relation matrix for a poset, this function returns null if the poset is not ranked and otherwise returns a list of the ranks of the elements.  This algorithm is taken from Posets.m2, which was in turn taken from John Stembridge's Maple package for computations with posets.
+function posetRankFunction(relMatrix){
+    var rk = [];
+    for(var i=0; i < relMatrix.length; i++){
+        rk.push([i,0]);
+    }
+    var covRel = minimalPosetRelations(relMatrix);
+    for(var i=0; i < covRel.length; i++){
+        var tmp = rk[covRel[i][1]][rk[covRel[i][1]].length-1] - rk[covRel[i][0]][rk[covRel[i][1]].length-1] - 1;
+        if(tmp == 0){continue;}
+        var u = rk[covRel[i][0]][0];
+        var v = rk[covRel[i][1]][0];
+        if(u == v){return null;};
+        var temprk = [];
+        if(tmp > 0){
+            for(var j=0; j < rk.length; j++){
+                if(rk[j][0] == u){
+                    temprk.push([v,rk[j][rk[j].length-1] + tmp]);
+                } else {
+                    temprk.push(rk[j]);
+                }
+            }
+        } else {
+            for(var j=0; j < rk.length; j++){
+                if(rk[j][0] == v){
+                    temprk.push([u,rk[j][rk[j].length-1] - tmp]);
+                } else {
+                    temprk.push(rk[j]);
+                }
+            }
+        }
+        rk = temprk;
+    }
+    var rkOutput = [];
+    for(var i=0; i < temprk.length; i++){
+        rkOutput.push(temprk[i][1]);
+    }
+    return rkOutput;
+}
+
+// Given the relation matrix for a poset, this function determines whether the poset is ranked or not.
+function posetIsRanked(relMatrix){
+    return posetRankFunction(relMatrix) != null;
+}
+
+// Given the relation matrix for a set under a binary relation, this function determines whether the relation is antisymmetric (required for a poset) or not.
+function posetIsAntisymmetric(relMatrix){
+    var n = relMatrix.length;
+    for(var i=0; i < n-1; i++){
+        for(var j=i+1; j < n; j++){
+            if((relMatrix[i][j] == 1) && (relMatrix[j][i] == 1)){
+                return false;
+            }            
+        }
+    }
+    return true;
+}
+
 // Given the relation matrix for a poset, this function returns an array consisting of all relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_j <= node_i in the partial order.
 function allPosetRelations (relMatrix){
     var tempArr = [];
@@ -981,6 +1044,8 @@ function idRelationsToLabelRelations (relArr,labelArr){
     }
     return out;
 }
+
+// ----------- Helper functions for dealing with arrays. ----------
 
 // Given a nested array of arrays, this flattens the array by one level.
 function flattenArray (arr) {

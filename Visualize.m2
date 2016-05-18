@@ -424,7 +424,7 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
 
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local labelString; local nodeString; local relationString;
-    local relMatrixString; local browserOutput;
+    local relMatrixString; local fixExtremeEltsString; local browserOutput;
     
     labelList = P_*;
     if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
@@ -441,6 +441,7 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     --nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
     relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
     relMatrixString = toString toArray entries P.RelationMatrix;
+    fixExtremeEltsString = toString opts.FixExtremeElements;
   
     if opts.VisPath =!= null 
     then (
@@ -457,6 +458,7 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
     searchReplace("visRelMatrix",relMatrixString, visTemp); -- Replace visRelMatrix in the visPoset html file by the relation matrix of the poset.
     searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
+    searchReplace("visExtremeElts",fixExtremeEltsString, visTemp); -- Replace visExtremeElts in the visPoset html file by the option passed by the user of whether to fix the extremal elements at the minimum or maximum levels.
     
     show new URL from { "file://"|visTemp };
  
