@@ -934,8 +934,11 @@ function allPosetRelations (relMatrix){
     var n = relMatrix.length;
     for(var i=0; i < n; i++){
         for(var j=i; j < n; j++){
-            if relMatrix[i][j] == 1 then tempArr.push([i,j]);
-            if relMatrix[j][i] == 1 then tempArr.push([j,i]);
+            // relMatrix[i][j] and relMatrix[j][i] can't both be 1 if i != j or else the poset would not be antisymmetric.
+            if(relMatrix[i][j] == 1){tempArr.push([i,j]);}
+            else {
+                if(relMatrix[j][i] == 1){tempArr.push([j,i]);}
+            }
         }
     }
     
@@ -944,7 +947,7 @@ function allPosetRelations (relMatrix){
 
 // Given the relation matrix for a poset, this function returns an array consisting of minimal covering relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_j <= node_i in the partial order.  This algorithm is the same as the one used in Posets.m2.
 function minimalPosetRelations (relMatrix){
-    n = relMatrix.length;
+    var n = relMatrix.length;
     var outputArr = [];
     var gtp = [];
     for(var i=0; i < n; i++){
@@ -960,7 +963,7 @@ function minimalPosetRelations (relMatrix){
         for(var j=0; j < tempIndices.length; j++){
             gtgtp.push(gtp[tempIndices[j]]);            
         }
-        gtgtp = removeDuplicates(flattenArray(gtgtp));
+        gtgtp = eliminateDuplicates(flattenArray(gtgtp));
         var trimIndices = setDifference(tempIndices,gtgtp);
         for(var j=0; j < trimIndices.length; j++){
             outputArr.push([i,trimIndices[j]]);            
@@ -970,7 +973,14 @@ function minimalPosetRelations (relMatrix){
     return outputArr;    
 }
 
-
+// Given a list of relations labeled by node id, return the corresponding list of relations labeled by the name of the corresponding node.
+function idRelationsToLabelRelations (relArr,labelArr){
+    var out = [];
+    for(var i=0; i < relArr.length; i++){
+        out.push([labelArr[relArr[i][0]],labelArr[relArr[i][1]]]);
+    }
+    return out;
+}
 
 // Given a nested array of arrays, this flattens the array by one level.
 function flattenArray (arr) {
@@ -999,8 +1009,8 @@ function setDifference(arr1,arr2) {
     var len2 = arr2.length;
     var delIndices = [];
     for(var i =0; i < len1; i++){
-        for(var j=0; k < len2; j++){
-            // If arr1[i] appears in arr2, then delete it.
+        for(var j=0; j < len2; j++){
+            // If j[i] appears in arr2, then delete it.
             if(arr1[i] == arr2[j]){delIndices.push(i);}            
         }
     }

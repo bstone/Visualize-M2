@@ -423,8 +423,8 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
 visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
 
     local labelList; local groupList; local relList; local visTemp;
-    local numNodes; local nodeString; local relationString; local browserOutput;
-    
+    local numNodes; local labelString; local nodeString; local relationString;
+    local relMatrixString; local browserOutput;
     
     labelList = P_*;
     if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
@@ -437,7 +437,8 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
 	    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
     );
 
-    nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
+    labelString = toString new Array from labelList;
+    --nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
     relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
     relMatrixString = toString toArray entries P.RelationMatrix;
   
