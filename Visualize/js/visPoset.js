@@ -100,7 +100,7 @@ function initializeBuilder() {
 	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
       groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
       nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
-    }
+  }
 
   /*
   lastNodeId = data.length;
@@ -202,26 +202,26 @@ function initializeBuilder() {
 }
 
 function resetPoset() {
-    
-  // Set the 'fixed' attribute to false for all nodes and then restart the force layout.
+  
+  // Set the x-coordinate of each node to the original fixed layout.
   var groupFreq = [];
   var groupCount = [];
   for (var i=0; i<maxGroup+1; i++){
     groupFreq.push(0);
     groupCount.push(0);
   }
-
   nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
-  
-  for(var i=0; i < nodes.length;i++){
-      // Set the nodes as fixed by default and specify their initial x and y values to be evenly spaced along their level.
-	  nodes[i].y = height-vPadding-(nodes[i].group)*rowSep;
-      groupCount[nodes[i].group]=groupCount[nodes[i].group]+1;
-      console.log(height-vPadding-(nodes[i].group)*rowSep);
-      nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
-      console.log(groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1)));
-      nodes[i].fixed = true;
+  for( var i = 0; i < nodes.length; i++ ){
+    groupCount[nodes[i].group]=groupCount[nodes[i].group]+1;
+    nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
+    nodes[i].px = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
   }
+   
+  setAllNodesFixed();
+  
+  // Calling tick() here is crucial so that the locations of the nodes are updated.
+  tick();
+    
   // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
   if(forceOn) toggleForce();
   
@@ -243,8 +243,10 @@ function resetMouseVars() {
 // Update force layout (called automatically by the force layout simulation each iteration).
 function tick() {
   
+  // Make sure all nodes stay at the height corresponding to their group.
   for( var i = 0; i < nodes.length; i++ ){
     nodes[i].y = height-vPadding-(nodes[i].group)*rowSep;
+    nodes[i].py = height-vPadding-(nodes[i].group)*rowSep;
   }
     
     // Restrict the nodes to be contained within a 15 pixel margin around the svg.
@@ -264,7 +266,7 @@ function tick() {
     }*/
     
     // Visually update the locations of the nodes based on the force simulation.
-    return 'translate(' + d.x + ',' + (height-vPadding-(d.group)*rowSep) + ')';
+    return 'translate(' + d.x + ',' + d.y + ')';
   });
     
   // Draw directed edges with proper padding from node centers.
@@ -584,9 +586,9 @@ function mousedown() {
   }
 
   // Graph Changed :: adding nodes
-  node = {id: lastNodeId++, group: 0, name: curName, reflexive: false};
+  node = {id: lastNodeId++, group: 0, name: curName, reflexive: false, highlighted: false};
   node.x = point[0];
-  node.y = height-vPadding;
+  node.y = point[1];
   nodes.push(node);
   // Graph is updated here so we change some items to default 
   // d3.select("#isCM").html("isCM");
