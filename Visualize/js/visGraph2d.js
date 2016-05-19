@@ -452,7 +452,7 @@ function restart() {
         }
       }
       
-      if(name != null) {
+      if(name != "null") {
         d.name = name;
         d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
       }

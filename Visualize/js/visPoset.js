@@ -4,9 +4,9 @@
       colors = null;
 
   var svg = null;
-  var nodes = null,
+  var nodes = [],
     lastNodeId = null,
-    links = null;
+    links = [];
 
   var constrString = null;
   var incMatrix = null;
@@ -68,39 +68,43 @@ function initializeBuilder() {
     .attr('height', height)
     .attr('id', 'canvasElement2d');
 
+  // Calculate appropriate groups for elements based on rank or height and store them in the global variable dataGroupList.
+  updateNodeGroups(dataRelMatrix);
+    
+  // Compute the maximum level of the nodes in the poset.
+  maxGroup = d3.max(dataGroupList);
+  // Compute the distance between levels in the poset.
+  rowSep = (height-2*vPadding)/maxGroup;
+      
   // Set up initial nodes and links
   //  - nodes are known by 'id', not by index in array.
   //  - reflexive edges are indicated on the node (as a bold black circle).
   //  - links are always source < target; edge directions are set by 'left' and 'right'.
   //var data = dataData;
   //var names = labelData;
-
-  nodes = dataNodes;
-  links = dataLinks;
+    
+  for(var i=0; i < dataLabels.length; i++){
+      nodes.push({id: i, name: dataLabels[i], fixed: true, group: dataGroupList[i], reflexive: false, highlighted: false});
+  }
   
-  // Compute the maximum level of the nodes in the poset.
-  maxGroup = d3.max(nodes, function(d) {return d.group;});
-  // Compute the distance between levels in the poset.
-  rowSep = (height-2*vPadding)/maxGroup;
-  var groupFreq = [];
-  var groupCount = [];
-  for (var i=0; i<maxGroup+1; i++){
-    groupFreq.push(0);
-    groupCount.push(0);
+  // Compute starting x and y coordinates so that the nodes will be equally spaced along each level.
+  computeNodeStartingXYCoords();
+    
+  dataCovRel = minimalPosetRelations(dataRelMatrix);
+  for(var i=0; i < dataCovRel.length; i++){
+      // Since the links always go from smaller node id to larger node id, determine which elements in each covering relation have smaller and larger node id.
+      var minNode = d3.min(dataCovRel[i]);
+      var maxNode = d3.max(dataCovRel[i]);
+      // If the first element in the covering relation has the smaller node id, then we should set the link to point 'right' (from smaller node id to larger id, which matches the order given in the covering relation).
+      var rightLink = (minNode == dataCovRel[i][0]);
+      var leftLink = !rightLink;
+      
+      
+      // Brett: Setting left or right to true creates a little padding around the target node.  Do we need to do this now that we are keeping track of the relation matrix?
+      // links.push({source: minNode, target: maxNode, left: leftLink, right: rightLink});
+      links.push({source: minNode, target: maxNode, left: false, right: false});
   }
     
-  console.log("maxGroup: " + maxGroup);
-
-  nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
-  
-  for(var i=0; i < nodes.length;i++){
-      // Set the nodes as fixed by default and specify their initial x and y values to be evenly spaced along their level.
-      nodes[i].fixed = true;
-      nodes[i].id = i;
-	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
-      groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
-      nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
-  }
 
   /*
   lastNodeId = data.length;
@@ -515,8 +519,8 @@ function restart() {
           name = "";
         }
       }
-      
-      if(name != null) {
+            
+      if(name != "null") {
         d.name = name;
         d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
       }
@@ -786,6 +790,37 @@ function setAllNodesUnfixed() {
   }
 }
 
+// This method updates the global variable 'dataGroupList' with the appropriate heights of the nodes based on rank or height, as appropriate.
+function updateNodeGroups(relMatrix){
+  if(fixExtremalNodes){
+      dataGroupList = posetRelHeightFunction(relMatrix);
+  } else {
+      if(posetIsRanked(dataRelMatrix)){
+          dataGroupList = posetRankFunction(relMatrix);
+      } else {
+          dataGroupList = posetHeightFunction(relMatrix);
+      }
+  }
+}
+
+// This function edits the global array 'nodes' with the appropriate x and y values so that the poset elements will be equally distributed along each level.
+function computeNodeStartingXYCoords() {    
+  var groupFreq = [];
+  var groupCount = [];
+  for (var i=0; i<maxGroup+1; i++){
+    groupFreq.push(0);
+    groupCount.push(0);
+  }
+  nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
+  
+  for(var i=0; i < nodes.length; i++){
+      // Set the nodes as fixed by default and specify their initial x and y values to be evenly spaced along their level.
+	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
+      groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
+      nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
+  }
+}
+
 function updateWindowSize2d() {
     console.log("resizing window");
     //var svg = document.getElementById("canvasElement2d");
@@ -931,6 +966,7 @@ function nestedArraytoM2List (arr){
 
   return str;
 }
+
 
 // ----------- Functions for computations with posets ---------
 
