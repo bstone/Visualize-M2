@@ -426,10 +426,10 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     local numNodes; local labelString; local nodeString; local relationString;
     local relMatrixString; local fixExtremeEltsString; local browserOutput;
     
-    labelList = P_*;
-    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
-    relList = coveringRelations P;
-    numNodes = #labelList;
+    labelList = apply(P_*, i -> "'"|(toString i)|"'");
+    --if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
+    --relList = coveringRelations P;
+    --numNodes = #labelList;
     
     if opts.FixExtremeElements == true then (
 	    groupList = relHeightFunction P;
@@ -439,7 +439,7 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
 
     labelString = toString new Array from labelList;
     --nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
-    relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
+    --relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
     relMatrixString = toString toArray entries P.RelationMatrix;
     fixExtremeEltsString = toString opts.FixExtremeElements;
   
@@ -455,7 +455,7 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     
     --searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
     searchReplace("visLabels",labelString, visTemp); -- Replace visLabels in the visPoset html file by the labels of the nodes in the same order as the ground set of P.
-    searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
+    --searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
     searchReplace("visRelMatrix",relMatrixString, visTemp); -- Replace visRelMatrix in the visPoset html file by the relation matrix of the poset.
     searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
     searchReplace("visExtremeElts",fixExtremeEltsString, visTemp); -- Replace visExtremeElts in the visPoset html file by the option passed by the user of whether to fix the extremal elements at the minimum or maximum levels.
@@ -750,6 +750,13 @@ server = () -> (
 	    -- testKey = "isChordal";
 	    fun = identity;
 	    u = toString( isChordal indexLabelGraph value data );
+	)	
+	
+	-- isComparabilityGraph
+	else if match("^POST /isComparabilityGraph/(.*) ",r) then (
+	    -- testKey = "isComparabilityGraph";
+	    fun = identity;
+	    u = toString( isComparabilityGraph indexLabelGraph value data );
 	)	
 	
 	-- isConnected

@@ -55,7 +55,7 @@
     }());
     
     // Just get the current directory that contains the html file.
-    scriptSource = scriptSource.substring(0, scriptSource.length - 16);
+    scriptSource = scriptSource.substring(0, scriptSource.length - 14);
       
     console.log(scriptSource);
 
@@ -1394,142 +1394,86 @@ function exportTikz (event){
 // Add a response for each id from the side menu
 function onclickResults(m2Response) {
     
-    if (clickTest == "hasEulerianTrail"){
-      d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail :: <b>"+m2Response+"</b>");
+    if (clickTest == "isAtomic"){
+      d3.select("#isAtomic").html("&nbsp;&nbsp; isAtomic :: <b>"+m2Response+"</b>");
     } 
     
-    if (clickTest == "hasOddHole"){
-      d3.select("#hasOddHole").html("&nbsp;&nbsp; hasOddHole :: <b>"+m2Response+"</b>");
+    else if (clickTest == "isBounded"){
+      d3.select("#isBounded").html("&nbsp;&nbsp; isBounded :: <b>"+m2Response+"</b>");
     } 
     
-    if (clickTest == "isBipartite"){
-      d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite :: <b>"+m2Response+"</b>");
+    else if (clickTest == "isDistributive"){
+      d3.select("#isDistributive").html("&nbsp;&nbsp; isDistributive :: <b>"+m2Response+"</b>");
     } 
-
-    else if (clickTest == "isChordal") {
-      d3.select("#isChordal").html("&nbsp;&nbsp; isChordal :: <b>"+m2Response+"</b>");    
+    
+    else if (clickTest == "isGeometric"){
+      d3.select("#isGeometric").html("&nbsp;&nbsp; isGeometric :: <b>"+m2Response+"</b>");
     } 
-
-    else if (clickTest == "isCM") {
-      d3.select("#isCM").html("&nbsp;&nbsp; isCM :: <b>"+m2Response+"</b>");    
-    }
-
-    else if (clickTest == "isConnected") {
-      d3.select("#isConnected").html("&nbsp;&nbsp; isConnected :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isCyclic") {
-      d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isEulerian") {
-      d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isForest") {
-      d3.select("#isForest").html("&nbsp;&nbsp; isForest :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isPerfect") {
-      d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isRegular") {
-      d3.select("#isRegular").html("&nbsp;&nbsp; isRegular :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isSimple") {
-      d3.select("#isSimple").html("&nbsp;&nbsp; isSimple :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isTree") {
-      d3.select("#isTree").html("&nbsp;&nbsp; isTree :: <b>"+m2Response+"</b>");    
-    }
     
-    else if (clickTest == "chromaticNumber") {
-      d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isGraded"){
+      d3.select("#isGraded").html("&nbsp;&nbsp; isGraded :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "independenceNumber") {
-      d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isLattice"){
+      d3.select("#isLattice").html("&nbsp;&nbsp; isLattice :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "cliqueNumber") {
-      d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isLowerSemilattice"){
+      d3.select("#isLowerSemilattice").html("&nbsp;&nbsp; isLowerSemilattice :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "degeneracy") {
-      d3.select("#degeneracy").html("&nbsp;&nbsp; degeneracy :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isLowerSemimodular"){
+      d3.select("#isLowerSemimodular").html("&nbsp;&nbsp; isLowerSemimodular :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "density") {
-      d3.select("#density").html("&nbsp;&nbsp; density :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isModular"){
+      d3.select("#isModular").html("&nbsp;&nbsp; isModular :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "diameter") {
-      d3.select("#diameter").html("&nbsp;&nbsp; diameter :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isRanked"){
+      d3.select("#isRanked").html("&nbsp;&nbsp; isRanked :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "edgeConnectivity") {
-      d3.select("#edgeConnectivity").html("&nbsp;&nbsp; edgeConnectivity :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isSperner"){
+      d3.select("#isSperner").html("&nbsp;&nbsp; isSperner :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "minimalDegree") {
-      d3.select("#minimalDegree").html("&nbsp;&nbsp; minimalDegree :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isStrictSperner"){
+      d3.select("#isStrictSperner").html("&nbsp;&nbsp; isStrictSperner :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "numberOfComponents") {
-      d3.select("#numberOfComponents").html("&nbsp;&nbsp; numberOfComponents :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isUpperSemilattice"){
+      d3.select("#isUpperSemilattice").html("&nbsp;&nbsp; isUpperSemilattice :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "numberOfTriangles") {
-      d3.select("#numberOfTriangles").html("&nbsp;&nbsp; numberOfTriangles :: <b>"+m2Response+"</b>");    
-    }  
+    else if (clickTest == "isUpperSemimodular"){
+      d3.select("#isUpperSemimodular").html("&nbsp;&nbsp; isUpperSemimodular :: <b>"+m2Response+"</b>");
+    } 
     
-    else if (clickTest == "radius") {
-      d3.select("#radius").html("&nbsp;&nbsp; radius :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "vertexConnectivity") {
-      d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity :: <b>"+m2Response+"</b>");    
-    }  
-    
-    else if (clickTest == "vertexCoverNumber") {
-      d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber :: <b>"+m2Response+"</b>");    
-    }  
-    
+    else if (clickTest == "dilworthNumber"){
+      d3.select("#dilworthNumber").html("&nbsp;&nbsp; dilworthNumber :: <b>"+m2Response+"</b>");
+    } 
 }
 
 
 // Anytime the graph is edited by user we call this function.
 // It changes the menu items to default.
 function menuDefaults() {
-  d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail");
-  d3.select("#hasOddHole").html("&nbsp;&nbsp; hasOddHole");
-  d3.select("#isCM").html("&nbsp;&nbsp; isCM");
-  d3.select("#isChordal").html("&nbsp;&nbsp; isChordal");
-  d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite");
-  d3.select("#isConnected").html("&nbsp;&nbsp; isConnected");  
-  d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic");  
-  d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian");  
-  d3.select("#isForest").html("&nbsp;&nbsp; isForest");  
-  d3.select("#isPerfect").html("&nbsp;&nbsp; isPerfect");  
-  d3.select("#isRegular").html("&nbsp;&nbsp; isRegular");  
-  d3.select("#isSimple").html("&nbsp;&nbsp; isSimple");  
-  d3.select("#isTree").html("&nbsp;&nbsp; isTree");
-  d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber");
-  d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber");
-  d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber");
-  d3.select("#degeneracy").html("&nbsp;&nbsp; degeneracy");
-  d3.select("#density").html("&nbsp;&nbsp; density");
-  d3.select("#diameter").html("&nbsp;&nbsp; diameter");
-  d3.select("#edgeConnectivity").html("&nbsp;&nbsp; edgeConnectivity");
-  d3.select("#minimalDegree").html("&nbsp;&nbsp; minimalDegree");
-  d3.select("#numberOfComponents").html("&nbsp;&nbsp; numberOfComponents");
-  d3.select("#numberOfTriangles").html("&nbsp;&nbsp; numberOfTriangles");
-  d3.select("#radius").html("&nbsp;&nbsp; radius");
-  d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity");
-  d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber");
+  d3.select("#isAtomic").html("&nbsp;&nbsp; isAtomic");
+  d3.select("#isBounded").html("&nbsp;&nbsp; isBounded");
+  d3.select("#isDistributive").html("&nbsp;&nbsp; isDistributive");
+  d3.select("#isGeometric").html("&nbsp;&nbsp; isGeometric");
+  d3.select("#isGraded").html("&nbsp;&nbsp; isGraded");
+  d3.select("#isLattice").html("&nbsp;&nbsp; isLattice");
+  d3.select("#isLowerSemilattice").html("&nbsp;&nbsp; isLowerSemilattice");
+  d3.select("#isLowerSemimodular").html("&nbsp;&nbsp; isLowerSemimodular");
+  d3.select("#isModular").html("&nbsp;&nbsp; isModular");
+  d3.select("#isRanked").html("&nbsp;&nbsp; isRanked");
+  d3.select("#isSperner").html("&nbsp;&nbsp; isSperner");
+  d3.select("#isStrictSperner").html("&nbsp;&nbsp; isStrictSperner");
+  d3.select("#isUpperSemilattice").html("&nbsp;&nbsp; isUpperSemilattice");
+  d3.select("#isUpperSemimodular").html("&nbsp;&nbsp; isUpperSemimodular");
+  d3.select("#dilworthNumber").html("&nbsp;&nbsp; dilworthNumber");
 }
 
 

@@ -964,7 +964,11 @@ function onclickResults(m2Response) {
     else if (clickTest == "isCM") {
       d3.select("#isCM").html("&nbsp;&nbsp; isCM :: <b>"+m2Response+"</b>");    
     }
-
+    
+    else if (clickTest == "isComparabilityGraph") {
+      d3.select("#isComparabilityGraph").html("&nbsp;&nbsp; isComparabilityGraph :: <b>"+m2Response+"</b>");    
+    }
+    
     else if (clickTest == "isConnected") {
       d3.select("#isConnected").html("&nbsp;&nbsp; isConnected :: <b>"+m2Response+"</b>");    
     }    
@@ -1060,6 +1064,7 @@ function menuDefaults() {
   d3.select("#isCM").html("&nbsp;&nbsp; isCM");
   d3.select("#isChordal").html("&nbsp;&nbsp; isChordal");
   d3.select("#isBipartite").html("&nbsp;&nbsp; isBipartite");
+  d3.select("#isComparabilityGraph").html("&nbsp;&nbsp; isComparabilityGraph");  
   d3.select("#isConnected").html("&nbsp;&nbsp; isConnected");  
   d3.select("#isCyclic").html("&nbsp;&nbsp; isCyclic");  
   d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian");  
