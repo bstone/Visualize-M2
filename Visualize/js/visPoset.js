@@ -808,38 +808,20 @@ function updateWindowSize2d() {
 
 // Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.
 
-function poset2M2Constructor( nodeSet, edgeSet ){
-  var strEdges = "{";
-  var e = edgeSet.length;
-  for( var i = 0; i < e; i++ ){
-    if(i != (e-1)){
-      strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}, ";
+function poset2M2Constructor( labels, relMatrix ){
+  var covRel = idRelationsToLabelRelations(minimalPosetRelations(relMatrix),labels);
+  var relString = nestedArraytoM2List(covRel);
+  var labelString = "{";
+  var m = labels.length;
+  for( var i = 0; i < m; i++ ){
+    if(i != (m-1)){
+      labelString = labelString + labels[i].toString() + ", ";
     }
     else{
-      strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}}";
+      labelString = labelString + labels[i].toString() + "}";
     }
   }
-  // determine if the singleton set is empty
-        var card = 0
-  var singSet = singletons(nodeSet, edgeSet);
-  card = singSet.length; // cardinality of singleton set
-  if ( card != 0 ){
-    var strSingSet = "{";
-    for(var i = 0; i < card; i++ ){
-      if(i != (card - 1) ){
-        strSingSet = strSingSet + "" + (singSet[i]).toString() + ", ";
-      }
-      else{
-        strSingSet = strSingSet + "" + (singSet[i]).toString();
-      }
-    }
-    strSingSet = strSingSet + "}";
-    return "graph(" + strEdges + ", Singletons => "+ strSingSet + ")";
-  }
-  else{
-    return "graph(" + strEdges + ")";
-  }
-
+  return "poset("+labelString+","+relString+")";
 }
 
 // determines if a graph contains singletons, if it does it returns an array containing their id, if not returns empty array
@@ -927,6 +909,365 @@ function arraytoM2Matrix (arr){
 
   return str;
 }
+
+// Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
+function nestedArraytoM2List (arr){
+  var str = "{{";
+  for(var i = 0; i < arr.length; i++){
+    for(var j = 0; j < arr[i].length; j++){
+      str = str + arr[i][j].toString();
+      if(j == arr[i].length - 1){
+        str = str + "}";
+            } else {
+        str = str + ",";
+      }
+    }
+    if(i < arr.length-1){
+      str = str + ",{";
+    } else {
+      str = str + "}";
+    }
+  }
+
+  return str;
+}
+
+// ----------- Functions for computations with posets ---------
+
+// Still need: heightFunction, relHeightFunction
+// reflexiveClosure, transitiveClosure?
+
+// Given the relation matrix for a poset, this function returns null if the poset is not ranked and otherwise returns a list of the ranks of the elements.  This algorithm is taken from Posets.m2, which was in turn taken from John Stembridge's Maple package for computations with posets.
+function posetRankFunction(relMatrix){
+    var rk = [];
+    for(var i=0; i < relMatrix.length; i++){
+        rk.push([i,0]);
+    }
+    var covRel = minimalPosetRelations(relMatrix);
+    for(var i=0; i < covRel.length; i++){
+        var tmp = rk[covRel[i][1]][rk[covRel[i][1]].length-1] - rk[covRel[i][0]][rk[covRel[i][1]].length-1] - 1;
+        if(tmp == 0){continue;}
+        var u = rk[covRel[i][0]][0];
+        var v = rk[covRel[i][1]][0];
+        if(u == v){return null;};
+        var temprk = [];
+        if(tmp > 0){
+            for(var j=0; j < rk.length; j++){
+                if(rk[j][0] == u){
+                    temprk.push([v,rk[j][rk[j].length-1] + tmp]);
+                } else {
+                    temprk.push(rk[j]);
+                }
+            }
+        } else {
+            for(var j=0; j < rk.length; j++){
+                if(rk[j][0] == v){
+                    temprk.push([u,rk[j][rk[j].length-1] - tmp]);
+                } else {
+                    temprk.push(rk[j]);
+                }
+            }
+        }
+        rk = temprk;
+    }
+    var rkOutput = [];
+    for(var i=0; i < temprk.length; i++){
+        rkOutput.push(temprk[i][1]);
+    }
+    return rkOutput;
+}
+
+// Given the relation matrix for a poset, this function determines whether the poset is ranked or not.
+function posetIsRanked(relMatrix){
+    return posetRankFunction(relMatrix) != null;
+}
+
+// Given the relation matrix for a poset, this function computes a filtration of the poset of the form [F_0,F_1,...].  F_0 consists of the minimal elements of the poset, F_1 consists of the minimal elements of P - F_0, and so on.  This algorithm is taken from Posets.m2, which was in turn taken from John Stembridge's Maple package for computations with posets.
+function posetFiltration(relMatrix){
+    var covRel = minimalPosetRelations(relMatrix);
+    var cnt = [];
+    var cvrby = [];
+    // For each element of the poset, determine how many times it occurs as the larger element in any minimal covering relation (listed in cnt).  Also, for each element of the poset, determine the minimal elements that cover it (listed in cvrby).
+    for(var i=0; i < relMatrix.length; i++){
+        var tempCount = 0;
+        var tempCvrs = [];
+        for(var j=0; j < covRel.length; j++){
+            if(covRel[j][1] == i){tempCount = tempCount+1;}
+            if(covRel[j][0] == i){tempCvrs.push(covRel[j][1]);}
+        }
+        cnt.push(tempCount);
+        cvrby.push(tempCvrs);
+    }
+    // Find indices of all elements that do not minimally cover any element (i.e., the minimal elements in the poset).
+    var neu = [];
+    for(var i=0; i < cnt.length; i++){
+        if(cnt[i] == 0){neu.push(i)};        
+    }
+    // We need neu.slice() here so that the neu array is cloned and ret points to the new occurrence of neu;
+    var ret = [neu.slice()];
+    while(neu.length > 0){
+        var tempMinCvrs = [];
+        for(var i=0; i < neu.length; i++){
+            tempMinCvrs.push(cvrby[neu[i]]);
+        }
+        tempMinCvrs = flattenArray(tempMinCvrs);
+        var tempArr = [];
+        for(var i=0; i < tempMinCvrs.length; i++){
+            if(cnt[tempMinCvrs[i]] == 1){
+                tempArr.push(tempMinCvrs[i]);
+            } else {
+                cnt[tempMinCvrs[i]] = cnt[tempMinCvrs[i]] - 1;
+                continue;
+            }
+        }
+        neu = tempArr.slice();
+        ret.push(tempArr.slice());
+    }
+    ret.splice(ret.length-1,1);
+    return ret;
+}
+
+// Given the relation matrix for a poset, compute the "height" of each element, which is simply the corresponding level of the filtration of the poset that contains it.  This is meant to be used in place of a rank function is the poset is not ranked.
+function posetHeightFunction(relMatrix){
+    var filt = posetFiltration(relMatrix);
+    var ht = [];
+    for(var i=0; i < relMatrix.length; i++){
+        for(var j=0; j < filt.length; j++){
+            for(var k=0; k < filt[j].length; k++){
+                if(filt[j][k] == i){ht.push(j);}
+            }
+        }
+    }
+    return ht;
+}
+
+// Given the relation matrix for a poset, compute the minimal elements.
+function posetMinimalElements(relMatrix){
+    var output = [];
+    for(var i=0; i < relMatrix.length; i++){
+        var isMin = true;
+        for(var j=0; j < relMatrix.length; j++){
+            // If the ith element covers another element, then it is not minimal.
+            if((relMatrix[j][i] == 1) && (i != j)){isMin = false;}
+        }
+        if(isMin){output.push(i)};
+    }
+    return output;
+}
+
+// Given the relation matrix for a poset, compute the maximal elements.
+function posetMaximalElements(relMatrix){
+    var output = [];
+    for(var i=0; i < relMatrix.length; i++){
+        var isMax = true;
+        for(var j=0; j < relMatrix.length; j++){
+            // If the ith element is covered by another element, then it is not maximal.
+            if((relMatrix[i][j] == 1) && (i != j)){isMax = false;}
+        }
+        if(isMax){output.push(i)};
+    }
+    return output;
+}
+
+// Given the relation matrix for a poset, compute the maximal chains.
+function posetMaximalChains(relMatrix){
+    var minElt = posetMinimalElements(relMatrix);
+    var nonMaximalChains = [];
+    for(var i=0; i < minElt.length; i++){
+        nonMaximalChains.push([minElt[i]]);
+    }
+    var covRel = minimalPosetRelations(relMatrix);
+    var cvrby = [];
+    for(var i=0; i < relMatrix.length; i++){
+        var tempCvrs = [];
+        for(var j=0; j < covRel.length; j++){
+            if(covRel[j][0] == i){tempCvrs.push(covRel[j][1]);}
+        }
+        cvrby.push(tempCvrs);
+    }
+    var maxChains = [];
+    while(nonMaximalChains.length > 0){
+        var tempArr2 = [];
+        for(var i=0; i < nonMaximalChains.length; i++){
+            var tempArr = [];
+            tempCvrs = cvrby[nonMaximalChains[i][nonMaximalChains[i].length-1]];
+            if(tempCvrs.length == 0){
+                // If a maximal chain is found, add it to maxChains.
+                maxChains.push(nonMaximalChains[i].slice());
+                continue;
+            } else {
+                // Otherwise, the chain can be extended further.  Create all possible extensions of the current chain with minimal covering elements.
+                for (var j=0; j < tempCvrs.length; j++){
+                    tempArr.push(nonMaximalChains[i].concat(tempCvrs[j]));
+                }
+                tempArr2.push(tempArr.slice());
+            }
+        }
+        nonMaximalChains = flattenArray(tempArr2.slice());
+    }
+    return maxChains;
+}
+
+// // Given the relation matrix for a poset, compute the "relative height" of each element, which tries to keep elements evenly spaced relative to the length of the maximal chains in the poset.  This is meant to be used in place of a rank function is the poset is not ranked.
+function posetRelHeightFunction(relMatrix){
+    var maxChains = posetMaximalChains(relMatrix);
+    var heightList = posetHeightFunction(relMatrix);
+    // For each element of the poset, create a list of all maximal chains that involve that element.
+    var maxChainList = [];
+    for(var i=0; i < relMatrix.length; i++){
+        var tempArr = [];
+        for(var j=0; j < maxChains.length; j++){
+            for(var k=0; k < maxChains[j].length; k++){
+                // If the ith element appears in the jth maximal chain, then push the jth maximal chain to tempArr.
+                if(maxChains[j][k] == i){tempArr.push(maxChains[j]);}
+            }
+        }
+        maxChainList.push(tempArr.slice());
+    }
+    // For each element of the poset, find the lengths of all maximal chains that involve it.
+    var chainLengthList = [];
+    for(var i=0; i < maxChainList.length; i++){
+        tempArr = [];
+        for(var j=0; j < maxChainList[i].length; j++){
+            tempArr.push(maxChainList[i][j].length);
+        }
+        chainLengthList.push(tempArr.slice());
+    }
+    var relHeightList = [];
+    for(var i=0; i < chainLengthList.length; i++){
+        relHeightList.push(d3.max(chainLengthList[i]) - 1);
+    }
+    var totalHeight = lcm(relHeightList);
+    var output = [];
+    for(var i=0; i < relMatrix.length; i++){
+        output.push((totalHeight/relHeightList[i])*heightList[i]);
+    }
+    return output;
+}
+
+// Given the relation matrix for a set under a binary relation, this function determines whether the relation is antisymmetric (required for a poset) or not.
+function posetIsAntisymmetric(relMatrix){
+    var n = relMatrix.length;
+    for(var i=0; i < n-1; i++){
+        for(var j=i+1; j < n; j++){
+            if((relMatrix[i][j] == 1) && (relMatrix[j][i] == 1)){
+                return false;
+            }            
+        }
+    }
+    return true;
+}
+
+// Given the relation matrix for a poset, this function returns an array consisting of all relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_j <= node_i in the partial order.
+function allPosetRelations (relMatrix){
+    var tempArr = [];
+    var n = relMatrix.length;
+    for(var i=0; i < n; i++){
+        for(var j=i; j < n; j++){
+            // relMatrix[i][j] and relMatrix[j][i] can't both be 1 if i != j or else the poset would not be antisymmetric.
+            if(relMatrix[i][j] == 1){tempArr.push([i,j]);}
+            else {
+                if(relMatrix[j][i] == 1){tempArr.push([j,i]);}
+            }
+        }
+    }
+    
+    return tempArr;
+}
+
+// Given the relation matrix for a poset, this function returns an array consisting of minimal covering relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_j <= node_i in the partial order.  This algorithm is the same as the one used in Posets.m2.
+function minimalPosetRelations (relMatrix){
+    var n = relMatrix.length;
+    var outputArr = [];
+    var gtp = [];
+    for(var i=0; i < n; i++){
+        var temp = [];
+        for(var j=0; j < n; j++){
+            if((i != j) && (relMatrix[i][j] == 1)){temp.push(j)};
+        }
+        gtp.push(temp);
+    }
+    for(var i=0; i < n; i++){
+        var gtgtp = [];
+        var tempIndices = gtp[i];
+        for(var j=0; j < tempIndices.length; j++){
+            gtgtp.push(gtp[tempIndices[j]]);            
+        }
+        gtgtp = eliminateDuplicates(flattenArray(gtgtp));
+        var trimIndices = setDifference(tempIndices,gtgtp);
+        for(var j=0; j < trimIndices.length; j++){
+            outputArr.push([i,trimIndices[j]]);            
+        }        
+    }
+    
+    return outputArr;    
+}
+
+// Given a list of relations labeled by node id, return the corresponding list of relations labeled by the name of the corresponding node.
+function idRelationsToLabelRelations (relArr,labelArr){
+    var out = [];
+    for(var i=0; i < relArr.length; i++){
+        out.push([labelArr[relArr[i][0]],labelArr[relArr[i][1]]]);
+    }
+    return out;
+}
+
+// ----------- Helper functions for dealing with arrays. ----------
+
+// Given a nested array of arrays, this flattens the array by one level.
+function flattenArray (arr) {
+    return [].concat.apply([], arr);
+}
+
+// Eliminate all duplicate entries in an array.
+function eliminateDuplicates(arr) {
+  var i,
+      len=arr.length,
+      out=[],
+      obj={};
+
+  for (i=0;i<len;i++) {
+    obj[arr[i]]=0;
+  }
+  for (i in obj) {
+    out.push(i);
+  }
+  return out;
+}
+
+// Take the set-theoretic difference of two arrays.  (i.e., Return the result of removing from the first array all common elements of the second array.)
+function setDifference(arr1,arr2) {
+    var len1 = arr1.length;
+    var len2 = arr2.length;
+    var delIndices = [];
+    for(var i =0; i < len1; i++){
+        for(var j=0; j < len2; j++){
+            // If j[i] appears in arr2, then delete it.
+            if(arr1[i] == arr2[j]){delIndices.push(i);}            
+        }
+    }
+    delIndices = eliminateDuplicates(delIndices);
+    var offset = 0;
+    // Remove all elements of arr1 where common elements with arr2 were found.
+    for(var i=0; i < delIndices.length; i++){
+        arr1.splice(delIndices[i]-offset,1);
+        offset = offset+1;        
+    }
+    
+    return arr1;
+}
+
+// Compute the lcm of an array of integers.
+function lcm(A) {
+    var n = A.length, a = Math.abs(A[0]);
+    for (var i = 1; i < n; i++)
+     { var b = Math.abs(A[i]), c = a;
+       while (a && b){ a > b ? a %= b : b %= a; } 
+       a = Math.abs(c*A[i])/(a+b);
+     }
+    return a;
+}
+
 
 function exportTikz (event){
   var points = [];
