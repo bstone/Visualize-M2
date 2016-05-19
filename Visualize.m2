@@ -752,6 +752,13 @@ server = () -> (
 	    u = toString( isChordal indexLabelGraph value data );
 	)	
 	
+	-- isComparabilityGraph
+	else if match("^POST /isComparabilityGraph/(.*) ",r) then (
+	    -- testKey = "isComparabilityGraph";
+	    fun = identity;
+	    u = toString( isComparabilityGraph indexLabelGraph value data );
+	)	
+	
 	-- isConnected
 	else if match("^POST /isConnected/(.*) ",r) then (
 	    -- testKey = "isConnected";
