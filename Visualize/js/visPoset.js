@@ -808,38 +808,20 @@ function updateWindowSize2d() {
 
 // Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.
 
-function poset2M2Constructor( nodeSet, edgeSet ){
-  var strEdges = "{";
-  var e = edgeSet.length;
-  for( var i = 0; i < e; i++ ){
-    if(i != (e-1)){
-      strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}, ";
+function poset2M2Constructor( labels, relMatrix ){
+  var covRel = idRelationsToLabelRelations(minimalPosetRelations(relMatrix),labels);
+  var relString = nestedArraytoM2List(covRel);
+  var labelString = "{";
+  var m = labels.length;
+  for( var i = 0; i < m; i++ ){
+    if(i != (m-1)){
+      labelString = labelString + labels[i].toString() + ", ";
     }
     else{
-      strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + ", " + (edgeSet[i].target.name).toString() + "}}";
+      labelString = labelString + labels[i].toString() + "}";
     }
   }
-  // determine if the singleton set is empty
-        var card = 0
-  var singSet = singletons(nodeSet, edgeSet);
-  card = singSet.length; // cardinality of singleton set
-  if ( card != 0 ){
-    var strSingSet = "{";
-    for(var i = 0; i < card; i++ ){
-      if(i != (card - 1) ){
-        strSingSet = strSingSet + "" + (singSet[i]).toString() + ", ";
-      }
-      else{
-        strSingSet = strSingSet + "" + (singSet[i]).toString();
-      }
-    }
-    strSingSet = strSingSet + "}";
-    return "graph(" + strEdges + ", Singletons => "+ strSingSet + ")";
-  }
-  else{
-    return "graph(" + strEdges + ")";
-  }
-
+  return "poset("+labelString+","+relString+")";
 }
 
 // determines if a graph contains singletons, if it does it returns an array containing their id, if not returns empty array
@@ -909,6 +891,28 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
 // Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
 function arraytoM2Matrix (arr){
   var str = "matrix{{";
+  for(var i = 0; i < arr.length; i++){
+    for(var j = 0; j < arr[i].length; j++){
+      str = str + arr[i][j].toString();
+      if(j == arr[i].length - 1){
+        str = str + "}";
+            } else {
+        str = str + ",";
+      }
+    }
+    if(i < arr.length-1){
+      str = str + ",{";
+    } else {
+      str = str + "}";
+    }
+  }
+
+  return str;
+}
+
+// Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
+function nestedArraytoM2List (arr){
+  var str = "{{";
   for(var i = 0; i < arr.length; i++){
     for(var j = 0; j < arr[i].length; j++){
       str = str + arr[i][j].toString();
