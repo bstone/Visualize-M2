@@ -693,9 +693,8 @@ openServer = method(Options =>{Verbose => true})
 openServer File := opts -> S -> (
  
 local server; local fun; local listener; 
-local httpHeader; local testKey; 
-local u;
-
+local httpHeader; local testKey;
+local u; local data; local dataValue;
 
 testKey = " ";
 listener = S;
@@ -712,7 +711,8 @@ server = () -> (
         if #r == 0 then (close g; continue);
 	
 	data := last r;
-        r = first r;
+        dataValue = value data;
+	r = first r;
 	
 	-- Begin handling requests from browser
 	---------------------------------------
@@ -721,42 +721,42 @@ server = () -> (
 	if match("^POST /hasEulerianTrail/(.*) ",r) then (
 	    -- testKey = "hasEulerianTrail";
 	    fun = identity;
-	    u = toString( hasEulerianTrail indexLabelGraph value data );
+	    u = toString( hasEulerianTrail dataValue );
 	)	
 	
 	-- hasOddHole
 	else if match("^POST /hasOddHole/(.*) ",r) then (
 	    -- testKey = "hasOddHole";
 	    fun = identity;
-	    u = toString( hasOddHole indexLabelGraph value data );
+	    u = toString( hasOddHole dataValue );
 	)	
 	
 	-- isCM
 	else if match("^POST /isCM/(.*) ",r) then (
 	    -- testKey = "isCM";
 	    fun = identity;
-	    u = toString( isCM indexLabelGraph value data );
+	    u = toString( isCM dataValue );
 	)	
 
 	-- isBipartite
 	else if match("^POST /isBipartite/(.*) ",r) then (
 	    -- testKey = "isBipartite";
 	    fun = identity;
-	    u = toString( isBipartite indexLabelGraph value data );
+	    u = toString( isBipartite dataValue );
 	)	
 
 	-- isChordal
 	else if match("^POST /isChordal/(.*) ",r) then (
 	    -- testKey = "isChordal";
 	    fun = identity;
-	    u = toString( isChordal indexLabelGraph value data );
+	    u = toString( isChordal dataValue );
 	)	
 	
 	-- isComparabilityGraph
 	else if match("^POST /isComparabilityGraph/(.*) ",r) then (
 	    -- testKey = "isComparabilityGraph";
 	    fun = identity;
-	    u = toString( isComparabilityGraph indexLabelGraph value data );
+	    u = toString( isComparabilityGraph dataValue );
 	)	
 	
 	-- isConnected
@@ -764,166 +764,275 @@ server = () -> (
 	    -- testKey = "isConnected";
 	    fun = identity;
 	    print"isConnected else if in M2";
-	    u = toString( isConnected indexLabelGraph value data );
+	    u = toString( isConnected dataValue );
 	)	
 
     	-- isCyclic
 	else if match("^POST /isCyclic/(.*) ",r) then (
 	    -- testKey = "isCyclic";
 	    fun = identity;
-	    u = toString( isCyclic indexLabelGraph value data );
+	    u = toString( isCyclic dataValue );
 	)		
 
     	-- isEulerian
 	else if match("^POST /isEulerian/(.*) ",r) then (
 	    -- testKey = "isEulerian";
 	    fun = identity;
-	    u = toString( isEulerian indexLabelGraph value data );
+	    u = toString( isEulerian dataValue );
 	)		
 
     	-- isForest
 	else if match("^POST /isForest/(.*) ",r) then (
 	    -- testKey = "isForest";
 	    fun = identity;
-	    u = toString( isForest indexLabelGraph value data );
+	    u = toString( isForest dataValue );
 	)		
 
     	-- isPerfect
 	else if match("^POST /isPerfect/(.*) ",r) then (
 	    -- testKey = "isPerfect";
 	    fun = identity;
-	    u = toString( isPerfect indexLabelGraph value data );
+	    u = toString( isPerfect dataValue );
 	)		
 
     	-- isRegular
 	else if match("^POST /isRegular/(.*) ",r) then (
 	    -- testKey = "isRegular";
 	    fun = identity;
-	    u = toString( isRegular indexLabelGraph value data );
+	    u = toString( isRegular dataValue );
 	)		
 
     	-- isSimple
 	else if match("^POST /isSimple/(.*) ",r) then (
 	    -- testKey = "isSimple";
 	    fun = identity;
-	    u = toString( isSimple indexLabelGraph value data );
+	    u = toString( isSimple dataValue );
 	)		
 
     	-- isStronglyConnected
 	else if match("^POST /isStronglyConnected/(.*) ",r) then (
 	    -- testKey = "isStronglyConnected";
 	    fun = identity;
-	    u = toString( isStronglyConnected indexLabelGraph value data );
+	    u = toString( isStronglyConnected dataValue );
 	)	
 	
 	-- isTree
 	else if match("^POST /isTree/(.*) ",r) then (
 	    -- testKey = "isTree";
 	    fun = identity;
-	    u = toString( isTree indexLabelGraph value data );
+	    u = toString( isTree dataValue );
 	)
     
         -- isWeaklyConnected
 	else if match("^POST /isWeaklyConnected/(.*) ",r) then (
 	    -- testKey = "isWeaklyConnected";
 	    fun = identity;
-	    u = toString( isWeaklyConnected indexLabelGraph value data );
+	    u = toString( isWeaklyConnected dataValue );
 	)	
     
         -- chromaticNumber
 	else if match("^POST /chromaticNumber/(.*) ",r) then (
 	    -- testKey = "chromaticNumber";
 	    fun = identity;
-	    u = toString( chromaticNumber indexLabelGraph value data );
+	    u = toString( chromaticNumber dataValue );
 	)			
 	
 	-- independenceNumber
 	else if match("^POST /independenceNumber/(.*) ",r) then (
 	    -- testKey = "independenceNumber";
 	    fun = identity;
-	    u = toString( independenceNumber indexLabelGraph value data );
+	    u = toString( independenceNumber dataValue );
 	)			
 	
 	-- cliqueNumber
 	else if match("^POST /cliqueNumber/(.*) ",r) then (
 	    -- testKey = "cliqueNumber";
 	    fun = identity;
-	    u = toString( cliqueNumber indexLabelGraph value data );
+	    u = toString( cliqueNumber dataValue );
 	)			
 	
 	-- degeneracy
 	else if match("^POST /degeneracy/(.*) ",r) then (
 	    -- testKey = "degeneracy";
 	    fun = identity;
-	    u = toString( degeneracy indexLabelGraph value data );
+	    u = toString( degeneracy dataValue );
 	)			
 	
 	-- density
 	else if match("^POST /density/(.*) ",r) then (
 	    -- testKey = "density";
 	    fun = identity;
-	    u = toString( density indexLabelGraph value data );
+	    u = toString( density dataValue );
 	)			
 	
 	-- diameter
 	else if match("^POST /diameter/(.*) ",r) then (
 	    -- testKey = "diameter";
 	    fun = identity;
-	    u = toString( diameter indexLabelGraph value data );
+	    u = toString( diameter dataValue );
 	)			
 	
 	-- edgeConnectivity
 	else if match("^POST /edgeConnectivity/(.*) ",r) then (
 	    -- testKey = "edgeConnectivity";
 	    fun = identity;
-	    u = toString( edgeConnectivity indexLabelGraph value data );
+	    u = toString( edgeConnectivity dataValue );
 	)			
 	
 	-- minimalDegree
 	else if match("^POST /minimalDegree/(.*) ",r) then (
 	    -- testKey = "minimalDegree";
 	    fun = identity;
-	    u = toString( minimalDegree indexLabelGraph value data );
+	    u = toString( minimalDegree dataValue );
 	)			
 	
 	-- numberOfComponents
 	else if match("^POST /numberOfComponents/(.*) ",r) then (
 	    -- testKey = "numberOfComponents";
 	    fun = identity;
-	    u = toString( numberOfComponents indexLabelGraph value data );
+	    u = toString( numberOfComponents dataValue );
 	)			
 	
 	-- numberOfTriangles
 	else if match("^POST /numberOfTriangles/(.*) ",r) then (
 	    -- testKey = "numberOfTriangles";
 	    fun = identity;
-	    u = toString( numberOfTriangles indexLabelGraph value data );
+	    u = toString( numberOfTriangles dataValue );
 	)			
 	
 	-- radius
 	else if match("^POST /radius/(.*) ",r) then (
 	    -- testKey = "radius";
 	    fun = identity;
-	    if not isConnected indexLabelGraph value data then u = "Not connected." else u = toString( radius indexLabelGraph value data );
+	    if not isConnected dataValue then u = "Not connected." else u = toString( radius dataValue );
 	)			
 	
 	-- vertexConnectivity
 	else if match("^POST /vertexConnectivity/(.*) ",r) then (
 	    -- testKey = "";
 	    fun = identity;
-	    u = toString( vertexConnectivity indexLabelGraph value data );
+	    u = toString( vertexConnectivity dataValue );
 	)			
 	
 	-- vertexCoverNumber
 	else if match("^POST /vertexCoverNumber/(.*) ",r) then (
 	    -- testKey = "vertexCoverNumber";
 	    fun = identity;
-	    u = toString( vertexCoverNumber indexLabelGraph value data );
+	    u = toString( vertexCoverNumber dataValue );
 	)			
-	 
+	
+	----------------------
+	-- Tests for posets --
+	----------------------
+	
+	-- isAtomic
+	else if match("^POST /isAtomic/(.*) ",r) then (
+	    -- testKey = "isAtomic";
+	    fun = identity;
+	    if not isLattice dataValue then u = "Not lattice." else u = toString( isAtomic dataValue );
+	)
+    
+    	-- isBounded
+	else if match("^POST /isBounded/(.*) ",r) then (
+	    -- testKey = "isBounded";
+	    fun = identity;
+	    u = toString( isBounded dataValue );
+	)
+    
+    	-- isDistributive
+	else if match("^POST /isDistributive/(.*) ",r) then (
+	    -- testKey = "isDistributive";
+	    fun = identity;
+	    if not isLattice dataValue then u = "Not lattice." else u = toString( isDistributive dataValue );
+	)
+    
+    	-- isGeometric
+	else if match("^POST /isGeometric/(.*) ",r) then (
+	    -- testKey = "isGeometric";
+	    fun = identity;
+	    if not isLattice dataValue then u = "Not lattice." else u = toString( isGeometric dataValue );
+	)
+    
+    	-- isGraded
+	else if match("^POST /isGraded/(.*) ",r) then (
+	    -- testKey = "isGraded";
+	    fun = identity;
+	    u = toString( isGraded dataValue );
+	)
+    
+    	-- isLattice
+	else if match("^POST /isLattice/(.*) ",r) then (
+	    -- testKey = "isLattice";
+	    fun = identity;
+	    u = toString( isLattice dataValue );
+	)
+    
+    	-- isLowerSemilattice
+	else if match("^POST /isLowerSemilattice/(.*) ",r) then (
+	    -- testKey = "isLowerSemilattice";
+	    fun = identity;
+	    u = toString( isLowerSemilattice dataValue );
+	)
+    
+    	-- isLowerSemimodular (only applies to ranked posets)
+	else if match("^POST /isLowerSemimodular/(.*) ",r) then (
+	    -- testKey = "isLowerSemimodular";
+	    fun = identity;
+	    if not (isRanked dataValue and isLattice dataValue) then u = "Not ranked lattice." else u = toString( isLowerSemimodular dataValue );
+	)
+    
+    	-- isModular
+	else if match("^POST /isModular/(.*) ",r) then (
+	    -- testKey = "isModular";
+	    fun = identity;
+	    if not isLattice dataValue then u = "Not lattice." else u = toString( isModular dataValue );
+	)
+    
+    	-- isRanked
+	else if match("^POST /isRanked/(.*) ",r) then (
+	    -- testKey = "isRanked";
+	    fun = identity;
+	    u = toString( isRanked dataValue );
+	)
+    
+    	-- isSperner (only applies to ranked posets)
+	else if match("^POST /isSperner/(.*) ",r) then (
+	    -- testKey = "isSperner";
+	    fun = identity;
+	    if not isRanked dataValue then u = "Not ranked." else u = toString( isSperner dataValue );
+	)
+    
+    	-- isStrictSperner (only applies to ranked posets)
+	else if match("^POST /isStrictSperner/(.*) ",r) then (
+	    -- testKey = "isStrictSperner";
+	    fun = identity;
+	    if not isRanked dataValue then u = "Not ranked." else u = toString( isStrictSperner dataValue );
+	)
+    
+    	-- isUpperSemilattice
+	else if match("^POST /isUpperSemilattice/(.*) ",r) then (
+	    -- testKey = "isUpperSemilattice";
+	    fun = identity;
+	    u = toString( isUpperSemilattice dataValue );
+	)
+    
+    	-- isUpperSemimodular (only applies to ranked posets)
+	else if match("^POST /isUpperSemimodular/(.*) ",r) then (
+	    -- testKey = "isUpperSemimodular";
+	    fun = identity;
+	    if not(isRanked dataValue and isLattice dataValue) then u = "Not ranked lattice." else u = toString( isUpperSemimodular dataValue );
+	)
+    
+    	-- dilworthNumber
+	else if match("^POST /dilworthNumber/(.*) ",r) then (
+	    -- testKey = "dilworthNumber";
+	    fun = identity;
+	    u = toString( dilworthNumber dataValue );
+	)
+    	
 	-- End Session   
 	else if match("^POST /end/(.*) ",r) then (
-	    R := value data;
+	    R := dataValue;
 	    return R;
 	)
 	

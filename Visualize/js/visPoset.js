@@ -102,7 +102,7 @@ function initializeBuilder() {
       
       // Brett: Setting left or right to true creates a little padding around the target node.  Do we need to do this now that we are keeping track of the relation matrix?
       // links.push({source: minNode, target: maxNode, left: leftLink, right: rightLink});
-      links.push({source: minNode, target: maxNode, left: false, right: false});
+      links.push({source: nodes[minNode], target: nodes[maxNode], left: false, right: false});
   }
     
 
@@ -841,10 +841,10 @@ function updateWindowSize2d() {
     force.size([width, height]).resume();
 }
 
-// Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.
+// Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.  This references the global variable dataCovRel, which is updated with the minimal covering relations each time the poset is updated.
 
 function poset2M2Constructor( labels, relMatrix ){
-  var covRel = idRelationsToLabelRelations(minimalPosetRelations(relMatrix),labels);
+  var covRel = idRelationsToLabelRelations(dataCovRel,labels);
   var relString = nestedArraytoM2List(covRel);
   var labelString = "{";
   var m = labels.length;

@@ -78,18 +78,20 @@ function initializeBuilder() {
     
   // Create the nodes with their appropriate names and id's, and set reflexive to true if and only if there is a 1 in the appropriate
   // spot on the main diagonal.  This represents a loop in the digraph.
-  for (var i = 0; i<data.length; i++) {
+  for (var i = 0; i < data.length; i++) {
       nodes.push( {name: names[i], id: i, reflexive: data[i][i] == 1, highlighted:false } );
   }
 
-  for (var i = 0; i<data.length - 1; i++) {
+  for (var i = 0; i < data.length - 1; i++) {
       for (var j = i+1; j < data.length; j++) {
-          if (data[i][j] != 0) {
-              links.push( { source: nodes[i], target: nodes[j], left: false, right: true, highlighted:false} );
+          var leftEdge = (data[j][i] == 1);
+          var rightEdge = (data[i][j] == 1);
+          if (leftEdge || rightEdge) {
+              links.push( { source: nodes[i], target: nodes[j], left: leftEdge, right: rightEdge, highlighted:false} );
           }
       }
   }
-  
+  /*
   for (var i = 1; i<data.length; i++) {
       for (var j = 0; j < i; j++) {
           if (data[i][j] != 0) {
@@ -111,6 +113,7 @@ function initializeBuilder() {
           }
       }
   }
+  */
 
   console.log(nodes);
   console.log(links);
@@ -802,8 +805,8 @@ function updateWindowSize2d() {
     
     // get width/height with container selector (body also works)
     // or use other method of calculating desired values
-    var width = window.innerWidth-10;
-    var height = window.innerHeight-10;
+    width = window.innerWidth-10;
+    height = window.innerHeight-10;
 
     // set attrs and 'resume' force 
     //svg.attr('width', width);
@@ -822,15 +825,47 @@ function digraph2M2Constructor( nodeSet, edgeSet ){
   var e = edgeSet.length;
   var strNodes = "{";
   var d = nodeSet.length;
-  for( var i = 0; i < e; i++ ){
-    if(i != (e-1)){
+  var foundReflexive = false;
+  for( var i = 0; i < d; i++ ){
+    if(i != (d-1)){
       strNodes = strNodes + (nodeSet[i].name).toString() + ", ";
     }
-    else{
+    else {
       strNodes = strNodes + (nodeSet[i].name).toString() + "}";
     }
+    // Add any reflexive nodes as an edge from the vertex to itself.
+    if(nodeSet[i].reflexive){
+        strEdges = strEdges + "{" + nodeSet[i].name.toString() + ", " + nodeSet[i].name.toString() + "}, ";
+        foundReflexive = true;
+    }
   }
-  return "digraph(" + strNodes + "," + arraytoM2Matrix(getAdjacencyMatrix(nodeSet,edgeSet)) + ")";
+
+  for( var i = 0; i < e; i++ ){
+    var leftEdge = edgeSet[i].left;
+    var rightEdge = edgeSet[i].right;
+    if(i != (e-1)){
+      if(leftEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}, ";}
+      if(rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}, ";}
+    }
+    else{
+      if(leftEdge && rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}, " + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}}";}
+      else if(leftEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}}";}
+      else if(rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}}";}
+    }
+  }
+    
+  // Handle some extremal cases such as the empty digraph, or digraphs with no edges.
+  if(foundReflexive && (edgeSet.length == 0)){
+      strEdges = strEdges.slice(0,-2) + "}";
+  }
+  if((!foundReflexive) && (edgeSet.length == 0)){
+      strEdges = "{}";
+  }
+  if(nodeSet.length == 0){
+      strNodes = "{}";
+  }
+    
+  return "digraph(" + strNodes + "," + strEdges + ")";
 
 }
 
