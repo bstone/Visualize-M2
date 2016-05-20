@@ -67,6 +67,9 @@ function initializeBuilder() {
     .attr('height', height)
     .attr('id', 'canvasElement2d');
 
+  // Compute the minimal covering relations from the poset relation matrix.  This is necessary before computing the group for each node.
+  dataCovRel = minimalPosetRelations(dataRelMatrix);
+    
   // Calculate appropriate groups for elements based on rank or height and store them in the global variable dataGroupList.
   dataGroupList = computeNodeGroups(dataRelMatrix);
     
@@ -88,7 +91,6 @@ function initializeBuilder() {
   setAllNodesFixed();
 
   // Initialize the links based on the minimal covering relations obtained from the relation matrix.
-  dataCovRel = minimalPosetRelations(dataRelMatrix);
   links = linksFromNodesRelations(nodes,dataCovRel);
 
   // Initialize D3 force layout.
@@ -100,6 +102,18 @@ function initializeBuilder() {
       .charge(-1500)
       .on('tick', tick);
 
+  // define arrow markers for graph links
+  svg.append('svg:defs').append('svg:marker')
+    .attr('id', 'end-arrow')
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 6)
+    .attr('markerWidth', 3)
+    .attr('markerHeight', 3)
+    .attr('orient', 'auto')
+    .append('svg:path')
+    .attr('d', 'M0,-5L10,0L0,5')
+    .attr('fill', '#000');
+    
   // When a node begins to be dragged by the user, call the function dragstart.
   drag = force.drag()
     .on("dragstart", dragstart);
@@ -373,10 +387,12 @@ function restart() {
       selected_link = null;
 
       // reposition drag line
-      drag_line
-        .style('marker-end', 'url(#end-arrow)')
-        .classed('hidden', false)
-        .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+      if(curEdit){
+        drag_line
+          .style('marker-end', 'url(#end-arrow)')
+          .classed('hidden', false)
+          .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+      }
 
       restart();
     })
@@ -398,35 +414,38 @@ function restart() {
       
       //------------------------------------------------------
       // Brett: (EDITING To-do) Change this code to update the relation matrix when a new covering relation is created by the user.
-      
-      // add link to graph (update if exists)
-      // NB: links are strictly source < target; arrows separately specified by booleans
-      var source, target, direction;
-      if(mousedown_node.id < mouseup_node.id) {
-        source = mousedown_node;
-        target = mouseup_node;
-        direction = 'right';
-      } else {
-        source = mouseup_node;
-        target = mousedown_node;
-        direction = 'left';
-      }
-      
-      var link;
-      link = links.filter(function(l) {
-        return (l.source === source && l.target === target);
-      })[0];
 
-      // Graph Changed :: adding new links
-      if(link) {
-        link[direction] = false;
-      } else {
-        link = {source: source, target: target, left: false, right: false};
-        link[direction] = false;
-        links.push(link);
-        // Graph is updated here so we change some items to default.
-        menuDefaults();
+      // Note: If relMatrix_(i,j) == 1 then do nothing (the relation already holds).
+      
+      var link = null;
+      var sourceID = mousedown_node.id;
+      var targetID = mouseup_node.id;
+      if(dataRelMatrix[sourceID][targetID] != 1){
+        var tempMatrix = completeTransitiveClosure(dataRelMatrix,sourceID,targetID);
+        if(!tempMatrix){
+            alert("Creating this relation would violate antisymmetry.");
+        } else {
+            force.stop();
+            dataRelMatrix = tempMatrix.slice();
+            dataCovRel = minimalPosetRelations(dataRelMatrix);
+            dataGroupList = computeNodeGroups(dataRelMatrix);
+            maxGroup = d3.max(dataGroupList);
+            rowSep = (height-2*vPadding)/maxGroup;
+            nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+            lastNodeId = nodes.length;
+            setAllNodesFixed();
+            links = linksFromNodesRelations(nodes,dataCovRel);
+            force.nodes(nodes)
+              .links(links);
+            tick();
+            //resetMouseVars();
+            menuDefaults();
+            link = links.filter(function(l) {
+                return (l.source.id == d3.min([sourceID,targetID]) && l.target.id == d3.max([sourceID,targetID]));
+            })[0];
+        }
       }
+      
       //-----------------------------------------------------
 
       // Select the newly created link and unselect the previously selected node.
@@ -438,7 +457,8 @@ function restart() {
 
   .on('dblclick', function(d) {
       name = "";
-      var letters = /^[0-9a-zA-Z]+$/;
+      // The "/^" in the following regular expression allows ^ as a possible character in names, which may be useful if we want to label the poset elements by monomials, for example.
+      var letters = /^[/^0-9a-zA-Z]+$/;
       while (name=="") {
         name = prompt('Enter new label name.', d.name);
         // Check whether the user has entered any illegal characters (including spaces).
@@ -457,8 +477,9 @@ function restart() {
       }
             
       if(name != "null") {
-        d.name = name;
-        d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
+        d.name = name; d3.select(this.parentNode).select("text").text(function(d) {return d.name});
+        // Update the appropriate entry of the global variable dataLabels with the new node name.
+        dataLabels[d.id] = name;
       }
 
     });
@@ -513,9 +534,6 @@ function mousedown() {
   // If editing is not on, the shift key is being held down, or a node or link has been selected, do nothing.
   if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link) return;
 
-  // --------------------------------------------------------
-  // Brett: (EDITING To-do) Write code here to add a new minimal node to the poset and update the relation matrix with a new row and column.
-
   var point = d3.mouse(this);
   var curName = (lastNodeId + 1).toString();
   if (checkName(curName)) {
@@ -525,16 +543,18 @@ function mousedown() {
     curName = curName.substring(0, curName.length - 1) + getNextAlpha(curName.slice(-1));
   }
 
-  // Graph Changed :: adding nodes
+  // Adding a new minimal node with x-value given by the mouse position on click.
   var node = {id: lastNodeId++, group: 0, name: curName, reflexive: false, highlighted: false};
   node.x = point[0];
-  node.y = point[1];
+  node.y = height-vPadding;
   nodes.push(node);
-  // Graph is updated here so we change some items to default 
-  // d3.select("#isCM").html("isCM");
+  // Add the name of the new node to the global array dataLabels.
+  dataLabels.push(curName);
+  // Add a new row and column to the global array dataRelMatrix with a 1 in the bottom row corresponding to the new node.
+  dataRelMatrix = extendMatrix(dataRelMatrix);
+    
+  // Graph is updated here so we change some items to default.
   menuDefaults();
-
-  // -------------------------------------------------------
 
   restart();
 }
@@ -605,12 +625,43 @@ function keydown() {
     case 8: // backspace
     case 46: // delete
       if(curEdit && selected_node) {
-        nodes.splice(nodes.indexOf(selected_node), 1);
-        spliceLinksForNode(selected_node);
+        dataLabels.splice(selected_node.id,1);
+        force.stop();
+        dataRelMatrix = deleteRowCol(dataRelMatrix,selected_node.id);
+        dataCovRel = minimalPosetRelations(dataRelMatrix);
+        dataGroupList = computeNodeGroups(dataRelMatrix);
+        maxGroup = d3.max(dataGroupList);
+        rowSep = (height-2*vPadding)/maxGroup;
+        nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+        lastNodeId = nodes.length;
+        setAllNodesFixed();
+        links = linksFromNodesRelations(nodes,dataCovRel);
+        force.nodes(nodes)
+          .links(links);
+        tick();
+        //resetMouseVars();
+        menuDefaults();
+          
         if(curHighlight) unHighlightAll();
+          
       } else if(curEdit && selected_link) {
-
-        links.splice(links.indexOf(selected_link), 1);
+        var sourceID = selected_link.source.id;
+        var targetID = selected_link.target.id;
+        dataRelMatrix[sourceID,targetID] = 0;
+        dataCovRel = minimalPosetRelations(dataRelMatrix);
+        dataGroupList = computeNodeGroups(dataRelMatrix);
+        maxGroup = d3.max(dataGroupList);
+        rowSep = (height-2*vPadding)/maxGroup;
+        nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+        lastNodeId = nodes.length;
+        setAllNodesFixed();
+        links = linksFromNodesRelations(nodes,dataCovRel);
+        force.nodes(nodes)
+          .links(links);
+        tick();
+        //resetMouseVars();
+        menuDefaults();        
+        
         if(curHighlight) unHighlightAll();
       }
       selected_link = null;
@@ -822,16 +873,14 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
 
 // ----------- Functions for computations with posets ---------
 
-// Still need: heightFunction, relHeightFunction
-// reflexiveClosure, transitiveClosure?
-
 // Given the relation matrix for a poset, this function returns null if the poset is not ranked and otherwise returns a list of the ranks of the elements.  This algorithm is taken from Posets.m2, which was in turn taken from John Stembridge's Maple package for computations with posets.
 function posetRankFunction(relMatrix){
     var rk = [];
     for(var i=0; i < relMatrix.length; i++){
         rk.push([i,0]);
     }
-    var covRel = minimalPosetRelations(relMatrix);
+    //var covRel = minimalPosetRelations(relMatrix);
+    var covRel = dataCovRel;
     for(var i=0; i < covRel.length; i++){
         var tmp = rk[covRel[i][1]][rk[covRel[i][1]].length-1] - rk[covRel[i][0]][rk[covRel[i][1]].length-1] - 1;
         if(tmp == 0){continue;}
@@ -872,7 +921,8 @@ function posetIsRanked(relMatrix){
 
 // Given the relation matrix for a poset, this function computes a filtration of the poset of the form [F_0,F_1,...].  F_0 consists of the minimal elements of the poset, F_1 consists of the minimal elements of P - F_0, and so on.  This algorithm is taken from Posets.m2, which was in turn taken from John Stembridge's Maple package for computations with posets.
 function posetFiltration(relMatrix){
-    var covRel = minimalPosetRelations(relMatrix);
+    //var covRel = minimalPosetRelations(relMatrix);
+    var covRel = dataCovRel;
     var cnt = [];
     var cvrby = [];
     // For each element of the poset, determine how many times it occurs as the larger element in any minimal covering relation (listed in cnt).  Also, for each element of the poset, determine the minimal elements that cover it (listed in cvrby).
@@ -936,7 +986,7 @@ function posetMinimalElements(relMatrix){
         var isMin = true;
         for(var j=0; j < relMatrix.length; j++){
             // If the ith element covers another element, then it is not minimal.
-            if((relMatrix[j][i] == 1) && (i != j)){isMin = false;}
+            if((relMatrix[j][i] == 1) && (i != j)){isMin = false; break;}
         }
         if(isMin){output.push(i)};
     }
@@ -950,7 +1000,7 @@ function posetMaximalElements(relMatrix){
         var isMax = true;
         for(var j=0; j < relMatrix.length; j++){
             // If the ith element is covered by another element, then it is not maximal.
-            if((relMatrix[i][j] == 1) && (i != j)){isMax = false;}
+            if((relMatrix[i][j] == 1) && (i != j)){isMax = false; break;}
         }
         if(isMax){output.push(i)};
     }
@@ -964,7 +1014,8 @@ function posetMaximalChains(relMatrix){
     for(var i=0; i < minElt.length; i++){
         nonMaximalChains.push([minElt[i]]);
     }
-    var covRel = minimalPosetRelations(relMatrix);
+    //var covRel = minimalPosetRelations(relMatrix);
+    var covRel = dataCovRel;
     var cvrby = [];
     for(var i=0; i < relMatrix.length; i++){
         var tempCvrs = [];
@@ -1046,7 +1097,7 @@ function posetIsAntisymmetric(relMatrix){
     return true;
 }
 
-// Given the relation matrix for a poset, this function returns an array consisting of all relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_j <= node_i in the partial order.
+// Given the relation matrix for a poset, this function returns an array consisting of all relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_i <= node_j in the partial order.
 function allPosetRelations (relMatrix){
     var tempArr = [];
     var n = relMatrix.length;
@@ -1089,6 +1140,30 @@ function minimalPosetRelations (relMatrix){
     }
     
     return outputArr;    
+}
+
+// Given a square array of arrays (representing the relation matrix of a poset) and two distinct non-negative integers r and s, set the (r,s) entry equal to 1 (adding the relation r <= s) and also set all other (i,j) entries such that i <= r and s <= j (under the poset relation) equal to 1.  The method returns null if the resulting matrix is the relation matrix for a non-antisymmetric relation.
+function completeTransitiveClosure(relMatrix,r,s){
+    // If we already have s <= r in the poset, then adding the relation r <= s will make it non-antisymmetric.
+    if(relMatrix[s][r] == 1){return null;}
+    
+    var rel = allPosetRelations(relMatrix);
+    var pred = [];
+    var anc = [];
+    for(var i=0; i < rel.length; i++){
+        // Create arrays of all predecessors of r and all successors of s.
+        if(rel[i][1] == r){pred.push(rel[i][0]);}
+        if(rel[i][0] == s){anc.push(rel[i][1]);}
+    }
+    for(var i=0; i < pred.length; i++){
+        for(var j=0; j < anc.length; j++){
+            // If some successor of s is already <= some predecessor of r then the resulting relation will not be antisymmetric, so return null.
+            if(relMatrix[anc[j]][pred[i]] == 1){return null;}
+            relMatrix[pred[i]][anc[j]] = 1;
+        }
+        console.log(relMatrix.toString());
+    }
+    return relMatrix;
 }
 
 // Given a list of relations labeled by node id, return the corresponding list of relations labeled by the name of the corresponding node.
@@ -1176,6 +1251,27 @@ function nestedArraytoM2List (arr){
   }
 
   return str;
+}
+
+// Given a rectangular array of arrays (representing the relation matrix of a poset), this method appends a row and column with a 1 in the bottom right spot.
+function extendMatrix (relMatrix){
+    var tempRow = [];
+    for(var i=0; i < relMatrix.length; i++){
+        relMatrix[i].push(0);
+        tempRow.push(0);
+    }
+    tempRow.push(1);
+    relMatrix.push(tempRow);
+    return relMatrix;
+}
+
+// Given a rectangular array of arrays (representing the relation matrix of a poset) and a non-negative integer n, this method deletes the nth row and nth column of the matrix.
+function deleteRowCol (relMatrix,n){
+    relMatrix.splice(n,1);
+    for(var i=0; i < relMatrix.length; i++){
+        relMatrix[i].splice(n,1);
+    }
+    return relMatrix;
 }
 
 // -----------------------------------------------------------
