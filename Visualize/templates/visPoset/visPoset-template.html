@@ -250,91 +250,91 @@
       // Checks to see if user's poset is atomic
       $("#isAtomic").on("click", function() {
         clickTest = "isAtomic";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isAtomic/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isAtomic/', poset2M2Constructor(dataLabels));
       });
         
       // Checks to see if user's poset is bounded
       $("#isBounded").on("click", function() {
         clickTest = "isBounded";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isBounded/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isBounded/', poset2M2Constructor(dataLabels));
       }); 
         
       // Checks to see if user's poset is distributive
       $("#isDistributive").on("click", function() {
         clickTest = "isDistributive";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isDistributive/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isDistributive/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is geometric
       $("#isGeometric").on("click", function() {
         clickTest = "isGeometric";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isGeometric/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isGeometric/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is graded
       $("#isGraded").on("click", function() {
         clickTest = "isGraded";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isGraded/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isGraded/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is a lattice
       $("#isLattice").on("click", function() {
         clickTest = "isLattice";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isLattice/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isLattice/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is a lower semilattice
       $("#isLowerSemilattice").on("click", function() {
         clickTest = "isLowerSemilattice";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isLowerSemilattice/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isLowerSemilattice/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is lower semimodular
       $("#isLowerSemimodular").on("click", function() {
         clickTest = "isLowerSemimodular";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isLowerSemimodular/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isLowerSemimodular/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is modular
       $("#isModular").on("click", function() {
         clickTest = "isModular";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isModular/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isModular/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is ranked
       $("#isRanked").on("click", function() {
         clickTest = "isRanked";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isRanked/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isRanked/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is Sperner
       $("#isSperner").on("click", function() {
         clickTest = "isSperner";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isSperner/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isSperner/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is strict Sperner
       $("#isStrictSperner").on("click", function() {
         clickTest = "isStrictSperner";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isStrictSperner/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isStrictSperner/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is an upper semilattice
       $("#isUpperSemilattice").on("click", function() {
         clickTest = "isUpperSemilattice";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isUpperSemilattice/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isUpperSemilattice/', poset2M2Constructor(dataLabels));
       });    
         
       // Checks to see if user's poset is upper semimodular
       $("#isUpperSemimodular").on("click", function() {
         clickTest = "isUpperSemimodular";
-        makeCorsRequest('POST','http://localhost:'+portData+'/isUpperSemimodular/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/isUpperSemimodular/', poset2M2Constructor(dataLabels));
       });    
         
       // Computes the Dilworth number of the user's poset (the maximal length of an antichain)
       $("#dilworthNumber").on("click", function() {
         clickTest = "dilworthNumber";
-        makeCorsRequest('POST','http://localhost:'+portData+'/dilworthNumber/', poset2M2Constructor(dataLabels,dataRelMatrix));
+        makeCorsRequest('POST','http://localhost:'+portData+'/dilworthNumber/', poset2M2Constructor(dataLabels));
       });
 
       // Ends the browser session and outputs the information to M2
@@ -345,7 +345,7 @@
           document.getElementById("endSession").style.color = 'white';
           document.getElementById("endSession").style.backgroundColor = 'red';
           document.getElementById("endSession").innerHTML = "Session terminated";
-          makeCorsRequest('POST','http://localhost:'+portData+'/end/',poset2M2Constructor(dataLabels,dataRelMatrix));
+          makeCorsRequest('POST','http://localhost:'+portData+'/end/',poset2M2Constructor(dataLabels));
           activeSession = !activeSession;
         } else {
           return;

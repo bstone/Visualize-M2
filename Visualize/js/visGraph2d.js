@@ -336,8 +336,7 @@ function restart() {
     .classed('reflexive', function(d) { return d.reflexive; })
     .classed('highlighted',function(d) {return d.highlighted;})
     .on('mouseover', function(d) {
-      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
-      // then do nothing.
+      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking, then do nothing.
       if (!mousedown_node || d === mousedown_node) return;
       // Otherwise enlarge the target node.
       d3.select(this).attr('transform', 'scale(1.1)');
@@ -379,16 +378,16 @@ function restart() {
     .on('mouseup', function(d) {
       if(!mousedown_node) return;
 
-      // needed by FF
+      // Hide the drag line.
       drag_line
         .classed('hidden', true)
         .style('marker-end', '');
 
-      // check for drag-to-self
+      // If the user dragged a line from a node to itself, reset all mouse variables.
       mouseup_node = d;
       if(mouseup_node === mousedown_node) { resetMouseVars(); return; }
 
-      // unenlarge target node
+      // Unenlarge the node that the mouse was released on.
       d3.select(this).attr('transform', '');
 
       // add link to graph (update if exists)
@@ -446,6 +445,7 @@ function restart() {
         if (name==d.name) {
           return;
         }
+        // Check to see whether there already exists a node with the given name.
         else if (checkName(name)) {
           alert('Sorry, a node with that name already exists.')
           name = "";
@@ -481,10 +481,10 @@ function restart() {
   }
   */
 
-  // remove old nodes
+  // Remove the old nodes.
   circle.exit().remove();
 
-  // set the graph in motion
+  // Set the force layout in motion.
   force.start();
 }
 
@@ -508,6 +508,7 @@ function mousedown() {
   // because :active only works in WebKit?
   svg.classed('active', true);
 
+  // If editing is not on, the shift key is being held down, or a node or link has been selected, do nothing.
   if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link) return;
 
   // insert new node at point
@@ -522,7 +523,7 @@ function mousedown() {
   }
 
   // Graph Changed :: adding nodes
-  node = {id: lastNodeId++, name: curName, reflexive: false};
+  var node = {id: lastNodeId++, name: curName, reflexive: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
@@ -550,7 +551,7 @@ function mousemove() {
 
 function mouseup() {
   if(mousedown_node) {
-    // hide drag line
+    // Hide the drag line.
     drag_line
       .classed('hidden', true)
       .style('marker-end', '');
@@ -559,13 +560,14 @@ function mouseup() {
   // because :active only works in WebKit?
   svg.classed('active', false);
 
-  // clear mouse event vars
+  // Reset mouse event variables.
   resetMouseVars();
 
   restart();
 
 }
 
+// Remove all links involving a given node.
 function spliceLinksForNode(node) {
   var toSplice = links.filter(function(l) {
     return (l.source === node || l.target === node);
@@ -581,6 +583,7 @@ var lastKeyDown = -1;
 function keydown() {
   //d3.event.preventDefault();
 
+  // If no key has been pressed, do nothing.
   if(lastKeyDown !== -1) return;
   lastKeyDown = d3.event.keyCode;
 
@@ -590,16 +593,18 @@ function keydown() {
     svg.classed('shift', true);
   }
 
+  // The rest of the key presses only apply when a node or link is currently selected.
   if(!selected_node && !selected_link) return;
   switch(d3.event.keyCode) {
     case 8: // backspace
     case 46: // delete
+      // If editing is enabled and there is currently a selected node, delete it from the 'nodes' array and delete all links that involved the deleted node.
       if(curEdit && selected_node) {
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
         if(curHighlight) unHighlightAll();
       } else if(curEdit && selected_link) {
-
+        // If editing is enabled and there is currently a selected link, delete it from the 'links' array.
         links.splice(links.indexOf(selected_link), 1);
         if(curHighlight) unHighlightAll();
       }
@@ -608,13 +613,7 @@ function keydown() {
 
       // Graph Changed :: deleted nodes and links
       // as a result we change some items to default
-      // d3.select("#isCM").html("isCM");      
       menuDefaults();
-
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-      // (Brett) Removing incidence and adjacency matrices for now.
-      /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
 
       restart();
       break;
@@ -637,24 +636,9 @@ function keyup() {
 function disableEditing() {
   circle.call(drag);
   svg.classed('shift', true);
-  selected_node = null;
+  //selected_node = null;
   selected_link = null;
-  if(curHighlight) unHighlightAll();
-
-  /*
-  for (var i = 0; i<nodes.length; i++) {
-    nodes[i].selected = false;
-  }
-  for (var i = 0; i<links.length; i++) {
-    links[i].selected = false;
-  }
-  path = path.data(links);
-
-  // update existing links
-  path.classed('selected', false)
-    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
-  */
+  //if(curHighlight) unHighlightAll();
 
   restart();
 }
@@ -668,9 +652,8 @@ function enableEditing() {
 
 function enableHighlight() {
   // If there is no currently selected node, then just return (negating the value of curHighlight).
-  if(selected_node == null) return;
+  if(!selected_node) return;
   highlightAllNeighbors(selected_node);
-  console.log("curHighlight: "+curHighlight);
 }
 
 function unHighlightAll() {
@@ -691,7 +674,6 @@ function unHighlightAll() {
 function highlightAllNeighbors(n) {
     // Highlight all nodes that are neighbors with the given node n.
     for (var i = 0; i<nodes.length; i++) {
-       console.log(areNeighbors(nodes[i],n));
        nodes[i].highlighted = areNeighbors(nodes[i],n);
     }
     
@@ -712,17 +694,21 @@ function setAllNodesFixed() {
   for (var i = 0; i<nodes.length; i++) {
     nodes[i].fixed = true;
   }
+}
 
+function setAllNodesUnfixed() {
+  for (var i = 0; i<nodes.length; i++) {
+    nodes[i].fixed = false;
+  }
 }
 
 function updateWindowSize2d() {
-    console.log("resizing window");
     //var svg = document.getElementById("canvasElement2d");
     
     // get width/height with container selector (body also works)
     // or use other method of calculating desired values
-    var width = window.innerWidth-10;
-    var height = window.innerHeight-10;
+    width = window.innerWidth-10;
+    height = window.innerHeight-10;
 
     // set attrs and 'resume' force 
     //svg.attr('width', width);
@@ -902,45 +888,11 @@ function exportTikz (event){
     tikzGenerated = true;
   }
   document.getElementById("tikzTextBox").value = tikzTex;
-  /*  
-  var tikzTextArea = document.createElement("textarea");
-  tikzTextArea.setAttribute("type", "hidden"); 
-  document.getElementById("body").appendChild(tikzTextArea);
-  tikzTextArea.value += tikzTex;
-    
-  event.preventDefault();
-  tikzTextArea.select(); // Select the input node's contents
-  var succeeded;
-  try {
-    // Copy it to the clipboard
-    succeeded = document.execCommand("copy");
-  } catch (e) {
-    succeeded = false;
-  }
-  if (succeeded) {
-    console.log("Copy successful.");
-  } else {
-    console.log("Copy failed.");
-  }
-  */
-    
-// tikzTextArea.select().focus();
-//  $('#container').append('To copy emails to clipboard, press: Ctrl+C, then Enter <br />  <textarea id="tikzTex">'+tikzTex+'</textarea>');
-//  $('#tikzTex').select().focus();
-
-//console.log(tikzTex.length);
-//  if (tikzTex.length < 2001){
-//    window.prompt("Copy this text the best way you can.", tikzTex );
-//  } else {
-//    alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
-//  }
-    
 }
 
 // -----------------------------------------
 // Begin Server Stuff
 // -----------------------------------------
-
 
 // Add a response for each id from the side menu
 function onclickResults(m2Response) {
@@ -1055,7 +1007,6 @@ function onclickResults(m2Response) {
     
 }
 
-
 // Anytime the graph is edited by user we call this function.
 // It changes the menu items to default.
 function menuDefaults() {
@@ -1087,7 +1038,6 @@ function menuDefaults() {
   d3.select("#vertexConnectivity").html("&nbsp;&nbsp; vertexConnectivity");
   d3.select("#vertexCoverNumber").html("&nbsp;&nbsp; vertexCoverNumber");
 }
-
 
 // Create the XHR object.
 function createCORSRequest(method, url) {
@@ -1136,11 +1086,3 @@ function makeCorsRequest(method,url,browserData) {
 // -----------------------------------------
 // End Server Stuff
 // -----------------------------------------
-
-
-function stopForce() {
-  force.stop();
-}
-function startForce() {
-  force.start();
-}

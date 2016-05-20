@@ -4,9 +4,9 @@
       colors = null;
 
   var svg = null;
-  var nodes = [],
+  var nodes = null,
     lastNodeId = null,
-    links = [];
+    links = null;
 
   var constrString = null;
   var incMatrix = null;
@@ -14,12 +14,8 @@
   var incMatrixString = null;
   var adjMatrixString = null;
 
-  var width  = window.innerWidth-10;
-  var height = window.innerHeight-10;
-  var colors = d3.scale.category10();
-
   var maxGroup = 1;
-  var rowSep = 20;
+  var rowSep = 0;
   var hPadding = 30;
   var vPadding = 30;
 
@@ -61,6 +57,9 @@
 
 function initializeBuilder() {
   // Set up SVG for D3.
+  width  = window.innerWidth-10;
+  height = window.innerHeight-10;
+  colors = d3.scale.category10();
   
   svg = d3.select('body')
     .append('svg')
@@ -69,7 +68,7 @@ function initializeBuilder() {
     .attr('id', 'canvasElement2d');
 
   // Calculate appropriate groups for elements based on rank or height and store them in the global variable dataGroupList.
-  updateNodeGroups(dataRelMatrix);
+  dataGroupList = computeNodeGroups(dataRelMatrix);
     
   // Compute the maximum level of the nodes in the poset.
   maxGroup = d3.max(dataGroupList);
@@ -83,70 +82,14 @@ function initializeBuilder() {
   //var data = dataData;
   //var names = labelData;
     
-  for(var i=0; i < dataLabels.length; i++){
-      nodes.push({id: i, name: dataLabels[i], fixed: true, group: dataGroupList[i], reflexive: false, highlighted: false});
-  }
-  
-  // Compute starting x and y coordinates so that the nodes will be equally spaced along each level.
-  computeNodeStartingXYCoords();
-    
+  // Initialize nodes so that they will be equally spaced along each level.
+  nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+  lastNodeId = nodes.length;
+  setAllNodesFixed();
+
+  // Initialize the links based on the minimal covering relations obtained from the relation matrix.
   dataCovRel = minimalPosetRelations(dataRelMatrix);
-  for(var i=0; i < dataCovRel.length; i++){
-      // Since the links always go from smaller node id to larger node id, determine which elements in each covering relation have smaller and larger node id.
-      var minNode = d3.min(dataCovRel[i]);
-      var maxNode = d3.max(dataCovRel[i]);
-      // If the first element in the covering relation has the smaller node id, then we should set the link to point 'right' (from smaller node id to larger id, which matches the order given in the covering relation).
-      var rightLink = (minNode == dataCovRel[i][0]);
-      var leftLink = !rightLink;
-      
-      
-      // Brett: Setting left or right to true creates a little padding around the target node.  Do we need to do this now that we are keeping track of the relation matrix?
-      // links.push({source: minNode, target: maxNode, left: leftLink, right: rightLink});
-      links.push({source: nodes[minNode], target: nodes[maxNode], left: false, right: false});
-  }
-    
-
-  /*
-  lastNodeId = data.length;
-  nodes = [];
-  links = [];
-  for (var i = 0; i<data.length; i++) {
-
-      nodes.push( {name: names[i], id: i, reflexive:false, highlighted:false } );
-
-  }
-  for (var i = 0; i<data.length; i++) {
-      for (var j = 0; j < i ; j++) {
-          if (data[i][j] != 0) {
-              links.push( { source: nodes[i], target: nodes[j], left: false, right: false, highlighted:false} );
-          }
-      }
-  }
-  */
-    
-  //constrString = graph2M2Constructor(nodes,links);
-    
-  // (Brett) Removing incidence and adjacency matrices.
-  /*incMatrix = getIncidenceMatrix(nodes,links);
-  adjMatrix = getAdjacencyMatrix(nodes,links);
-  incMatrixString = arraytoM2Matrix(incMatrix);
-  adjMatrixString = arraytoM2Matrix(adjMatrix);*/
-
-  // Add a paragraph containing the Macaulay2 graph constructor string below the svg.
-  /* d3.select("body").append("p")
-  	.text("Macaulay2 Constructor: " + constrString)
-  	.attr("id","constructorString");
-  */
-
-  // (Brett) Removing incidence and adjacency matrices.
-    
-/*  d3.select("body").append("p")
-  	.text("Incidence Matrix: " + incMatrixString)
-  	.attr("id","incString");
-
-  d3.select("body").append("p")
-  	.text("Adjacency Matrix: " + adjMatrixString)
-  	.attr("id","adjString");*/
+  links = linksFromNodesRelations(nodes,dataCovRel);
 
   // Initialize D3 force layout.
   force = d3.layout.force()
@@ -154,7 +97,7 @@ function initializeBuilder() {
       .links(links)
       .size([width, height])
       .linkDistance(150)
-      .charge(-500)
+      .charge(-1500)
       .on('tick', tick);
 
   // When a node begins to be dragged by the user, call the function dragstart.
@@ -215,6 +158,7 @@ function resetPoset() {
     groupCount.push(0);
   }
   nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
+    
   for( var i = 0; i < nodes.length; i++ ){
     groupCount[nodes[i].group]=groupCount[nodes[i].group]+1;
     nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
@@ -261,13 +205,6 @@ function tick() {
     else if (d.x < 15) {
       d.x = 15;
     }
-    /*
-    if (d.y > height - 15) {
-      d.y = height - 15;
-    }
-    else if (d.y < 15) {
-      d.y = 15;
-    }*/
     
     // Visually update the locations of the nodes based on the force simulation.
     return 'translate(' + d.x + ',' + d.y + ')';
@@ -411,8 +348,7 @@ function restart() {
       d3.select(this).attr('transform', 'scale(1.1)');
     })
     .on('mouseout', function(d) {
-      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
-      // then do nothing.
+      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking, then do nothing.
       if (!mousedown_node || d === mousedown_node) return;
       // Otherwise unenlarge the target node.  (The user has chosen to not create an edge to this node and has moved the cursor elsewhere.)
       d3.select(this).attr('transform', '');
@@ -447,18 +383,22 @@ function restart() {
     .on('mouseup', function(d) {
       if(!mousedown_node) return;
 
-      // needed by FF
+      // Hide the drag line.
       drag_line
         .classed('hidden', true)
         .style('marker-end', '');
 
-      // check for drag-to-self
+      // If the user dragged a line from a node to itself, reset all mouse variables.
       mouseup_node = d;
       if(mouseup_node === mousedown_node) { resetMouseVars(); return; }
 
-      // unenlarge target node
+      // Unenlarge the node that the mouse was released on.
       d3.select(this).attr('transform', '');
 
+      
+      //------------------------------------------------------
+      // Brett: (EDITING To-do) Change this code to update the relation matrix when a new covering relation is created by the user.
+      
       // add link to graph (update if exists)
       // NB: links are strictly source < target; arrows separately specified by booleans
       var source, target, direction;
@@ -487,14 +427,9 @@ function restart() {
         // Graph is updated here so we change some items to default.
         menuDefaults();
       }
+      //-----------------------------------------------------
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-      
-      // (Brett) Removing incidence and adjacency matrices for now.
-      /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
-
-      // select new link
+      // Select the newly created link and unselect the previously selected node.
       if (curEdit) selected_link = link;
       selected_node = null;
       if (curHighlight) unHighlightAll();
@@ -514,6 +449,7 @@ function restart() {
         if (name==d.name) {
           return;
         }
+        // Check to see whether there already exists a node with the given name.
         else if (checkName(name)) {
           alert('Sorry, a node with that name already exists.')
           name = "";
@@ -524,8 +460,6 @@ function restart() {
         d.name = name;
         d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
       }
-
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
 
     });
 
@@ -549,10 +483,10 @@ function restart() {
   }
   */
 
-  // remove old nodes
+  // Remove the old nodes.
   circle.exit().remove();
 
-  // set the graph in motion
+  // Set the force layout in motion.
   force.start();
 }
 
@@ -576,9 +510,11 @@ function mousedown() {
   // because :active only works in WebKit?
   svg.classed('active', true);
 
+  // If editing is not on, the shift key is being held down, or a node or link has been selected, do nothing.
   if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link) return;
 
-  // insert new node at point
+  // --------------------------------------------------------
+  // Brett: (EDITING To-do) Write code here to add a new minimal node to the poset and update the relation matrix with a new row and column.
 
   var point = d3.mouse(this);
   var curName = (lastNodeId + 1).toString();
@@ -590,7 +526,7 @@ function mousedown() {
   }
 
   // Graph Changed :: adding nodes
-  node = {id: lastNodeId++, group: 0, name: curName, reflexive: false, highlighted: false};
+  var node = {id: lastNodeId++, group: 0, name: curName, reflexive: false, highlighted: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
@@ -598,19 +534,16 @@ function mousedown() {
   // d3.select("#isCM").html("isCM");
   menuDefaults();
 
-  //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-    
-  // (Brett) Removing incidence and adjacency matrices for now.
-  /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-  document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
+  // -------------------------------------------------------
 
   restart();
 }
 
 function mousemove() {
+  // If the user has not selected a node, do nothing.
   if(!mousedown_node) return;
 
-  // update drag line
+  // Update the drag line.
   if(curEdit){
   drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
   }
@@ -620,7 +553,7 @@ function mousemove() {
 
 function mouseup() {
   if(mousedown_node) {
-    // hide drag line
+    // Hide the drag line.
     drag_line
       .classed('hidden', true)
       .style('marker-end', '');
@@ -629,13 +562,14 @@ function mouseup() {
   // because :active only works in WebKit?
   svg.classed('active', false);
 
-  // clear mouse event vars
+  // Reset mouse event variables.
   resetMouseVars();
 
   restart();
 
 }
 
+// Remove all links involving a given node.
 function spliceLinksForNode(node) {
   var toSplice = links.filter(function(l) {
     return (l.source === node || l.target === node);
@@ -651,6 +585,7 @@ var lastKeyDown = -1;
 function keydown() {
   //d3.event.preventDefault();
 
+  // If no key has been pressed, do nothing.
   if(lastKeyDown !== -1) return;
   lastKeyDown = d3.event.keyCode;
 
@@ -660,7 +595,12 @@ function keydown() {
     svg.classed('shift', true);
   }
 
+  // The rest of the key presses only apply when a node or link is currently selected.
   if(!selected_node && !selected_link) return;
+    
+  // -----------------------------------------------------
+  // Brett: (EDITING To-do) Change this code to update the relevant data structures when a node or link has been deleted.
+    
   switch(d3.event.keyCode) {
     case 8: // backspace
     case 46: // delete
@@ -677,18 +617,13 @@ function keydown() {
       if(curEdit) {selected_node = null;}
 
       // Graph Changed :: deleted nodes and links
-      // as a result we change some items to default
-      // d3.select("#isCM").html("isCM");      
+      // as a result we change some items to default    
       menuDefaults();
-
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-      // (Brett) Removing incidence and adjacency matrices for now.
-      /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
 
       restart();
       break;
   }
+  // ------------------------------------------------------
   restart();
 }
 
@@ -707,24 +642,9 @@ function keyup() {
 function disableEditing() {
   circle.call(drag);
   svg.classed('shift', true);
-  selected_node = null;
+  //selected_node = null;
   selected_link = null;
-  if(curHighlight) unHighlightAll();
-
-  /*
-  for (var i = 0; i<nodes.length; i++) {
-    nodes[i].selected = false;
-  }
-  for (var i = 0; i<links.length; i++) {
-    links[i].selected = false;
-  }
-  path = path.data(links);
-
-  // update existing links
-  path.classed('selected', false)
-    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
-  */
+  //if(curHighlight) unHighlightAll();
 
   restart();
 }
@@ -738,9 +658,8 @@ function enableEditing() {
 
 function enableHighlight() {
   // If there is no currently selected node, then just return (negating the value of curHighlight).
-  if(selected_node == null) return;
+  if(!selected_node) return;
   highlightAllNeighbors(selected_node);
-  console.log("curHighlight: "+curHighlight);
 }
 
 function unHighlightAll() {
@@ -761,7 +680,6 @@ function unHighlightAll() {
 function highlightAllNeighbors(n) {
     // Highlight all nodes that are neighbors with the given node n.
     for (var i = 0; i<nodes.length; i++) {
-       console.log(areNeighbors(nodes[i],n));
        nodes[i].highlighted = areNeighbors(nodes[i],n);
     }
     
@@ -790,39 +708,63 @@ function setAllNodesUnfixed() {
   }
 }
 
-// This method updates the global variable 'dataGroupList' with the appropriate heights of the nodes based on rank or height, as appropriate.
-function updateNodeGroups(relMatrix){
+// This method returns the groups of the nodes based on rank or height, as appropriate.
+function computeNodeGroups(relMatrix){
   if(fixExtremalNodes){
-      dataGroupList = posetRelHeightFunction(relMatrix);
+      return posetRelHeightFunction(relMatrix);
   } else {
       if(posetIsRanked(dataRelMatrix)){
-          dataGroupList = posetRankFunction(relMatrix);
+          return posetRankFunction(relMatrix);
       } else {
-          dataGroupList = posetHeightFunction(relMatrix);
+          return posetHeightFunction(relMatrix);
       }
   }
 }
 
-// This function edits the global array 'nodes' with the appropriate x and y values so that the poset elements will be equally distributed along each level.
-function computeNodeStartingXYCoords() {    
+// This function returns an array of nodes with appropriate x and y values so that the poset elements will be equally distributed along each level.
+function nodesFromLabelsGroups(labelList,groupList) {
+  var temp = [];
+  for(var i=0; i < labelList.length; i++){
+      temp.push({id: i, name: labelList[i], group: groupList[i], reflexive: false, highlighted: false});
+  }
   var groupFreq = [];
   var groupCount = [];
   for (var i=0; i<maxGroup+1; i++){
     groupFreq.push(0);
     groupCount.push(0);
   }
-  nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
+  temp.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
   
-  for(var i=0; i < nodes.length; i++){
+  for(var i=0; i < temp.length; i++){
       // Set the nodes as fixed by default and specify their initial x and y values to be evenly spaced along their level.
-	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
-      groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
-      nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
+	  temp[i].y = height-vPadding-temp[i].group*rowSep;
+      groupCount[temp[i].group]=groupCount[temp[i].group]+1; 
+      temp[i].x = groupCount[temp[i].group]*((width-2*hPadding)/(groupFreq[temp[i].group]+1));
   }
+  return temp;
+}
+
+// This function returns a list of the links representing minimal covering relations based on the constructed nodes and a list of minimal relations.
+function linksFromNodesRelations(nodeList,relList){
+  var temp = [];
+  for(var i=0; i < relList.length; i++){
+      // Since the links always go from smaller node id to larger node id, determine which elements in each covering relation have smaller and larger node id.
+      var minNode = d3.min(dataCovRel[i]);
+      var maxNode = d3.max(dataCovRel[i]);
+      
+      // If the first element in the covering relation has the smaller node id, then we should set the link to point 'right' (from smaller node id to larger id, which matches the order given in the covering relation).
+      //var rightLink = (minNode == dataCovRel[i][0]);
+      //var leftLink = !rightLink;
+      
+      // Brett: Setting left or right to true creates a little padding around the target node.  Do we need to do this now that we are keeping track of the relation matrix?
+      // links.push({source: minNode, target: maxNode, left: leftLink, right: rightLink});
+      
+      temp.push({source: nodeList[minNode], target: nodeList[maxNode], left: false, right: false, highlighted: false});
+  }
+  return temp;
 }
 
 function updateWindowSize2d() {
-    console.log("resizing window");
     //var svg = document.getElementById("canvasElement2d");
     
     // get width/height with container selector (body also works)
@@ -843,7 +785,7 @@ function updateWindowSize2d() {
 
 // Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.  This references the global variable dataCovRel, which is updated with the minimal covering relations each time the poset is updated.
 
-function poset2M2Constructor( labels, relMatrix ){
+function poset2M2Constructor( labels ){
   var covRel = idRelationsToLabelRelations(dataCovRel,labels);
   var relString = nestedArraytoM2List(covRel);
   var labelString = "{";
@@ -857,52 +799,6 @@ function poset2M2Constructor( labels, relMatrix ){
     }
   }
   return "poset("+labelString+","+relString+")";
-}
-
-// determines if a graph contains singletons, if it does it returns an array containing their id, if not returns empty array
-function singletons(nodeSet, edgeSet){
-
-  var singSet = [];
-  var n = nodeSet.length;
-        var e = edgeSet.length;
-  var curNodeName = -1;
-  var occur = 0;
-  for( var i = 0; i < n; i++){
-    curNodeName = (nodeSet[i]).name;
-    for( var j = 0; j < e; j++ ){
-      if ( (edgeSet[j].source.name == curNodeName) || (edgeSet[j].target.name == curNodeName) ){
-        occur=1;
-        break;
-      }
-    }//end for
-    if (occur == 0){
-      singSet.push(curNodeName); // add node id to singleton set
-    }
-    occur = 0; //reset occurrences for next node id
-  }
-  return singSet;
-}
-
-// Constructs the incidence matrix for a graph as a multidimensional array.
-function getIncidenceMatrix (nodeSet, edgeSet){
-
-  var incMatrix = [];
-
-  // The next two loops create an initial (nodes.length) x (links.length) matrix of zeros.
-  for(var i = 0;i < nodeSet.length; i++){
-    incMatrix[i] = [];
-
-    for(var j = 0; j < edgeSet.length; j++){
-      incMatrix[i][j] = 0;
-    }
-  }
-
-  for (var i = 0; i < edgeSet.length; i++) {
-    incMatrix[(edgeSet[i].source.id)][i] = 1; // Set matrix entries corresponding to incidences to 1.
-    incMatrix[(edgeSet[i].target.id)][i] = 1;
-  }
-
-  return incMatrix;
 }
 
 // Constructs the adjacency matrix for a graph as a multidimensional array.
@@ -921,50 +817,6 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
   }
 
   return adjMatrix;
-}
-
-// Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
-function arraytoM2Matrix (arr){
-  var str = "matrix{{";
-  for(var i = 0; i < arr.length; i++){
-    for(var j = 0; j < arr[i].length; j++){
-      str = str + arr[i][j].toString();
-      if(j == arr[i].length - 1){
-        str = str + "}";
-            } else {
-        str = str + ",";
-      }
-    }
-    if(i < arr.length-1){
-      str = str + ",{";
-    } else {
-      str = str + "}";
-    }
-  }
-
-  return str;
-}
-
-// Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
-function nestedArraytoM2List (arr){
-  var str = "{{";
-  for(var i = 0; i < arr.length; i++){
-    for(var j = 0; j < arr[i].length; j++){
-      str = str + arr[i][j].toString();
-      if(j == arr[i].length - 1){
-        str = str + "}";
-            } else {
-        str = str + ",";
-      }
-    }
-    if(i < arr.length-1){
-      str = str + ",{";
-    } else {
-      str = str + "}";
-    }
-  }
-
-  return str;
 }
 
 
@@ -1304,6 +1156,29 @@ function lcm(A) {
     return a;
 }
 
+// Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
+function nestedArraytoM2List (arr){
+  var str = "{{";
+  for(var i = 0; i < arr.length; i++){
+    for(var j = 0; j < arr[i].length; j++){
+      str = str + arr[i][j].toString();
+      if(j == arr[i].length - 1){
+        str = str + "}";
+            } else {
+        str = str + ",";
+      }
+    }
+    if(i < arr.length-1){
+      str = str + ",{";
+    } else {
+      str = str + "}";
+    }
+  }
+
+  return str;
+}
+
+// -----------------------------------------------------------
 
 function exportTikz (event){
   var points = [];
@@ -1350,46 +1225,12 @@ function exportTikz (event){
     });  
     tikzGenerated = true;
   }
-  document.getElementById("tikzTextBox").value = tikzTex;
-  /*  
-  var tikzTextArea = document.createElement("textarea");
-  tikzTextArea.setAttribute("type", "hidden"); 
-  document.getElementById("body").appendChild(tikzTextArea);
-  tikzTextArea.value += tikzTex;
-    
-  event.preventDefault();
-  tikzTextArea.select(); // Select the input node's contents
-  var succeeded;
-  try {
-    // Copy it to the clipboard
-    succeeded = document.execCommand("copy");
-  } catch (e) {
-    succeeded = false;
-  }
-  if (succeeded) {
-    console.log("Copy successful.");
-  } else {
-    console.log("Copy failed.");
-  }
-  */
-    
-// tikzTextArea.select().focus();
-//  $('#container').append('To copy emails to clipboard, press: Ctrl+C, then Enter <br />  <textarea id="tikzTex">'+tikzTex+'</textarea>');
-//  $('#tikzTex').select().focus();
-
-//console.log(tikzTex.length);
-//  if (tikzTex.length < 2001){
-//    window.prompt("Copy this text the best way you can.", tikzTex );
-//  } else {
-//    alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
-//  }
-    
+  document.getElementById("tikzTextBox").value = tikzTex;    
 }
 
 // -----------------------------------------
 // Begin Server Stuff
 // -----------------------------------------
-
 
 // Add a response for each id from the side menu
 function onclickResults(m2Response) {
@@ -1455,7 +1296,6 @@ function onclickResults(m2Response) {
     } 
 }
 
-
 // Anytime the graph is edited by user we call this function.
 // It changes the menu items to default.
 function menuDefaults() {
@@ -1475,7 +1315,6 @@ function menuDefaults() {
   d3.select("#isUpperSemimodular").html("&nbsp;&nbsp; isUpperSemimodular");
   d3.select("#dilworthNumber").html("&nbsp;&nbsp; dilworthNumber");
 }
-
 
 // Create the XHR object.
 function createCORSRequest(method, url) {
@@ -1524,11 +1363,3 @@ function makeCorsRequest(method,url,browserData) {
 // -----------------------------------------
 // End Server Stuff
 // -----------------------------------------
-
-
-function stopForce() {
-  force.stop();
-}
-function startForce() {
-  force.start();
-}
