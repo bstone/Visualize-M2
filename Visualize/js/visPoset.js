@@ -4,9 +4,9 @@
       colors = null;
 
   var svg = null;
-  var nodes = [],
+  var nodes = null,
     lastNodeId = null,
-    links = [];
+    links = null;
 
   var constrString = null;
   var incMatrix = null;
@@ -14,12 +14,8 @@
   var incMatrixString = null;
   var adjMatrixString = null;
 
-  var width  = window.innerWidth-10;
-  var height = window.innerHeight-10;
-  var colors = d3.scale.category10();
-
   var maxGroup = 1;
-  var rowSep = 20;
+  var rowSep = 0;
   var hPadding = 30;
   var vPadding = 30;
 
@@ -61,6 +57,9 @@
 
 function initializeBuilder() {
   // Set up SVG for D3.
+  width  = window.innerWidth-10;
+  height = window.innerHeight-10;
+  colors = d3.scale.category10();
   
   svg = d3.select('body')
     .append('svg')
@@ -68,8 +67,11 @@ function initializeBuilder() {
     .attr('height', height)
     .attr('id', 'canvasElement2d');
 
+  // Compute the minimal covering relations from the poset relation matrix.  This is necessary before computing the group for each node.
+  dataCovRel = minimalPosetRelations(dataRelMatrix);
+    
   // Calculate appropriate groups for elements based on rank or height and store them in the global variable dataGroupList.
-  updateNodeGroups(dataRelMatrix);
+  dataGroupList = computeNodeGroups(dataRelMatrix);
     
   // Compute the maximum level of the nodes in the poset.
   maxGroup = d3.max(dataGroupList);
@@ -83,80 +85,35 @@ function initializeBuilder() {
   //var data = dataData;
   //var names = labelData;
     
-  for(var i=0; i < dataLabels.length; i++){
-      nodes.push({id: i, name: dataLabels[i], fixed: true, group: dataGroupList[i], reflexive: false, highlighted: false});
-  }
-  
-  // Compute starting x and y coordinates so that the nodes will be equally spaced along each level.
-  computeNodeStartingXYCoords();
-    
-  dataCovRel = minimalPosetRelations(dataRelMatrix);
-  for(var i=0; i < dataCovRel.length; i++){
-      // Since the links always go from smaller node id to larger node id, determine which elements in each covering relation have smaller and larger node id.
-      var minNode = d3.min(dataCovRel[i]);
-      var maxNode = d3.max(dataCovRel[i]);
-      // If the first element in the covering relation has the smaller node id, then we should set the link to point 'right' (from smaller node id to larger id, which matches the order given in the covering relation).
-      var rightLink = (minNode == dataCovRel[i][0]);
-      var leftLink = !rightLink;
-      
-      
-      // Brett: Setting left or right to true creates a little padding around the target node.  Do we need to do this now that we are keeping track of the relation matrix?
-      // links.push({source: minNode, target: maxNode, left: leftLink, right: rightLink});
-      links.push({source: nodes[minNode], target: nodes[maxNode], left: false, right: false});
-  }
-    
+  // Initialize nodes so that they will be equally spaced along each level.
+  nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+  lastNodeId = nodes.length;
+  setAllNodesFixed();
 
-  /*
-  lastNodeId = data.length;
-  nodes = [];
-  links = [];
-  for (var i = 0; i<data.length; i++) {
-
-      nodes.push( {name: names[i], id: i, reflexive:false, highlighted:false } );
-
-  }
-  for (var i = 0; i<data.length; i++) {
-      for (var j = 0; j < i ; j++) {
-          if (data[i][j] != 0) {
-              links.push( { source: nodes[i], target: nodes[j], left: false, right: false, highlighted:false} );
-          }
-      }
-  }
-  */
-    
-  //constrString = graph2M2Constructor(nodes,links);
-    
-  // (Brett) Removing incidence and adjacency matrices.
-  /*incMatrix = getIncidenceMatrix(nodes,links);
-  adjMatrix = getAdjacencyMatrix(nodes,links);
-  incMatrixString = arraytoM2Matrix(incMatrix);
-  adjMatrixString = arraytoM2Matrix(adjMatrix);*/
-
-  // Add a paragraph containing the Macaulay2 graph constructor string below the svg.
-  /* d3.select("body").append("p")
-  	.text("Macaulay2 Constructor: " + constrString)
-  	.attr("id","constructorString");
-  */
-
-  // (Brett) Removing incidence and adjacency matrices.
-    
-/*  d3.select("body").append("p")
-  	.text("Incidence Matrix: " + incMatrixString)
-  	.attr("id","incString");
-
-  d3.select("body").append("p")
-  	.text("Adjacency Matrix: " + adjMatrixString)
-  	.attr("id","adjString");*/
+  // Initialize the links based on the minimal covering relations obtained from the relation matrix.
+  links = linksFromNodesRelations(nodes,dataCovRel);
 
   // Initialize D3 force layout.
   force = d3.layout.force()
       .nodes(nodes)
       .links(links)
       .size([width, height])
-      .linkDistance(150)
-      .charge(-500)
+      .linkDistance(rowSep)
+      .charge(-1500)
       .on('tick', tick);
 
+  // define arrow markers for graph links
+  svg.append('svg:defs').append('svg:marker')
+    .attr('id', 'end-arrow')
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 6)
+    .attr('markerWidth', 3)
+    .attr('markerHeight', 3)
+    .attr('orient', 'auto')
+    .append('svg:path')
+    .attr('d', 'M0,-5L10,0L0,5')
+    .attr('fill', '#000');
+    
   // When a node begins to be dragged by the user, call the function dragstart.
   drag = force.drag()
     .on("dragstart", dragstart);
@@ -215,6 +172,7 @@ function resetPoset() {
     groupCount.push(0);
   }
   nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
+    
   for( var i = 0; i < nodes.length; i++ ){
     groupCount[nodes[i].group]=groupCount[nodes[i].group]+1;
     nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
@@ -261,13 +219,6 @@ function tick() {
     else if (d.x < 15) {
       d.x = 15;
     }
-    /*
-    if (d.y > height - 15) {
-      d.y = height - 15;
-    }
-    else if (d.y < 15) {
-      d.y = 15;
-    }*/
     
     // Visually update the locations of the nodes based on the force simulation.
     return 'translate(' + d.x + ',' + d.y + ')';
@@ -392,6 +343,9 @@ function restart() {
     //.classed('reflexive', function(d) { return d.reflexive; });
     .classed('highlighted', function(d) { return d.highlighted; })
     .attr('group', function(d) {return d.group;});
+  
+  // Update the text on each circle with the name of the corresponding node.
+  //circle.select("text").text(function(d) {console.log(d.name); return d.name;});
 
   // Add new nodes.
   var g = circle.enter().append('svg:g');
@@ -411,8 +365,7 @@ function restart() {
       d3.select(this).attr('transform', 'scale(1.1)');
     })
     .on('mouseout', function(d) {
-      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
-      // then do nothing.
+      // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking, then do nothing.
       if (!mousedown_node || d === mousedown_node) return;
       // Otherwise unenlarge the target node.  (The user has chosen to not create an edge to this node and has moved the cursor elsewhere.)
       d3.select(this).attr('transform', '');
@@ -437,64 +390,73 @@ function restart() {
       selected_link = null;
 
       // reposition drag line
-      drag_line
-        .style('marker-end', 'url(#end-arrow)')
-        .classed('hidden', false)
-        .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+      if(curEdit){
+        drag_line
+          .style('marker-end', 'url(#end-arrow)')
+          .classed('hidden', false)
+          .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+      }
 
       restart();
     })
     .on('mouseup', function(d) {
       if(!mousedown_node) return;
 
-      // needed by FF
+      // Hide the drag line.
       drag_line
         .classed('hidden', true)
         .style('marker-end', '');
 
-      // check for drag-to-self
+      // If the user dragged a line from a node to itself, reset all mouse variables.
       mouseup_node = d;
       if(mouseup_node === mousedown_node) { resetMouseVars(); return; }
 
-      // unenlarge target node
+      // Unenlarge the node that the mouse was released on.
       d3.select(this).attr('transform', '');
 
-      // add link to graph (update if exists)
-      // NB: links are strictly source < target; arrows separately specified by booleans
-      var source, target, direction;
-      if(mousedown_node.id < mouseup_node.id) {
-        source = mousedown_node;
-        target = mouseup_node;
-        direction = 'right';
-      } else {
-        source = mouseup_node;
-        target = mousedown_node;
-        direction = 'left';
+      
+      //------------------------------------------------------
+      // Brett: (EDITING To-do) Change this code to update the relation matrix when a new covering relation is created by the user.
+
+      var link = null;
+      var sourceID = mousedown_node.id;
+      var targetID = mouseup_node.id;
+      // If the source node is already less than the target node, do nothing.
+      if(dataRelMatrix[sourceID][targetID] != 1){
+        var tempMatrix = completeTransitiveClosure(dataRelMatrix,sourceID,targetID);
+        if(!tempMatrix){
+            alert("Creating this relation would violate antisymmetry.");
+        } else {
+            force.stop();
+            dataRelMatrix = tempMatrix.slice();
+            dataCovRel = minimalPosetRelations(dataRelMatrix);
+            dataGroupList = computeNodeGroups(dataRelMatrix);
+            maxGroup = d3.max(dataGroupList);
+            rowSep = (height-2*vPadding)/maxGroup;
+            
+            // Running restart on empty arrays here clears out the circle and path groups so that they are rebuilt from scratch referring to the new node and links below.
+            nodes = [];
+            links = [];
+            restart();
+            
+            nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+            lastNodeId = nodes.length;
+            setAllNodesFixed();
+            links = linksFromNodesRelations(nodes,dataCovRel);
+            force.nodes(nodes)
+              .links(links);
+            tick();
+            //resetMouseVars();
+            menuDefaults();
+            link = links.filter(function(l) {
+                return (l.source.id == d3.min([sourceID,targetID]) && l.target.id == d3.max([sourceID,targetID]));
+            })[0];
+        }
       }
       
-      var link;
-      link = links.filter(function(l) {
-        return (l.source === source && l.target === target);
-      })[0];
+      //-----------------------------------------------------
 
-      // Graph Changed :: adding new links
-      if(link) {
-        link[direction] = false;
-      } else {
-        link = {source: source, target: target, left: false, right: false};
-        link[direction] = false;
-        links.push(link);
-        // Graph is updated here so we change some items to default.
-        menuDefaults();
-      }
-
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-      
-      // (Brett) Removing incidence and adjacency matrices for now.
-      /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
-
-      // select new link
+      // Select the newly created link and unselect the previously selected node.
       if (curEdit) selected_link = link;
       selected_node = null;
       if (curHighlight) unHighlightAll();
@@ -503,7 +465,8 @@ function restart() {
 
   .on('dblclick', function(d) {
       name = "";
-      var letters = /^[0-9a-zA-Z]+$/;
+      // The "/^" in the following regular expression allows ^ as a possible character in names, which may be useful if we want to label the poset elements by monomials, for example.
+      var letters = /^[/^0-9a-zA-Z]+$/;
       while (name=="") {
         name = prompt('Enter new label name.', d.name);
         // Check whether the user has entered any illegal characters (including spaces).
@@ -514,6 +477,7 @@ function restart() {
         if (name==d.name) {
           return;
         }
+        // Check to see whether there already exists a node with the given name.
         else if (checkName(name)) {
           alert('Sorry, a node with that name already exists.')
           name = "";
@@ -522,20 +486,20 @@ function restart() {
             
       if(name != "null") {
         d.name = name;
-        d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
+        d3.select(this.parentNode).select("text").text(function(d) {return d.name});
+        // Update the appropriate entry of the global variable dataLabels with the new node name.
+        dataLabels[d.id] = name;
       }
-
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
 
     });
 
-  // show node IDs
+  // Add text for names for any new nodes.
   g.append('svg:text')
       .attr('x', 0)
       .attr('y', 4)
       .attr('class', 'id noselect')
       .attr("pointer-events", "none")
-      .text(function(d) { return d.name; });
+      .text(function(d) { console.log("updating names"); console.log(d.name.toString()); return d.name; });
 
   /*
   var maxLength = d3.max(nodes, function(d) {
@@ -549,10 +513,10 @@ function restart() {
   }
   */
 
-  // remove old nodes
+  // Remove the old nodes.
   circle.exit().remove();
 
-  // set the graph in motion
+  // Set the force layout in motion.
   force.start();
 }
 
@@ -576,9 +540,8 @@ function mousedown() {
   // because :active only works in WebKit?
   svg.classed('active', true);
 
+  // If editing is not on, the shift key is being held down, or a node or link has been selected, do nothing.
   if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link) return;
-
-  // insert new node at point
 
   var point = d3.mouse(this);
   var curName = (lastNodeId + 1).toString();
@@ -589,28 +552,27 @@ function mousedown() {
     curName = curName.substring(0, curName.length - 1) + getNextAlpha(curName.slice(-1));
   }
 
-  // Graph Changed :: adding nodes
-  node = {id: lastNodeId++, group: 0, name: curName, reflexive: false, highlighted: false};
+  // Adding a new minimal node with x-value given by the mouse position on click.
+  var node = {id: lastNodeId++, group: 0, name: curName, reflexive: false, highlighted: false};
   node.x = point[0];
-  node.y = point[1];
+  node.y = height-vPadding;
   nodes.push(node);
-  // Graph is updated here so we change some items to default 
-  // d3.select("#isCM").html("isCM");
-  menuDefaults();
-
-  //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
+  // Add the name of the new node to the global array dataLabels.
+  dataLabels.push(curName);
+  // Add a new row and column to the global array dataRelMatrix with a 1 in the bottom row corresponding to the new node.
+  dataRelMatrix = extendMatrix(dataRelMatrix);
     
-  // (Brett) Removing incidence and adjacency matrices for now.
-  /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-  document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
+  // Graph is updated here so we change some items to default.
+  menuDefaults();
 
   restart();
 }
 
 function mousemove() {
+  // If the user has not selected a node, do nothing.
   if(!mousedown_node) return;
 
-  // update drag line
+  // Update the drag line.
   if(curEdit){
   drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
   }
@@ -620,7 +582,7 @@ function mousemove() {
 
 function mouseup() {
   if(mousedown_node) {
-    // hide drag line
+    // Hide the drag line.
     drag_line
       .classed('hidden', true)
       .style('marker-end', '');
@@ -629,13 +591,14 @@ function mouseup() {
   // because :active only works in WebKit?
   svg.classed('active', false);
 
-  // clear mouse event vars
+  // Reset mouse event variables.
   resetMouseVars();
 
   restart();
 
 }
 
+// Remove all links involving a given node.
 function spliceLinksForNode(node) {
   var toSplice = links.filter(function(l) {
     return (l.source === node || l.target === node);
@@ -651,6 +614,7 @@ var lastKeyDown = -1;
 function keydown() {
   //d3.event.preventDefault();
 
+  // If no key has been pressed, do nothing.
   if(lastKeyDown !== -1) return;
   lastKeyDown = d3.event.keyCode;
 
@@ -660,35 +624,74 @@ function keydown() {
     svg.classed('shift', true);
   }
 
+  // The rest of the key presses only apply when a node or link is currently selected.
   if(!selected_node && !selected_link) return;
+    
+  // -----------------------------------------------------
+  // Brett: (EDITING To-do) Change this code to update the relevant data structures when a node or link has been deleted.
+    
   switch(d3.event.keyCode) {
     case 8: // backspace
     case 46: // delete
       if(curEdit && selected_node) {
-        nodes.splice(nodes.indexOf(selected_node), 1);
-        spliceLinksForNode(selected_node);
-        if(curHighlight) unHighlightAll();
-      } else if(curEdit && selected_link) {
+        // Delete the selected node and update the poset.
+        dataLabels.splice(selected_node.id,1);
+        force.stop();
+        dataRelMatrix = deleteRowCol(dataRelMatrix,selected_node.id);
+        dataCovRel = minimalPosetRelations(dataRelMatrix);
+        dataGroupList = computeNodeGroups(dataRelMatrix);
+        maxGroup = d3.max(dataGroupList);
+        rowSep = (height-2*vPadding)/maxGroup;
+        
+        nodes = [];
+        links = [];
+        restart();
+          
+        nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+        lastNodeId = nodes.length;
+        setAllNodesFixed();
+        links = linksFromNodesRelations(nodes,dataCovRel);
+        force.nodes(nodes)
+          .links(links)
+        resetMouseVars();
 
-        links.splice(links.indexOf(selected_link), 1);
+        if(curHighlight) unHighlightAll();
+          
+      } else if(curEdit && selected_link) {
+        // Delete the selected link and update the poset.
+        var sourceID = selected_link.source.id;
+        var targetID = selected_link.target.id;
+        dataRelMatrix[sourceID,targetID] = 0;
+        dataCovRel = minimalPosetRelations(dataRelMatrix);
+        dataGroupList = computeNodeGroups(dataRelMatrix);
+        maxGroup = d3.max(dataGroupList);
+        rowSep = (height-2*vPadding)/maxGroup;
+        
+        nodes = [];
+        links = [];
+        restart();
+        
+        nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+        lastNodeId = nodes.length;
+        setAllNodesFixed();
+        links = linksFromNodesRelations(nodes,dataCovRel);
+        force.nodes(nodes)
+          .links(links);
+        resetMouseVars();    
+        
         if(curHighlight) unHighlightAll();
       }
       selected_link = null;
       if(curEdit) {selected_node = null;}
 
       // Graph Changed :: deleted nodes and links
-      // as a result we change some items to default
-      // d3.select("#isCM").html("isCM");      
+      // as a result we change some items to default    
       menuDefaults();
-
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + graph2M2Constructor(nodes,links);
-      // (Brett) Removing incidence and adjacency matrices for now.
-      /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
-
+     
       restart();
       break;
   }
+  // ------------------------------------------------------
   restart();
 }
 
@@ -707,24 +710,9 @@ function keyup() {
 function disableEditing() {
   circle.call(drag);
   svg.classed('shift', true);
-  selected_node = null;
+  //selected_node = null;
   selected_link = null;
-  if(curHighlight) unHighlightAll();
-
-  /*
-  for (var i = 0; i<nodes.length; i++) {
-    nodes[i].selected = false;
-  }
-  for (var i = 0; i<links.length; i++) {
-    links[i].selected = false;
-  }
-  path = path.data(links);
-
-  // update existing links
-  path.classed('selected', false)
-    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
-  */
+  //if(curHighlight) unHighlightAll();
 
   restart();
 }
@@ -738,9 +726,8 @@ function enableEditing() {
 
 function enableHighlight() {
   // If there is no currently selected node, then just return (negating the value of curHighlight).
-  if(selected_node == null) return;
+  if(!selected_node) return;
   highlightAllNeighbors(selected_node);
-  console.log("curHighlight: "+curHighlight);
 }
 
 function unHighlightAll() {
@@ -761,7 +748,6 @@ function unHighlightAll() {
 function highlightAllNeighbors(n) {
     // Highlight all nodes that are neighbors with the given node n.
     for (var i = 0; i<nodes.length; i++) {
-       console.log(areNeighbors(nodes[i],n));
        nodes[i].highlighted = areNeighbors(nodes[i],n);
     }
     
@@ -790,39 +776,65 @@ function setAllNodesUnfixed() {
   }
 }
 
-// This method updates the global variable 'dataGroupList' with the appropriate heights of the nodes based on rank or height, as appropriate.
-function updateNodeGroups(relMatrix){
+// This method returns the groups of the nodes based on rank or height, as appropriate.
+function computeNodeGroups(relMatrix){
   if(fixExtremalNodes){
-      dataGroupList = posetRelHeightFunction(relMatrix);
+      return posetRelHeightFunction(relMatrix);
   } else {
       if(posetIsRanked(dataRelMatrix)){
-          dataGroupList = posetRankFunction(relMatrix);
+          return posetRankFunction(relMatrix);
       } else {
-          dataGroupList = posetHeightFunction(relMatrix);
+          return posetHeightFunction(relMatrix);
       }
   }
 }
 
-// This function edits the global array 'nodes' with the appropriate x and y values so that the poset elements will be equally distributed along each level.
-function computeNodeStartingXYCoords() {    
+// This function returns an array of nodes with appropriate x and y values so that the poset elements will be equally distributed along each level.
+function nodesFromLabelsGroups(labelList,groupList) {
+  var temp = [];
+  for(var i=0; i < labelList.length; i++){
+      temp.push({id: i, name: labelList[i], group: groupList[i], reflexive: false, highlighted: false});
+  }
   var groupFreq = [];
   var groupCount = [];
   for (var i=0; i<maxGroup+1; i++){
     groupFreq.push(0);
     groupCount.push(0);
   }
-  nodes.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
+  temp.forEach(function(d){groupFreq[d.group]=groupFreq[d.group]+1;});
   
-  for(var i=0; i < nodes.length; i++){
+  for(var i=0; i < temp.length; i++){
       // Set the nodes as fixed by default and specify their initial x and y values to be evenly spaced along their level.
-	  nodes[i].y = height-vPadding-nodes[i].group*rowSep;
-      groupCount[nodes[i].group]=groupCount[nodes[i].group]+1; 
-      nodes[i].x = groupCount[nodes[i].group]*((width-2*hPadding)/(groupFreq[nodes[i].group]+1));
+	  temp[i].y = height-vPadding-temp[i].group*rowSep;
+      temp[i].py = height-vPadding-temp[i].group*rowSep;
+      groupCount[temp[i].group]=groupCount[temp[i].group]+1; 
+      temp[i].x = groupCount[temp[i].group]*((width-2*hPadding)/(groupFreq[temp[i].group]+1));
+      temp[i].px = groupCount[temp[i].group]*((width-2*hPadding)/(groupFreq[temp[i].group]+1));
   }
+  return temp;
+}
+
+// This function returns a list of the links representing minimal covering relations based on the constructed nodes and a list of minimal relations.
+function linksFromNodesRelations(nodeList,relList){
+  var temp = [];
+  for(var i=0; i < relList.length; i++){
+      // Since the links always go from smaller node id to larger node id, determine which elements in each covering relation have smaller and larger node id.
+      var minNode = d3.min(dataCovRel[i]);
+      var maxNode = d3.max(dataCovRel[i]);
+      
+      // If the first element in the covering relation has the smaller node id, then we should set the link to point 'right' (from smaller node id to larger id, which matches the order given in the covering relation).
+      //var rightLink = (minNode == dataCovRel[i][0]);
+      //var leftLink = !rightLink;
+      
+      // Brett: Setting left or right to true creates a little padding around the target node.  Do we need to do this now that we are keeping track of the relation matrix?
+      // links.push({source: minNode, target: maxNode, left: leftLink, right: rightLink});
+      
+      temp.push({source: nodeList[minNode], target: nodeList[maxNode], left: false, right: false, highlighted: false});
+  }
+  return temp;
 }
 
 function updateWindowSize2d() {
-    console.log("resizing window");
     //var svg = document.getElementById("canvasElement2d");
     
     // get width/height with container selector (body also works)
@@ -843,7 +855,7 @@ function updateWindowSize2d() {
 
 // Functions to construct M2 constructors for poset, incidence matrix, and adjacency matrix.  This references the global variable dataCovRel, which is updated with the minimal covering relations each time the poset is updated.
 
-function poset2M2Constructor( labels, relMatrix ){
+function poset2M2Constructor( labels ){
   var covRel = idRelationsToLabelRelations(dataCovRel,labels);
   var relString = nestedArraytoM2List(covRel);
   var labelString = "{";
@@ -857,52 +869,6 @@ function poset2M2Constructor( labels, relMatrix ){
     }
   }
   return "poset("+labelString+","+relString+")";
-}
-
-// determines if a graph contains singletons, if it does it returns an array containing their id, if not returns empty array
-function singletons(nodeSet, edgeSet){
-
-  var singSet = [];
-  var n = nodeSet.length;
-        var e = edgeSet.length;
-  var curNodeName = -1;
-  var occur = 0;
-  for( var i = 0; i < n; i++){
-    curNodeName = (nodeSet[i]).name;
-    for( var j = 0; j < e; j++ ){
-      if ( (edgeSet[j].source.name == curNodeName) || (edgeSet[j].target.name == curNodeName) ){
-        occur=1;
-        break;
-      }
-    }//end for
-    if (occur == 0){
-      singSet.push(curNodeName); // add node id to singleton set
-    }
-    occur = 0; //reset occurrences for next node id
-  }
-  return singSet;
-}
-
-// Constructs the incidence matrix for a graph as a multidimensional array.
-function getIncidenceMatrix (nodeSet, edgeSet){
-
-  var incMatrix = [];
-
-  // The next two loops create an initial (nodes.length) x (links.length) matrix of zeros.
-  for(var i = 0;i < nodeSet.length; i++){
-    incMatrix[i] = [];
-
-    for(var j = 0; j < edgeSet.length; j++){
-      incMatrix[i][j] = 0;
-    }
-  }
-
-  for (var i = 0; i < edgeSet.length; i++) {
-    incMatrix[(edgeSet[i].source.id)][i] = 1; // Set matrix entries corresponding to incidences to 1.
-    incMatrix[(edgeSet[i].target.id)][i] = 1;
-  }
-
-  return incMatrix;
 }
 
 // Constructs the adjacency matrix for a graph as a multidimensional array.
@@ -923,55 +889,8 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
   return adjMatrix;
 }
 
-// Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
-function arraytoM2Matrix (arr){
-  var str = "matrix{{";
-  for(var i = 0; i < arr.length; i++){
-    for(var j = 0; j < arr[i].length; j++){
-      str = str + arr[i][j].toString();
-      if(j == arr[i].length - 1){
-        str = str + "}";
-            } else {
-        str = str + ",";
-      }
-    }
-    if(i < arr.length-1){
-      str = str + ",{";
-    } else {
-      str = str + "}";
-    }
-  }
-
-  return str;
-}
-
-// Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
-function nestedArraytoM2List (arr){
-  var str = "{{";
-  for(var i = 0; i < arr.length; i++){
-    for(var j = 0; j < arr[i].length; j++){
-      str = str + arr[i][j].toString();
-      if(j == arr[i].length - 1){
-        str = str + "}";
-            } else {
-        str = str + ",";
-      }
-    }
-    if(i < arr.length-1){
-      str = str + ",{";
-    } else {
-      str = str + "}";
-    }
-  }
-
-  return str;
-}
-
 
 // ----------- Functions for computations with posets ---------
-
-// Still need: heightFunction, relHeightFunction
-// reflexiveClosure, transitiveClosure?
 
 // Given the relation matrix for a poset, this function returns null if the poset is not ranked and otherwise returns a list of the ranks of the elements.  This algorithm is taken from Posets.m2, which was in turn taken from John Stembridge's Maple package for computations with posets.
 function posetRankFunction(relMatrix){
@@ -979,7 +898,8 @@ function posetRankFunction(relMatrix){
     for(var i=0; i < relMatrix.length; i++){
         rk.push([i,0]);
     }
-    var covRel = minimalPosetRelations(relMatrix);
+    //var covRel = minimalPosetRelations(relMatrix);
+    var covRel = dataCovRel;
     for(var i=0; i < covRel.length; i++){
         var tmp = rk[covRel[i][1]][rk[covRel[i][1]].length-1] - rk[covRel[i][0]][rk[covRel[i][1]].length-1] - 1;
         if(tmp == 0){continue;}
@@ -1020,7 +940,8 @@ function posetIsRanked(relMatrix){
 
 // Given the relation matrix for a poset, this function computes a filtration of the poset of the form [F_0,F_1,...].  F_0 consists of the minimal elements of the poset, F_1 consists of the minimal elements of P - F_0, and so on.  This algorithm is taken from Posets.m2, which was in turn taken from John Stembridge's Maple package for computations with posets.
 function posetFiltration(relMatrix){
-    var covRel = minimalPosetRelations(relMatrix);
+    //var covRel = minimalPosetRelations(relMatrix);
+    var covRel = dataCovRel;
     var cnt = [];
     var cvrby = [];
     // For each element of the poset, determine how many times it occurs as the larger element in any minimal covering relation (listed in cnt).  Also, for each element of the poset, determine the minimal elements that cover it (listed in cvrby).
@@ -1084,7 +1005,7 @@ function posetMinimalElements(relMatrix){
         var isMin = true;
         for(var j=0; j < relMatrix.length; j++){
             // If the ith element covers another element, then it is not minimal.
-            if((relMatrix[j][i] == 1) && (i != j)){isMin = false;}
+            if((relMatrix[j][i] == 1) && (i != j)){isMin = false; break;}
         }
         if(isMin){output.push(i)};
     }
@@ -1098,7 +1019,7 @@ function posetMaximalElements(relMatrix){
         var isMax = true;
         for(var j=0; j < relMatrix.length; j++){
             // If the ith element is covered by another element, then it is not maximal.
-            if((relMatrix[i][j] == 1) && (i != j)){isMax = false;}
+            if((relMatrix[i][j] == 1) && (i != j)){isMax = false; break;}
         }
         if(isMax){output.push(i)};
     }
@@ -1112,7 +1033,8 @@ function posetMaximalChains(relMatrix){
     for(var i=0; i < minElt.length; i++){
         nonMaximalChains.push([minElt[i]]);
     }
-    var covRel = minimalPosetRelations(relMatrix);
+    //var covRel = minimalPosetRelations(relMatrix);
+    var covRel = dataCovRel;
     var cvrby = [];
     for(var i=0; i < relMatrix.length; i++){
         var tempCvrs = [];
@@ -1194,7 +1116,7 @@ function posetIsAntisymmetric(relMatrix){
     return true;
 }
 
-// Given the relation matrix for a poset, this function returns an array consisting of all relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_j <= node_i in the partial order.
+// Given the relation matrix for a poset, this function returns an array consisting of all relations in the poset (with nodes labeled by id).  This assumes that the rows and columns in the relation matrix are indexed according to the id of the nodes.  The relMatrix is given such that relMatrix[i][j] == 1 if and only if node_i <= node_j in the partial order.
 function allPosetRelations (relMatrix){
     var tempArr = [];
     var n = relMatrix.length;
@@ -1237,6 +1159,30 @@ function minimalPosetRelations (relMatrix){
     }
     
     return outputArr;    
+}
+
+// Given a square array of arrays (representing the relation matrix of a poset) and two distinct non-negative integers r and s, set the (r,s) entry equal to 1 (adding the relation r <= s) and also set all other (i,j) entries such that i <= r and s <= j (under the poset relation) equal to 1.  The method returns null if the resulting matrix is the relation matrix for a non-antisymmetric relation.
+function completeTransitiveClosure(relMatrix,r,s){
+    // If we already have s <= r in the poset, then adding the relation r <= s will make it non-antisymmetric.
+    if(relMatrix[s][r] == 1){return null;}
+    
+    var rel = allPosetRelations(relMatrix);
+    var pred = [];
+    var anc = [];
+    for(var i=0; i < rel.length; i++){
+        // Create arrays of all predecessors of r and all successors of s.
+        if(rel[i][1] == r){pred.push(rel[i][0]);}
+        if(rel[i][0] == s){anc.push(rel[i][1]);}
+    }
+    for(var i=0; i < pred.length; i++){
+        for(var j=0; j < anc.length; j++){
+            // If some successor of s is already <= some predecessor of r then the resulting relation will not be antisymmetric, so return null.
+            if(relMatrix[anc[j]][pred[i]] == 1){return null;}
+            relMatrix[pred[i]][anc[j]] = 1;
+        }
+        console.log(relMatrix.toString());
+    }
+    return relMatrix;
 }
 
 // Given a list of relations labeled by node id, return the corresponding list of relations labeled by the name of the corresponding node.
@@ -1304,6 +1250,50 @@ function lcm(A) {
     return a;
 }
 
+// Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
+function nestedArraytoM2List (arr){
+  var str = "{{";
+  for(var i = 0; i < arr.length; i++){
+    for(var j = 0; j < arr[i].length; j++){
+      str = str + arr[i][j].toString();
+      if(j == arr[i].length - 1){
+        str = str + "}";
+            } else {
+        str = str + ",";
+      }
+    }
+    if(i < arr.length-1){
+      str = str + ",{";
+    } else {
+      str = str + "}";
+    }
+  }
+
+  return str;
+}
+
+// Given a rectangular array of arrays (representing the relation matrix of a poset), this method appends a row and column with a 1 in the bottom right spot.
+function extendMatrix (relMatrix){
+    var tempRow = [];
+    for(var i=0; i < relMatrix.length; i++){
+        relMatrix[i].push(0);
+        tempRow.push(0);
+    }
+    tempRow.push(1);
+    relMatrix.push(tempRow);
+    return relMatrix;
+}
+
+// Given a rectangular array of arrays (representing the relation matrix of a poset) and a non-negative integer n, this method deletes the nth row and nth column of the matrix.
+function deleteRowCol (relMatrix,n){
+    relMatrix.splice(n,1);
+    for(var i=0; i < relMatrix.length; i++){
+        relMatrix[i].splice(n,1);
+    }
+    return relMatrix;
+}
+
+// -----------------------------------------------------------
 
 function exportTikz (event){
   var points = [];
@@ -1350,46 +1340,12 @@ function exportTikz (event){
     });  
     tikzGenerated = true;
   }
-  document.getElementById("tikzTextBox").value = tikzTex;
-  /*  
-  var tikzTextArea = document.createElement("textarea");
-  tikzTextArea.setAttribute("type", "hidden"); 
-  document.getElementById("body").appendChild(tikzTextArea);
-  tikzTextArea.value += tikzTex;
-    
-  event.preventDefault();
-  tikzTextArea.select(); // Select the input node's contents
-  var succeeded;
-  try {
-    // Copy it to the clipboard
-    succeeded = document.execCommand("copy");
-  } catch (e) {
-    succeeded = false;
-  }
-  if (succeeded) {
-    console.log("Copy successful.");
-  } else {
-    console.log("Copy failed.");
-  }
-  */
-    
-// tikzTextArea.select().focus();
-//  $('#container').append('To copy emails to clipboard, press: Ctrl+C, then Enter <br />  <textarea id="tikzTex">'+tikzTex+'</textarea>');
-//  $('#tikzTex').select().focus();
-
-//console.log(tikzTex.length);
-//  if (tikzTex.length < 2001){
-//    window.prompt("Copy this text the best way you can.", tikzTex );
-//  } else {
-//    alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
-//  }
-    
+  document.getElementById("tikzTextBox").value = tikzTex;    
 }
 
 // -----------------------------------------
 // Begin Server Stuff
 // -----------------------------------------
-
 
 // Add a response for each id from the side menu
 function onclickResults(m2Response) {
@@ -1455,7 +1411,6 @@ function onclickResults(m2Response) {
     } 
 }
 
-
 // Anytime the graph is edited by user we call this function.
 // It changes the menu items to default.
 function menuDefaults() {
@@ -1475,7 +1430,6 @@ function menuDefaults() {
   d3.select("#isUpperSemimodular").html("&nbsp;&nbsp; isUpperSemimodular");
   d3.select("#dilworthNumber").html("&nbsp;&nbsp; dilworthNumber");
 }
-
 
 // Create the XHR object.
 function createCORSRequest(method, url) {
@@ -1524,11 +1478,3 @@ function makeCorsRequest(method,url,browserData) {
 // -----------------------------------------
 // End Server Stuff
 // -----------------------------------------
-
-
-function stopForce() {
-  force.stop();
-}
-function startForce() {
-  force.start();
-}
