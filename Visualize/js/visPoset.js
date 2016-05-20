@@ -98,7 +98,7 @@ function initializeBuilder() {
       .nodes(nodes)
       .links(links)
       .size([width, height])
-      .linkDistance(150)
+      .linkDistance(rowSep)
       .charge(-1500)
       .on('tick', tick);
 
@@ -345,7 +345,7 @@ function restart() {
     .attr('group', function(d) {return d.group;});
   
   // Update the text on each circle with the name of the corresponding node.
-  circle.select("text").text(function(d) {console.log(d.name); return d.name;});
+  //circle.select("text").text(function(d) {console.log(d.name); return d.name;});
 
   // Add new nodes.
   var g = circle.enter().append('svg:g');
