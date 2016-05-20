@@ -343,6 +343,9 @@ function restart() {
     //.classed('reflexive', function(d) { return d.reflexive; });
     .classed('highlighted', function(d) { return d.highlighted; })
     .attr('group', function(d) {return d.group;});
+  
+  // Update the text on each circle with the name of the corresponding node.
+  circle.select("text").text(function(d) {console.log(d.name); return d.name;});
 
   // Add new nodes.
   var g = circle.enter().append('svg:g');
@@ -415,11 +418,10 @@ function restart() {
       //------------------------------------------------------
       // Brett: (EDITING To-do) Change this code to update the relation matrix when a new covering relation is created by the user.
 
-      // Note: If relMatrix_(i,j) == 1 then do nothing (the relation already holds).
-      
       var link = null;
       var sourceID = mousedown_node.id;
       var targetID = mouseup_node.id;
+      // If the source node is already less than the target node, do nothing.
       if(dataRelMatrix[sourceID][targetID] != 1){
         var tempMatrix = completeTransitiveClosure(dataRelMatrix,sourceID,targetID);
         if(!tempMatrix){
@@ -431,6 +433,12 @@ function restart() {
             dataGroupList = computeNodeGroups(dataRelMatrix);
             maxGroup = d3.max(dataGroupList);
             rowSep = (height-2*vPadding)/maxGroup;
+            
+            // Running restart on empty arrays here clears out the circle and path groups so that they are rebuilt from scratch referring to the new node and links below.
+            nodes = [];
+            links = [];
+            restart();
+            
             nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
             lastNodeId = nodes.length;
             setAllNodesFixed();
@@ -477,20 +485,21 @@ function restart() {
       }
             
       if(name != "null") {
-        d.name = name; d3.select(this.parentNode).select("text").text(function(d) {return d.name});
+        d.name = name;
+        d3.select(this.parentNode).select("text").text(function(d) {return d.name});
         // Update the appropriate entry of the global variable dataLabels with the new node name.
         dataLabels[d.id] = name;
       }
 
     });
 
-  // show node IDs
+  // Add text for names for any new nodes.
   g.append('svg:text')
       .attr('x', 0)
       .attr('y', 4)
       .attr('class', 'id noselect')
       .attr("pointer-events", "none")
-      .text(function(d) { return d.name; });
+      .text(function(d) { console.log("updating names"); console.log(d.name.toString()); return d.name; });
 
   /*
   var maxLength = d3.max(nodes, function(d) {
@@ -625,6 +634,7 @@ function keydown() {
     case 8: // backspace
     case 46: // delete
       if(curEdit && selected_node) {
+        // Delete the selected node and update the poset.
         dataLabels.splice(selected_node.id,1);
         force.stop();
         dataRelMatrix = deleteRowCol(dataRelMatrix,selected_node.id);
@@ -632,19 +642,23 @@ function keydown() {
         dataGroupList = computeNodeGroups(dataRelMatrix);
         maxGroup = d3.max(dataGroupList);
         rowSep = (height-2*vPadding)/maxGroup;
+        
+        nodes = [];
+        links = [];
+        restart();
+          
         nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
         lastNodeId = nodes.length;
         setAllNodesFixed();
         links = linksFromNodesRelations(nodes,dataCovRel);
         force.nodes(nodes)
-          .links(links);
-        tick();
-        //resetMouseVars();
-        menuDefaults();
-          
+          .links(links)
+        resetMouseVars();
+
         if(curHighlight) unHighlightAll();
           
       } else if(curEdit && selected_link) {
+        // Delete the selected link and update the poset.
         var sourceID = selected_link.source.id;
         var targetID = selected_link.target.id;
         dataRelMatrix[sourceID,targetID] = 0;
@@ -652,15 +666,18 @@ function keydown() {
         dataGroupList = computeNodeGroups(dataRelMatrix);
         maxGroup = d3.max(dataGroupList);
         rowSep = (height-2*vPadding)/maxGroup;
+        
+        nodes = [];
+        links = [];
+        restart();
+        
         nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
         lastNodeId = nodes.length;
         setAllNodesFixed();
         links = linksFromNodesRelations(nodes,dataCovRel);
         force.nodes(nodes)
           .links(links);
-        tick();
-        //resetMouseVars();
-        menuDefaults();        
+        resetMouseVars();    
         
         if(curHighlight) unHighlightAll();
       }
@@ -670,7 +687,7 @@ function keydown() {
       // Graph Changed :: deleted nodes and links
       // as a result we change some items to default    
       menuDefaults();
-
+     
       restart();
       break;
   }
@@ -789,8 +806,10 @@ function nodesFromLabelsGroups(labelList,groupList) {
   for(var i=0; i < temp.length; i++){
       // Set the nodes as fixed by default and specify their initial x and y values to be evenly spaced along their level.
 	  temp[i].y = height-vPadding-temp[i].group*rowSep;
+      temp[i].py = height-vPadding-temp[i].group*rowSep;
       groupCount[temp[i].group]=groupCount[temp[i].group]+1; 
       temp[i].x = groupCount[temp[i].group]*((width-2*hPadding)/(groupFreq[temp[i].group]+1));
+      temp[i].px = groupCount[temp[i].group]*((width-2*hPadding)/(groupFreq[temp[i].group]+1));
   }
   return temp;
 }
