@@ -5,6 +5,7 @@
     <title>Macaulay2: Poset Visualization</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/BootSideMenu.css" rel="stylesheet">
+    <link href="css/nouislider.min.css" rel="stylesheet">
     <style>
 
       .noselect {
@@ -39,6 +40,58 @@
 
       #canvasElement2d:not(.active):not(.shift) path.link {
         cursor: pointer;
+      }
+        
+      /* CSS for sliders */
+      #charge-slider{
+	     margin: 10px;
+	     display: inline-block;
+	     height: 10px;
+         width: 130px;
+      }
+    
+      #linkdist-slider{
+	     margin: 10px;
+	     display: inline-block;
+	     height: 10px;
+         width: 130px;
+      }
+    
+      .noUi-horizontal .noUi-handle {
+	     width: 24px;
+	     height: 18px;
+	     left: -17px;
+	     top: -6px;
+      }
+    
+      .noUi-horizontal {
+	     height: 14px;
+      }
+
+      /* Vertical lines on the handles */
+      .noUi-handle:before,
+      .noUi-handle:after {
+	     content: "";
+	     display: block;
+	     position: absolute;
+	     height: 10px;
+	     width: 1px;
+	     background: #E8E7E6;
+	     left: 10px;
+	     top: 3px;
+      }
+      .noUi-handle:after {
+	     left: 12px;
+      }
+        
+      .noUi-horizontal.noUi-extended {
+	     padding-right: 20px;
+      }
+      .noUi-horizontal.noUi-extended .noUi-handle {
+	     left: -2px;
+      }
+      .noUi-horizontal.noUi-extended .noUi-origin  {
+	     right: -32px;
       }
 
       path.link.selected {
@@ -141,14 +194,20 @@
       dataMaxChains = null;
       forceOn = false;
       tikzGenerated = false;
+      forceCharge = -1500;
+      forceLinkDist = 100;
     </script>
   </head>
 
   <body>
 
         <div id="side">
-          <h3>&#8202;&#8202;Menu</h3>
+          <h2>&#8202;&#8202;Menu</h2>
           <div class="list-group" id="menuList">
+            <div class="list-group-item" href="#" id="sliderDiv"><div style="height:25px;">Force variables</div>
+            <span style="display:inline-block; width:60px;">&#8202; Charge:</span><div class="noUi-extended" id="charge-slider" style="vertical-align:middle;"></div><br>
+            <span style="display:inline-block; width:60px;">&#8202; Links:</span><div class="noUi-extended" id="linkdist-slider" style="vertical-align:middle;"></div>
+            </div>
             <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
             <a id="highlightToggle" href="#" class="list-group-item">Highlight comparable elements</a>
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
@@ -192,6 +251,7 @@
   <script src="js/visPoset.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/clipboard.min.js"></script>
+  <script src="js/nouislider.min.js"></script>
 
   <script type="text/javascript">
       
@@ -205,7 +265,30 @@
     document.getElementById("canvasElement2d").style.height = window.innerHeight;
 
     window.addEventListener('resize', updateWindowSize2d, false);
-
+      
+    // Initialize sliders
+    var chargeSlider = document.getElementById('charge-slider');
+    noUiSlider.create(chargeSlider, {
+        start: [1500],
+        //tooltips: true,
+        range: {
+			'min': [0],
+			'max': [3000]
+		}
+    });
+    //chargeSlider.noUiSlider.on('update', updateForceCharge);
+      
+    var linkDistSlider = document.getElementById('linkdist-slider');
+    noUiSlider.create(linkDistSlider, {
+        start: [100],
+        //tooltips: true,
+        range: {
+			'min': [0],
+			'max': [400]
+		}
+    });
+    //chargeSlider.noUiSlider.on('update', updateForceLinkDist);
+      
     $(document).ready(function(){
 
       $("#editToggle").on("click", function(){

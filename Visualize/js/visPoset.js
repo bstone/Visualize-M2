@@ -98,9 +98,13 @@ function initializeBuilder() {
       .nodes(nodes)
       .links(links)
       .size([width, height])
-      .linkDistance(rowSep)
-      .charge(-1500)
+      .linkDistance(forceLinkDist)
+      .charge(forceCharge)
       .on('tick', tick);
+
+  // After the force variable is initialized, set the sliders to update the force variables.
+  chargeSlider.noUiSlider.on('slide', updateForceCharge);
+  linkDistSlider.noUiSlider.on('slide', updateForceLinkDist);
 
   // define arrow markers for graph links
   svg.append('svg:defs').append('svg:marker')
@@ -902,6 +906,18 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
   }
 
   return adjMatrix;
+}
+
+function updateForceCharge(){
+    if(!forceOn){toggleForce()};
+    forceCharge = -chargeSlider.noUiSlider.get();
+    force.charge(forceCharge).start();
+}
+
+function updateForceLinkDist(){
+    if(!forceOn){toggleForce()};
+    forceLinkDist = linkDistSlider.noUiSlider.get();
+    force.linkDistance(forceLinkDist).start();
 }
 
 
