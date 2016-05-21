@@ -98,9 +98,13 @@ function initializeBuilder() {
       .nodes(nodes)
       .links(links)
       .size([width, height])
-      .linkDistance(rowSep)
-      .charge(-1500)
+      .linkDistance(forceLinkDist)
+      .charge(forceCharge)
       .on('tick', tick);
+
+  // After the force variable is initialized, set the sliders to update the force variables.
+  chargeSlider.noUiSlider.on('slide', updateForceCharge);
+  linkDistSlider.noUiSlider.on('slide', updateForceLinkDist);
 
   // define arrow markers for graph links
   svg.append('svg:defs').append('svg:marker')
@@ -385,7 +389,7 @@ function restart() {
       //Brett: Add the following line back in if we don't want nodes to be brightened in non-editing mode.
       //else if(curEdit) { selected_node = mousedown_node;
       else {selected_node = mousedown_node;
-            if(curHighlight) highlightAllNeighbors(selected_node);
+            if(curHighlight) highlightAllComparable(selected_node);
       };
       selected_link = null;
 
@@ -544,13 +548,19 @@ function mousedown() {
   if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link) return;
 
   var point = d3.mouse(this);
-  var curName = (lastNodeId + 1).toString();
+  var curName = lastNodeId + 1;
+  while(checkName(curName.toString())){
+      curName += 1;
+  }
+  curName = curName.toString();
+  /*
   if (checkName(curName)) {
     curName += 'a';
   }
   while (checkName(curName)) {
     curName = curName.substring(0, curName.length - 1) + getNextAlpha(curName.slice(-1));
   }
+  */
 
   // Adding a new minimal node with x-value given by the mouse position on click.
   var node = {id: lastNodeId++, group: 0, name: curName, reflexive: false, highlighted: false};
@@ -726,8 +736,9 @@ function enableEditing() {
 
 function enableHighlight() {
   // If there is no currently selected node, then just return (negating the value of curHighlight).
+  dataMaxChains = posetMaximalChains(dataRelMatrix);
   if(!selected_node) return;
-  highlightAllNeighbors(selected_node);
+  highlightAllComparable(selected_node);
 }
 
 function unHighlightAll() {
@@ -745,15 +756,23 @@ function unHighlightAll() {
     restart();
 }
 
-function highlightAllNeighbors(n) {
-    // Highlight all nodes that are neighbors with the given node n.
-    for (var i = 0; i<nodes.length; i++) {
-       nodes[i].highlighted = areNeighbors(nodes[i],n);
+// This function uses the global variable dataMaxChains to determine the maximal chains that the given node appears in, then highlights all comparable nodes and corresponding covering relations.
+function highlightAllComparable(n) {
+    var rel = allPosetRelations(dataRelMatrix);
+    var compElt = [];;
+    for(var i=0; i < rel.length; i++){
+        // Create arrays of all predecessors of r and all successors of s.
+        if(rel[i][1] == n.id){compElt.push(rel[i][0]);}
+        if(rel[i][0] == n.id){compElt.push(rel[i][1]);}
+    }
+    // Highlight all comparable nodes.
+    for(var i=0; i < compElt; i++){
+        nodes[compElt[i]].highlighted = true;
     }
     
-    // Highlight all links that have the given node n as a source or target.
+    // Highlight all links whose source and target are both comparable to n.
     for (var i = 0; i<links.length; i++) {
-       links[i].highlighted = ((links[i].source === n) || (links[i].target === n));
+       links[i].highlighted = (containedIn(links[i].source.id,compElt) && containedIn(links[i].target.id,compElt));
     }
     
     // Update graph based on changes to nodes and links.
@@ -887,6 +906,18 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
   }
 
   return adjMatrix;
+}
+
+function updateForceCharge(){
+    if(!forceOn){toggleForce()};
+    forceCharge = -chargeSlider.noUiSlider.get();
+    force.charge(forceCharge).start();
+}
+
+function updateForceLinkDist(){
+    if(!forceOn){toggleForce()};
+    forceLinkDist = linkDistSlider.noUiSlider.get();
+    force.linkDistance(forceLinkDist).start();
 }
 
 
@@ -1270,6 +1301,14 @@ function nestedArraytoM2List (arr){
   }
 
   return str;
+}
+
+// Given an array and an element, this method returns true if the element is contained in the array, else it returns false.
+function containedIn(n,arr){
+    for(var i=0; i < arr.length; i++){
+        if(arr[i] == n){return true;}
+    }
+    return false;
 }
 
 // Given a rectangular array of arrays (representing the relation matrix of a poset), this method appends a row and column with a 1 in the bottom right spot.
