@@ -516,13 +516,19 @@ function mousedown() {
   // insert new node at point
 
   var point = d3.mouse(this);
-  var curName = (lastNodeId + 1).toString();
+  var curName = lastNodeId + 1;
+  while(checkName(curName.toString())){
+      curName += 1;
+  }
+  curName = curName.toString();
+  /*
   if (checkName(curName)) {
     curName += 'a';
   }
   while (checkName(curName)) {
     curName = curName.substring(0, curName.length - 1) + getNextAlpha(curName.slice(-1));
   }
+  */
 
   // Graph Changed :: adding nodes
   var node = {id: lastNodeId++, name: curName, reflexive: false};
