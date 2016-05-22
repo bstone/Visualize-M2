@@ -1,0 +1,62 @@
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+svg {
+  display: block;
+  margin:auto;
+  margin-top: 20px;
+}
+
+#background_rect {
+  fill: none;
+  pointer-events: all;
+}
+
+.axis_text {
+  font-size: 25px;
+}
+
+.dot {
+  fill: #ddd;
+  opacity: 0.6
+}
+
+#display, #history {
+  padding-top: 50px;
+
+  font-size: 32px;
+  text-align: right;
+}
+
+#guide_count {
+  font-size: 32px;
+  text-align: center;
+}
+
+#history {
+  color: #888;
+}
+
+#history p {
+  padding-bottom: 14px;
+}
+
+.mouse_line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2;
+  shape-rendering: crispEdges;
+}
+
+.covered {
+  color: #CE2B27;
+}
+
+.current {
+  /* color: #CE8927; */
+}
