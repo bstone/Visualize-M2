@@ -52,8 +52,6 @@
     
     // Just get the current directory that contains the html file.
     scriptSource = scriptSource.substring(0, scriptSource.length - 14);
-      
-    console.log(scriptSource);
 
 function initializeBuilder() {
   // Set up SVG for D3.
@@ -418,15 +416,13 @@ function restart() {
       // Unenlarge the node that the mouse was released on.
       d3.select(this).attr('transform', '');
 
-      
-      //------------------------------------------------------
-      // Brett: (EDITING To-do) Change this code to update the relation matrix when a new covering relation is created by the user.
-
+      // The user has attempted to add a new relation.
       var link = null;
       var sourceID = mousedown_node.id;
       var targetID = mouseup_node.id;
       // If the source node is already less than the target node, do nothing.
       if(dataRelMatrix[sourceID][targetID] != 1){
+        // Otherwise, determine whether the relation can be added.
         var tempMatrix = completeTransitiveClosure(dataRelMatrix,sourceID,targetID);
         if(!tempMatrix){
             alert("Creating this relation would violate antisymmetry.");
@@ -450,16 +446,16 @@ function restart() {
             force.nodes(nodes)
               .links(links);
             tick();
-            //resetMouseVars();
+            resetMouseVars();
             menuDefaults();
             link = links.filter(function(l) {
                 return (l.source.id == d3.min([sourceID,targetID]) && l.target.id == d3.max([sourceID,targetID]));
             })[0];
+            // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
+            if(forceOn) toggleForce();
         }
       }
       
-      //-----------------------------------------------------
-
       // Select the newly created link and unselect the previously selected node.
       if (curEdit) selected_link = link;
       selected_node = null;
@@ -497,14 +493,15 @@ function restart() {
 
     });
 
+  if(labelsOn){
   // Add text for names for any new nodes.
-  g.append('svg:text')
-      .attr('x', 0)
-      .attr('y', 4)
-      .attr('class', 'id noselect')
-      .attr("pointer-events", "none")
-      .text(function(d) { console.log("updating names"); console.log(d.name.toString()); return d.name; });
-
+    g.append('svg:text')
+        .attr('x', 0)
+        .attr('y', 4)
+        .attr('class', 'id noselect')
+        .attr("pointer-events", "none")
+        .text(function(d) { return d.name; });
+  }
   /*
   var maxLength = d3.max(nodes, function(d) {
         return d.name.length;
@@ -584,7 +581,7 @@ function mousemove() {
 
   // Update the drag line.
   if(curEdit){
-  drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
+    drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
   }
     
   restart();
@@ -666,6 +663,8 @@ function keydown() {
         resetMouseVars();
 
         if(curHighlight) unHighlightAll();
+        // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
+        if(forceOn) toggleForce();
           
       } else if(curEdit && selected_link) {
         // Delete the selected link and update the poset.
@@ -690,6 +689,9 @@ function keydown() {
         resetMouseVars();    
         
         if(curHighlight) unHighlightAll();
+        
+        // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
+        if(forceOn) toggleForce();
       }
       selected_link = null;
       if(curEdit) {selected_node = null;}
@@ -756,17 +758,18 @@ function unHighlightAll() {
     restart();
 }
 
-// This function uses the global variable dataMaxChains to determine the maximal chains that the given node appears in, then highlights all comparable nodes and corresponding covering relations.
+// This function uses the global variable dataRelMatrix to determine all of the nodes which are comparable to the given node, then highlights all of these nodes and any links involving two such nodes.
 function highlightAllComparable(n) {
+    unHighlightAll();
     var rel = allPosetRelations(dataRelMatrix);
-    var compElt = [];;
+    var compElt = [];
     for(var i=0; i < rel.length; i++){
-        // Create arrays of all predecessors of r and all successors of s.
+        // Create array of all elements comparable to n.
         if(rel[i][1] == n.id){compElt.push(rel[i][0]);}
         if(rel[i][0] == n.id){compElt.push(rel[i][1]);}
     }
     // Highlight all comparable nodes.
-    for(var i=0; i < compElt; i++){
+    for(var i=0; i < compElt.length; i++){
         nodes[compElt[i]].highlighted = true;
     }
     
@@ -793,6 +796,19 @@ function setAllNodesUnfixed() {
   for (var i = 0; i<nodes.length; i++) {
     nodes[i].fixed = false;
   }
+}
+
+function hideLabels() {
+    circle.select("text").remove();    
+}
+
+function showLabels() {
+     circle.append('svg:text')
+      .attr('x', 0)
+      .attr('y', 4)
+      .attr('class', 'id noselect')
+      .attr("pointer-events", "none")
+      .text(function(d) { return d.name; });
 }
 
 // This method returns the groups of the nodes based on rank or height, as appropriate.
@@ -1211,7 +1227,6 @@ function completeTransitiveClosure(relMatrix,r,s){
             if(relMatrix[anc[j]][pred[i]] == 1){return null;}
             relMatrix[pred[i]][anc[j]] = 1;
         }
-        console.log(relMatrix.toString());
     }
     return relMatrix;
 }
@@ -1371,7 +1386,7 @@ function exportTikz (event){
     tikzDiv.appendChild(tikzInput);
     tikzDiv.appendChild(tikzButton);
     var listGroup = document.getElementById("menuList");
-    listGroup.insertBefore(tikzDiv,listGroup.childNodes[10]);
+    listGroup.insertBefore(tikzDiv,listGroup.childNodes[12]);
     document.getElementById("copyButton").setAttribute("data-clipboard-target","#tikzTextBox");
     clipboard = new Clipboard('#copyButton');
     clipboard.on('error', function(e) {
