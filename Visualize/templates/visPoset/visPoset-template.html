@@ -193,6 +193,7 @@
       fixExtremalNodes = visExtremeElts;
       dataMaxChains = null;
       forceOn = false;
+      labelsOn = true;
       tikzGenerated = false;
       forceCharge = -1500;
       forceLinkDist = 100;
@@ -209,7 +210,9 @@
             <span style="display:inline-block; width:60px;">&#8202; Links:</span><div class="noUi-extended" id="linkdist-slider" style="vertical-align:middle;"></div>
             </div>
             <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
+            <a id="labelToggle" href="#" class="list-group-item">Hide labels</a>
             <a id="highlightToggle" href="#" class="list-group-item">Highlight comparable elements</a>
+            <a id="extremalNodeToggle" href="#" class="list-group-item">Fix extremal nodes</a>
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn on force</a>
             <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
@@ -273,7 +276,7 @@
         //tooltips: true,
         range: {
 			'min': [0],
-			'max': [3000]
+			'max': [6000]
 		}
     });
     //chargeSlider.noUiSlider.on('update', updateForceCharge);
@@ -303,6 +306,18 @@
         }
       });
         
+      $("#labelToggle").on("click", function(){
+        if(!labelsOn) {
+          $(this).html("Hide labels");
+          labelsOn = !labelsOn;
+          showLabels();
+        } else {
+          $(this).html("Show labels");
+          labelsOn = !labelsOn;
+          hideLabels();
+        }
+      });
+        
       $("#highlightToggle").on("click", function(){
         if(curHighlight) {
           $(this).html("Highlight comparable elements");
@@ -315,10 +330,44 @@
         }
       });
 
+      $("#extremalNodeToggle").on("click", function(){
+        if(fixExtremalNodes) {
+          $(this).html("Fix extremal nodes");
+          fixExtremalNodes = !fixExtremalNodes;
+          
+        } else {
+          $(this).html("Don't fix extremal nodes");
+          fixExtremalNodes = !fixExtremalNodes;
+          
+        }
+        
+        force.stop();
+        nodes = [];
+        links = [];
+        restart();
+          
+        // Recompute node groups and reinitialize the display.
+        dataGroupList = computeNodeGroups(dataRelMatrix);
+        maxGroup = d3.max(dataGroupList);
+        rowSep = (height-2*vPadding)/maxGroup;
+        nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+        setAllNodesFixed();
+        links = linksFromNodesRelations(nodes,dataCovRel);
+        force.nodes(nodes)
+          .links(links);
+        tick();
+          
+        // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
+        if(forceOn) toggleForce();
+          
+        // Update the display.  
+        restart();
+      });    
+        
       $("#reset").on("click", resetPoset);
         
       $("#forceToggle").on("click", toggleForce);
-        
+    
       $("#exportTikz").on("click", function() {
         exportTikz();
       })
