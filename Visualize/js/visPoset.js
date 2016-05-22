@@ -1386,7 +1386,7 @@ function exportTikz (event){
     tikzDiv.appendChild(tikzInput);
     tikzDiv.appendChild(tikzButton);
     var listGroup = document.getElementById("menuList");
-    listGroup.insertBefore(tikzDiv,listGroup.childNodes[12]);
+    listGroup.insertBefore(tikzDiv,listGroup.childNodes[16]);
     document.getElementById("copyButton").setAttribute("data-clipboard-target","#tikzTextBox");
     clipboard = new Clipboard('#copyButton');
     clipboard.on('error', function(e) {

@@ -147,9 +147,13 @@ function initializeBuilder() {
       .nodes(nodes)
       .links(links)
       .size([width, height])
-      .linkDistance(150)
-      .charge(-500)
+      .linkDistance(forceLinkDist)
+      .charge(forceCharge)
       .on('tick', tick);
+    
+  // After the force variable is initialized, set the sliders to update the force variables.
+  chargeSlider.noUiSlider.on('slide', updateForceCharge);
+  linkDistSlider.noUiSlider.on('slide', updateForceLinkDist);
     
   // define arrow markers for graph links
   svg.append('svg:defs').append('svg:marker')
@@ -519,14 +523,15 @@ function restart() {
 
     });
 
+  if(labelsOn){
   // show node IDs
-  g.append('svg:text')
-      .attr('x', 0)
-      .attr('y', 4)
-      .attr('class', 'id noselect')
-      .attr("pointer-events", "none")
-      .text(function(d) { return d.name; });
-
+    g.append('svg:text')
+        .attr('x', 0)
+        .attr('y', 4) 
+        .attr('class', 'id noselect')
+        .attr("pointer-events", "none")
+        .text(function(d) { return d.name; });
+  }
   /*
   var maxLength = d3.max(nodes, function(d) {
         return d.name.length;
@@ -790,6 +795,25 @@ function setAllNodesFixed() {
   }
 }
 
+function setAllNodesUnfixed() {
+  for (var i = 0; i<nodes.length; i++) {
+    nodes[i].fixed = false;
+  }
+}
+
+function hideLabels() {
+    circle.select("text").remove();    
+}
+
+function showLabels() {
+     circle.append('svg:text')
+      .attr('x', 0)
+      .attr('y', 4)
+      .attr('class', 'id noselect')
+      .attr("pointer-events", "none")
+      .text(function(d) { return d.name; });
+}
+
 function updateWindowSize2d() {
     console.log("resizing window");
     //var svg = document.getElementById("canvasElement2d");
@@ -924,6 +948,18 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
   return adjMatrix;
 }
 
+function updateForceCharge(){
+    if(!forceOn){toggleForce()};
+    forceCharge = -chargeSlider.noUiSlider.get();
+    force.charge(forceCharge).start();
+}
+
+function updateForceLinkDist(){
+    if(!forceOn){toggleForce()};
+    forceLinkDist = linkDistSlider.noUiSlider.get();
+    force.linkDistance(forceLinkDist).start();
+}
+
 // Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
 function arraytoM2Matrix (arr){
   var str = "matrix{{";
@@ -1004,7 +1040,7 @@ function exportTikz (event){
     tikzDiv.appendChild(tikzInput);
     tikzDiv.appendChild(tikzButton);
     var listGroup = document.getElementById("menuList");
-    listGroup.insertBefore(tikzDiv,listGroup.childNodes[10]);
+    listGroup.insertBefore(tikzDiv,listGroup.childNodes[14]);
     document.getElementById("copyButton").setAttribute("data-clipboard-target","#tikzTextBox");
     clipboard = new Clipboard('#copyButton');
     clipboard.on('error', function(e) {
