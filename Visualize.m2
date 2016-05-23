@@ -1836,7 +1836,7 @@ G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 
 visualize( G, Verbose => true )
 visualize(G, VisPath => "/Users/bstone/Desktop/Test/")
-n
+
 cycleGraph 9
 visualize oo
 run"pwd"
