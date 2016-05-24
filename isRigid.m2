@@ -32,3 +32,6 @@ H=graph{{1,2},{2,3}}
 isRigid H
 KB=completeMultipartiteGraph {3,3}
 isRigid KB
+
+-- Rigid: wheels, K_3,3
+-- not Rigid: Trees, cycles
