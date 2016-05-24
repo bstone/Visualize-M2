@@ -173,7 +173,7 @@
       curEdit = false;
       curHighlight = false;
   	  curView = "2d";
-      menuOpen = false;
+      menuOpen = true;
       dataData = visArray;
       labelData = visLabels;
       portData = visPort; // initializes port from user
@@ -237,8 +237,14 @@
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
-    document.getElementById("canvasElement2d").style.width = window.innerWidth;
-    document.getElementById("canvasElement2d").style.height = window.innerHeight;
+    // When the side menu bar is opened or closed (i.e, when the "toggler" div is clicked), resize the svg appropriately so that nodes do not go behind the side menu.
+    document.getElementsByClassName("toggler")[0].addEventListener("mousedown", function() {
+            menuOpen = !menuOpen;
+            updateWindowSize2d();    
+    }, false);  
+    
+    //document.getElementById("canvasElement2d").style.width = window.innerWidth;
+    //document.getElementById("canvasElement2d").style.height = window.innerHeight;
       
     window.addEventListener("resize", updateWindowSize2d, false);
 

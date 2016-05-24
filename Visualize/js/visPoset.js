@@ -55,7 +55,7 @@
 
 function initializeBuilder() {
   // Set up SVG for D3.
-  width  = window.innerWidth-10;
+  width  = window.innerWidth-document.getElementById("side").clientWidth;
   height = window.innerHeight-10;
   colors = d3.scale.category10();
   
@@ -874,17 +874,19 @@ function updateWindowSize2d() {
     
     // get width/height with container selector (body also works)
     // or use other method of calculating desired values
-    width = window.innerWidth-10;
+    if(!menuOpen){
+        width = window.innerWidth-10;
+    } else {
+        width = window.innerWidth - document.getElementById("side").clientWidth;
+    }
     height = window.innerHeight-10;
     rowSep = (height-2*vPadding)/maxGroup;
 
     // set attrs and 'resume' force 
-    //svg.attr('width', width);
-    //svg.attr('height', height);
-    svg.style.width = width;
-    svg.style.height = height;
-    svg.width = width;
-    svg.height = height;
+    svg.attr('width', width);
+    svg.attr('height', height);
+
+    if(!forceOn){resetPoset();}
     force.size([width, height]).resume();
 }
 
