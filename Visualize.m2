@@ -1872,7 +1872,7 @@ openPort "8081"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize P2
 visualize(P2,FixExtremeElements => true)
-
+visualize oo
 
 -- Simplicial Complexes
 R = ZZ[a..f]
@@ -1904,3 +1904,7 @@ closePort()
 -- pablo parillo maybe at MIT
 
 viewHelp openListener
+
+code methods pushForward
+code methods pushNonLinear
+viewHelp independentSets
