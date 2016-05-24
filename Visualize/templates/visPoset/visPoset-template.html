@@ -182,10 +182,8 @@
       activeSession = true;
       curEdit = false;
       curHighlight = false;
-      menuOpen = false;
+      menuOpen = true;
       dataLabels = visLabels;
-      //dataNodes = visNodes;
-      //dataLinks = visRelations;
       dataRelMatrix = visRelMatrix;
       dataCovRel = null;
       dataGroupList = null;
@@ -263,9 +261,15 @@
       
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
+    
+    // When the side menu bar is opened or closed (i.e, when the "toggler" div is clicked), resize the svg appropriately so that nodes do not go behind the side menu.
+    document.getElementsByClassName("toggler")[0].addEventListener("mousedown", function() {
+            menuOpen = !menuOpen;
+            updateWindowSize2d();    
+    }, false);
 
-    document.getElementById("canvasElement2d").style.width = window.innerWidth;
-    document.getElementById("canvasElement2d").style.height = window.innerHeight;
+    //document.getElementById("canvasElement2d").style.width = width;
+    //document.getElementById("canvasElement2d").style.height = height;
 
     window.addEventListener('resize', updateWindowSize2d, false);
       
@@ -502,6 +506,7 @@
       forceOn = !forceOn;
     }
 
+    /*
     window.addEventListener("mousedown", function(e) {
 
       if (!menuOpen) return;
@@ -513,8 +518,8 @@
       }
 
     }, false);
-  	//window.addEventListener('resize', updateWindowSize2d, false);
-    //window.onresize = updateWindowSize2d;
+    */
+
     </script>
 
   </body>
