@@ -1,12 +1,14 @@
   // Initialize variables.
   var width  = null,
       height = null,
-      colors = null;
+      colors = null,
+      faceColors = null;
 
   var svg = null;
   var nodes = null,
     lastNodeId = null,
-    links = null;
+    links = null,
+    faces = null;
 
   var constrString = null;
   var incMatrix = null;
@@ -20,7 +22,8 @@
 
   // Handles to link and node element groups.
   var path = null,
-      circle = null;
+      circle = null,
+      polygon = null;
 
   // Mouse event variables.
   var selected_node = null,
@@ -46,7 +49,7 @@
     }());
     
     // Just get the current directory that contains the html file.
-    scriptSource = scriptSource.substring(0, scriptSource.length - 18);
+    scriptSource = scriptSource.substring(0, scriptSource.length - 28);
       
     console.log(scriptSource);
 
@@ -58,6 +61,7 @@ function initializeBuilder() {
   width  = window.innerWidth-document.getElementById("side").clientWidth;
   height = window.innerHeight-10;
   colors = d3.scale.category10();
+  faceColors = d3.scale.category20();
 
   svg = d3.select('body')
     .append('svg')
@@ -69,54 +73,26 @@ function initializeBuilder() {
   //  - nodes are known by 'id', not by index in array.
   //  - reflexive edges are indicated on the node (as a bold black circle).
   //  - links are always source < target; edge directions are set by 'left' and 'right'.
-  var data = dataData;
-  var names = labelData;
-
-  lastNodeId = data.length;
+  
+  lastNodeId = labelData.length;
+    
   nodes = [];
   links = [];
+  faces = [];
     
   // Create the nodes with their appropriate names and id's, and set reflexive to true if and only if there is a 1 in the appropriate
   // spot on the main diagonal.  This represents a loop in the digraph.
-  for (var i = 0; i < data.length; i++) {
-      nodes.push( {name: names[i], id: i, reflexive: data[i][i] == 1, highlighted:false } );
+  for (var i = 0; i < labelData.length; i++) {
+      nodes.push( {name: labelData[i], id: i, highlighted:false } );
   }
 
-  for (var i = 0; i < data.length - 1; i++) {
-      for (var j = i+1; j < data.length; j++) {
-          var leftEdge = (data[j][i] == 1);
-          var rightEdge = (data[i][j] == 1);
-          if (leftEdge || rightEdge) {
-              links.push( { source: nodes[i], target: nodes[j], left: leftEdge, right: rightEdge, highlighted:false} );
-          }
-      }
+  for (var i = 0; i < edgeData.length; i++) {
+      links.push( { source: nodes[edgeData[i][0]], target: nodes[edgeData[i][1]], left: false, right: false, highlighted:false} );
   }
-  /*
-  for (var i = 1; i<data.length; i++) {
-      for (var j = 0; j < i; j++) {
-          if (data[i][j] != 0) {
- 
-            var foundLink = false;
-            var l = links.length;
-            for(var k = 0; k < l; k++) {              
-              
-              if((links[k].source.id == j) && (links[k].target.id == i)){
-                links[k].left = true;
-                console.log("Added left arrow to existing link.");
-                foundLink = true;
-              } 
-              if(foundLink = false) {
-                links.push( { source: nodes[j], target: nodes[i], left: true, right: false} );
-                console.log("Added new link with left arrow only.");
-              }
-            }
-          }
-      }
-  }
-  */
 
-  console.log(nodes);
-  console.log(links);
+  for (var i = 0; i < faceData.length; i++) {
+      faces.push( { v1: nodes[faceData[i][0]], v2: nodes[faceData[i][1]], v3: nodes[faceData[i][2]], highlighted:false} );
+  }
     
   //constrString = digraph2M2Constructor(nodes,links);
     
@@ -154,29 +130,6 @@ function initializeBuilder() {
   // After the force variable is initialized, set the sliders to update the force variables.
   chargeSlider.noUiSlider.on('slide', updateForceCharge);
   linkDistSlider.noUiSlider.on('slide', updateForceLinkDist);
-    
-  // define arrow markers for graph links
-  svg.append('svg:defs').append('svg:marker')
-    .attr('id', 'end-arrow')
-    .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 6)
-    .attr('markerWidth', 3)
-    .attr('markerHeight', 3)
-    .attr('orient', 'auto')
-    .append('svg:path')
-    .attr('d', 'M0,-5L10,0L0,5')
-    .attr('fill', '#000');
-
-  svg.append('svg:defs').append('svg:marker')
-    .attr('id', 'start-arrow')
-    .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 4)
-    .attr('markerWidth', 3)
-    .attr('markerHeight', 3)
-    .attr('orient', 'auto')
-    .append('svg:path')
-    .attr('d', 'M10,-5L0,0L10,5')
-    .attr('fill', '#000');
 
   // When a node begins to be dragged by the user, call the function dragstart.
   drag = force.drag()
@@ -188,6 +141,7 @@ function initializeBuilder() {
     .attr('d', 'M0,0L0,0');
 
   // Handles to link and node element groups.
+  polygon = svg.append('svg:g').selectAll('face');
   path = svg.append('svg:g').selectAll('path');
   circle = svg.append('svg:g').selectAll('g');
 
@@ -226,7 +180,7 @@ function initializeBuilder() {
 
 }
 
-function resetGraph() {
+function resetComplex() {
   // Set the 'fixed' attribute to false for all nodes and then restart the force layout.
   forceOn = false;
   toggleForce();
@@ -247,10 +201,15 @@ function resetMouseVars() {
 
 // Update force layout (called automatically by the force layout simulation each iteration).
 function tick() {
+  // Update the 2-dimensional faces.
+  polygon.attr("points", function(d) { return (d.v1.x > width-15 ? width-15 : ((d.v1.x < 15 ? 15 : d.v1.x))) + "," + (d.v1.y > height-15 ? height-15 : ((d.v1.y < 15 ? 15 : d.v1.y))) + " " + (d.v2.x > width-15 ? width-15 : ((d.v2.x < 15 ? 15 : d.v2.x))) + "," + (d.v2.y > height-15 ? height-15 : ((d.v2.y < 15 ? 15 : d.v2.y))) + " " + (d.v3.x > width-15 ? width-15 : ((d.v3.x < 15 ? 15 : d.v3.x))) + "," + (d.v3.y > height-15 ? height-15 : ((d.v3.y < 15 ? 15 : d.v3.y))); });
+    
+
   // Draw directed edges with proper padding from node centers.
   path.attr('d', function(d) {
     // For each edge, calculate the distance from the source to the target
     // then normalize the x- and y-distances between the source and target.
+    /*
     var deltaX = d.target.x - d.source.x,
         deltaY = d.target.y - d.source.y,
         dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
@@ -294,10 +253,14 @@ function tick() {
     else if (targetY  < 15) {
       targetY = 15;
     }
+    */
+      
+      
+      
     // For each edge, set the attribute 'd' to have the form "MsourcexCoord,sourceyCoord LtargetxCoord,targetyCoord".
     // Then the appropriate coordinates to use for padding the directed edges away from the nodes can be obtained by
     // the 'd' attribute.
-    return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+    return 'M' + (d.source.x > width-15 ? width-15 : ((d.source.x < 15 ? 15 : d.source.x))) + ',' + (d.source.y > height-15 ? height-15 : ((d.source.y < 15 ? 15 : d.source.y))) + 'L' + (d.target.x > width-15 ? width-15 : ((d.target.x < 15 ? 15 : d.target.x))) + ',' + (d.target.y > height-15 ? height-15 : ((d.target.y < 15 ? 15 : d.target.y)));
   });
 
   // Restrict the nodes to be contained within a 15 pixel margin around the svg.
@@ -318,10 +281,30 @@ function tick() {
     // Visually update the locations of the nodes based on the force simulation.
     return 'translate(' + d.x + ',' + d.y + ')';
   });
+    
 }
 
 // Update graph (called when needed).
 function restart() {
+    
+  polygon = polygon.data(faces);
+
+  polygon.classed('highlighted', function(d) { return d.highlighted;})
+  .style("fill", function(d,i) { return d.highlighted ? '#FF0000' : faceColors(i); })
+  .style('opacity', function(d) { return d.highlighted ? .6 : .4;});
+    
+   var faceGroup = polygon.enter().append('svg:polygon');
+
+   faceGroup.attr('class', 'face')
+    .attr("points", function(d) { return d.v1.x + "," + d.v1.y + " " + d.v2.x + "," + d.v2.y + " " + d.v3.x + "," + d.v3.y; })
+    .style("fill", function(d,i) { return d.highlighted ? '#FF0000' : faceColors(i); })
+    .style('opacity', function(d) { return d.highlighted ? .6 : .4;});
+    //.classed('highlighted',function(d) {return d.highlighted;}); 
+    
+    // remove old faces
+    polygon.exit().remove();
+    
+    
   // Construct the group of edges from the 'links' array.
   path = path.data(links);
 
@@ -515,7 +498,8 @@ function restart() {
       
       if(name != "null") {
         d.name = name;
-        d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
+        d3.select(this.parentNode).select("text").text(function(d) {return d.name});
+        changedNodes = true;
       }
 
       //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
@@ -545,9 +529,9 @@ function restart() {
 
   // remove old nodes
   circle.exit().remove();
-
-  // set the graph in motion
-  force.start();
+    
+    // set the graph in motion
+    force.start();
 }
 
 function checkName(name) {
@@ -575,9 +559,9 @@ function mousedown() {
   // insert new node at point
 
   var point = d3.mouse(this);
-  var curName = lastNodeId + 1;
+  var curName = intToAlphabet(lastNodeId);
   while(checkName(curName.toString())){
-      curName += 1;
+      curName += 'a';
   }
   curName = curName.toString();
   /*
@@ -590,10 +574,11 @@ function mousedown() {
   */
 
   // Graph Changed :: adding nodes
-  node = {id: ++lastNodeId, name: curName, reflexive: false, highlighted: false};
+  node = {id: lastNodeId++, name: curName, reflexive: false, highlighted: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
+  changedNodes = true;
   // Graph is updated here so we change some items to default 
   // d3.select("#isCM").html("isCM");
   menuDefaults();
@@ -665,6 +650,7 @@ function keydown() {
       if(curEdit && selected_node) {
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
+        changedNodes = true;
         if(curHighlight) unHighlightAll();
       } else if(curEdit && selected_link) {
 
@@ -764,20 +750,29 @@ function unHighlightAll() {
        links[i].highlighted = false;
     }
     
+    // Un-highlight all faces.
+    for (var i = 0; i<faces.length; i++) {
+       faces[i].highlighted = false;
+    }
+    
     // Update graph based on changes to nodes and links.
     restart();
 }
 
 function highlightAllNeighbors(n) {
     // Highlight all nodes that are neighbors with the given node n.
-    for (var i = 0; i<nodes.length; i++) {
-       console.log(areNeighbors(nodes[i],n));
-       nodes[i].highlighted = areNeighbors(nodes[i],n);
-    }
+    //for (var i = 0; i<nodes.length; i++) {
+    //   nodes[i].highlighted = areNeighbors(nodes[i],n);
+    //}
     
     // Highlight all links that have the given node n as a source or target.
     for (var i = 0; i<links.length; i++) {
        links[i].highlighted = ((links[i].source === n) || (links[i].target === n));
+    }
+    
+    // Highlight all faces that have the given node n as a vertex.
+    for (var i = 0; i<faces.length; i++) {
+       faces[i].highlighted = ((faces[i].v1 === n) || (faces[i].v2 === n) || (faces[i].v3 === n));
     }
     
     // Update graph based on changes to nodes and links.
@@ -833,55 +828,39 @@ function updateWindowSize2d() {
     force.size([width, height]).resume();
 }
 
-// Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
+// Function to construct the M2 constructor for the simplicial complex.  Note: If the user has modified the nodes in the simplicial complex, this will need to pass the new base ring back to Macaulay2 which will cause issues if we want to add in boolean tests/numerical invariants at any point.
 
-function digraph2M2Constructor( nodeSet, edgeSet ){
-  var strEdges = "{";
-  var e = edgeSet.length;
-  var strNodes = "{";
-  var d = nodeSet.length;
-  var foundReflexive = false;
-  for( var i = 0; i < d; i++ ){
-    if(i != (d-1)){
-      strNodes = strNodes + (nodeSet[i].name).toString() + ", ";
+function simplicialComplex2M2Constructor( nodeSet, edgeSet , faceSet ){
+    if(nodeSet.length==0){
+        return "visRing = ZZ[a]; simplicialComplex{1_visRing}";
     }
-    else {
-      strNodes = strNodes + (nodeSet[i].name).toString() + "}";
+    if(changedNodes){
+        var ringStr = "visRing = ZZ[";
+        for(var i=0; i < nodeSet.length-1; i++){
+            ringStr = ringStr+nodeSet[i].name.toString()+",";
+        }
+        ringStr = ringStr+nodeSet[nodeSet.length-1].name.toString()+"]; ";
     }
-    // Add any reflexive nodes as an edge from the vertex to itself.
-    if(nodeSet[i].reflexive){
-        strEdges = strEdges + "{" + nodeSet[i].name.toString() + ", " + nodeSet[i].name.toString() + "}, ";
-        foundReflexive = true;
+    var facetStr = "simplicialComplex{";
+    var facets = simplicialComplexFacets(nodeSet,edgeSet,faceSet);
+    for(var i=0; i < facets.length-1; i++){
+        for(var j=0; j < facets[i].length-1; j++){
+            facetStr = facetStr + nodeSet[facets[i][j]].name.toString() + "*";
+        }
+        facetStr = facetStr + nodeSet[facets[i][facets[i].length-1]].name.toString() + ",";
     }
-  }
-
-  for( var i = 0; i < e; i++ ){
-    var leftEdge = edgeSet[i].left;
-    var rightEdge = edgeSet[i].right;
-    if(i != (e-1)){
-      if(leftEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}, ";}
-      if(rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}, ";}
-    }
-    else{
-      if(leftEdge && rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}, " + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}}";}
-      else if(leftEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}}";}
-      else if(rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}}";}
-    }
-  }
     
-  // Handle some extremal cases such as the empty digraph, or digraphs with no edges.
-  if(foundReflexive && (edgeSet.length == 0)){
-      strEdges = strEdges.slice(0,-2) + "}";
-  }
-  if((!foundReflexive) && (edgeSet.length == 0)){
-      strEdges = "{}";
-  }
-  if(nodeSet.length == 0){
-      strNodes = "{}";
-  }
+    for(var j=0; j < facets[facets.length-1].length-1; j++){
+        facetStr = facetStr + nodeSet[facets[facets.length-1][j]].name.toString() + "*";
+    }
     
-  return "digraph(" + strNodes + "," + strEdges + ")";
-
+    facetStr = facetStr + nodeSet[facets[facets.length-1][facets[facets.length-1].length-1]].name.toString() + "}";
+    
+    if(changedNodes){
+        return ringStr+facetStr;
+    } else {
+        return facetStr;
+    }
 }
 
 // determines if a graph contains singletons, if it does it returns an array containing their id, if not returns empty array
@@ -906,6 +885,49 @@ function singletons(nodeSet, edgeSet){
     occur = 0; //reset occurrences for next node id
   }
   return singSet;
+}
+
+function simplicialComplexFacets(nodeSet,edgeSet,faceSet){
+    var results = [];
+    // If a vertex is not involved in any 1-dimensional face, then it is a facet.
+    for(var i=0; i < nodeSet.length; i++){
+        if(edgeSet.every(function(d){return ((d.source != nodeSet[i]) && (d.target != nodeSet[i]));})){results.push([nodeSet[i].id]);}
+    }
+    
+    // If a 1-dimensional face is not a subset of any 2-dimensional face, then it is a facet.
+    for(var i=0; i < edgeSet.length; i++){
+        if(faceSet.every(function(d){return (((d.v1 != edgeSet[i].source) && (d.v2 != edgeSet[i].source) && (d.v3 != edgeSet[i].source)) || ((d.v1 != edgeSet[i].target) && (d.v2 != edgeSet[i].target) && (d.v3 != edgeSet[i].target)));})){results.push([edgeSet[i].source.id,edgeSet[i].target.id]);}
+    }
+    
+    // All 2-dimensional faces are facets since the simplicial complex is 2-dimensional.
+    faceSet.forEach(function(d){results.push([d.v1.id,d.v2.id,d.v3.id]);});
+    
+    return results;
+    
+}
+
+function isPureComplex(nodeSet,edgeSet,faceSet){
+    var facets = simplicialComplexFacets(nodeSet,edgeSet,faceSet);
+    // If the simplicial complex is the irrelevant complex, return true.
+    if(facets.length == 0){return true;}
+    // If two facets have different sizes, return false.
+    if(facets.some(function(d){return d.length != facets[0].length;})){return false;}
+    return true;    
+}
+
+// Given an array and an element, this method returns true if the element is contained in the array, else it returns false.
+function containedIn(n,arr){
+    for(var i=0; i < arr.length; i++){
+        if(arr[i] == n){return true;}
+    }
+    return false;
+}
+
+
+// Turns an integer into a string of lower-case letters.
+function intToAlphabet(i) {
+    return (i >= 26 ? intToAlphabet((i / 26 >> 0) - 1) : '') +
+        'abcdefghijklmnopqrstuvwxyz'[i % 26 >> 0];
 }
 
 // Constructs the incidence matrix for a graph as a multidimensional array.
@@ -1062,18 +1084,6 @@ function onclickResults(m2Response) {
     if (clickTest == "hasEulerianTrail"){
       d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail :: <b>"+m2Response+"</b>");
     } 
-
-    else if (clickTest == "isEulerian") {
-      d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isStronglyConnected") {
-      d3.select("#isStronglyConnected").html("&nbsp;&nbsp; isStronglyConnected :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isWeaklyConnected") {
-      d3.select("#isWeaklyConnected").html("&nbsp;&nbsp; isWeaklyConnected :: <b>"+m2Response+"</b>");    
-    }    
     
 }
 
@@ -1081,10 +1091,7 @@ function onclickResults(m2Response) {
 // Anytime the graph is edited by user we call this function.
 // It changes the menu items to default.
 function menuDefaults() {
-  d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail");
-  d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian");  
-  d3.select("#isStronglyConnected").html("&nbsp;&nbsp; isStronglyConnected");  
-  d3.select("#isWeaklyConnected").html("&nbsp;&nbsp; isWeaklyConnected");
+  d3.select("#isPure").html("&nbsp;&nbsp; isPure");
 }
 
 
