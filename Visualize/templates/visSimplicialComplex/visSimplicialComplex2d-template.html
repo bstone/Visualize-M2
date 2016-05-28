@@ -143,6 +143,12 @@
       polygon.face {
         opacity: .4;
       }
+        
+      polygon.face.highlighted {
+        opacity: 1;
+        fill: #FF0000;
+        stroke-width: 4px;
+      }
 
       #canvasElement3d {
         background-color: #FFF;
@@ -186,6 +192,7 @@
       curEdit = false;
       curHighlight = false;
       menuOpen = true;
+      changedNodes = false;
       labelData = visNodes;
       edgeData = visEdges;
       faceData = vis2Faces;
@@ -341,7 +348,7 @@
         }
       });
 
-      $("#reset").on("click", resetGraph);
+      $("#reset").on("click", resetComplex);
       
       $("#forceToggle").on("click", toggleForce);
       
@@ -526,7 +533,7 @@
           document.getElementById("endSession").style.color = 'white';
           document.getElementById("endSession").style.backgroundColor = 'red';
           document.getElementById("endSession").innerHTML = "Session terminated";
-          makeCorsRequest('POST','http://localhost:'+portData+'/end/',graph2M2Constructor(nodes,links));
+          makeCorsRequest('POST','http://localhost:'+portData+'/end/',simplicialComplex2M2Constructor(nodes,links,faces));
           activeSession = !activeSession;
         } else {
           return;

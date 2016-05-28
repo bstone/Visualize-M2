@@ -471,7 +471,7 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
-visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+visualize(SimplicialComplex) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
@@ -489,11 +489,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
     --edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
     edgeString = toString new Array from apply(#edgeList, i -> new Array from {position(vertexSet, j -> j === edgeList#i#1),position(vertexSet, j -> j === edgeList#i#0)});
     face2String = toString new Array from apply(#face2List, i -> new Array from {position(vertexSet, j -> j == face2List#i#2),position(vertexSet, j -> j == face2List#i#1),position(vertexSet, j -> j == face2List#i#0)});
-
-    print vertexString;
-    print edgeString;
-    print face2String;
-    
+  
     if dim D>2 then (
 	error "3-dimensional simplicial complexes not implemented yet.";
  	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
@@ -1605,6 +1601,7 @@ openPort "8081"
 R = ZZ[a..f]
 D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
 visualize D
+visualize(D,Verbose => true)
 
 R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
