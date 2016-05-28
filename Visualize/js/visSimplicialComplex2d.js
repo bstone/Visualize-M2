@@ -180,7 +180,7 @@ function initializeBuilder() {
 
 }
 
-function resetGraph() {
+function resetComplex() {
   // Set the 'fixed' attribute to false for all nodes and then restart the force layout.
   forceOn = false;
   toggleForce();
@@ -289,15 +289,17 @@ function restart() {
     
   polygon = polygon.data(faces);
 
-  polygon.classed('highlighted', function(d) { return d.highlighted;});
+  polygon.classed('highlighted', function(d) { return d.highlighted;})
+  .style("fill", function(d,i) { return d.highlighted ? '#FF0000' : faceColors(i); })
+  .style('opacity', function(d) { return d.highlighted ? .6 : .4;});
     
    var faceGroup = polygon.enter().append('svg:polygon');
 
    faceGroup.attr('class', 'face')
     .attr("points", function(d) { return d.v1.x + "," + d.v1.y + " " + d.v2.x + "," + d.v2.y + " " + d.v3.x + "," + d.v3.y; })
-    .style("fill", function(d,i) { return faceColors(i); })
-    .style("opacity", .4)
-    .classed('highlighted',function(d) {return d.highlighted;}); 
+    .style("fill", function(d,i) { return d.highlighted ? '#FF0000' : faceColors(i); })
+    .style('opacity', function(d) { return d.highlighted ? .6 : .4;});
+    //.classed('highlighted',function(d) {return d.highlighted;}); 
     
     // remove old faces
     polygon.exit().remove();
@@ -496,7 +498,8 @@ function restart() {
       
       if(name != "null") {
         d.name = name;
-        d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
+        d3.select(this.parentNode).select("text").text(function(d) {return d.name});
+        changedNodes = true;
       }
 
       //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
@@ -556,9 +559,9 @@ function mousedown() {
   // insert new node at point
 
   var point = d3.mouse(this);
-  var curName = lastNodeId + 1;
+  var curName = intToAlphabet(lastNodeId);
   while(checkName(curName.toString())){
-      curName += 1;
+      curName += 'a';
   }
   curName = curName.toString();
   /*
@@ -571,10 +574,11 @@ function mousedown() {
   */
 
   // Graph Changed :: adding nodes
-  node = {id: ++lastNodeId, name: curName, reflexive: false, highlighted: false};
+  node = {id: lastNodeId++, name: curName, reflexive: false, highlighted: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
+  changedNodes = true;
   // Graph is updated here so we change some items to default 
   // d3.select("#isCM").html("isCM");
   menuDefaults();
@@ -646,6 +650,7 @@ function keydown() {
       if(curEdit && selected_node) {
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
+        changedNodes = true;
         if(curHighlight) unHighlightAll();
       } else if(curEdit && selected_link) {
 
@@ -751,14 +756,18 @@ function unHighlightAll() {
 
 function highlightAllNeighbors(n) {
     // Highlight all nodes that are neighbors with the given node n.
-    for (var i = 0; i<nodes.length; i++) {
-       console.log(areNeighbors(nodes[i],n));
-       nodes[i].highlighted = areNeighbors(nodes[i],n);
-    }
+    //for (var i = 0; i<nodes.length; i++) {
+    //   nodes[i].highlighted = areNeighbors(nodes[i],n);
+    //}
     
     // Highlight all links that have the given node n as a source or target.
     for (var i = 0; i<links.length; i++) {
        links[i].highlighted = ((links[i].source === n) || (links[i].target === n));
+    }
+    
+    // Highlight all faces that have the given node n as a vertex.
+    for (var i = 0; i<faces.length; i++) {
+       faces[i].highlighted = ((faces[i].v1 === n) || (faces[i].v2 === n) || (faces[i].v3 === n));
     }
     
     // Update graph based on changes to nodes and links.
@@ -814,55 +823,39 @@ function updateWindowSize2d() {
     force.size([width, height]).resume();
 }
 
-// Functions to construct M2 constructors for graph, incidence matrix, and adjacency matrix.
+// Function to construct the M2 constructor for the simplicial complex.  Note: If the user has modified the nodes in the simplicial complex, this will need to pass the new base ring back to Macaulay2 which will cause issues if we want to add in boolean tests/numerical invariants at any point.
 
-function digraph2M2Constructor( nodeSet, edgeSet ){
-  var strEdges = "{";
-  var e = edgeSet.length;
-  var strNodes = "{";
-  var d = nodeSet.length;
-  var foundReflexive = false;
-  for( var i = 0; i < d; i++ ){
-    if(i != (d-1)){
-      strNodes = strNodes + (nodeSet[i].name).toString() + ", ";
+function simplicialComplex2M2Constructor( nodeSet, edgeSet , faceSet ){
+    if(nodeSet.length==0){
+        return "visRing = ZZ[a]; simplicialComplex{1_visRing}";
     }
-    else {
-      strNodes = strNodes + (nodeSet[i].name).toString() + "}";
+    if(changedNodes){
+        var ringStr = "visRing = ZZ[";
+        for(var i=0; i < nodeSet.length-1; i++){
+            ringStr = ringStr+nodeSet[i].name.toString()+",";
+        }
+        ringStr = ringStr+nodeSet[nodeSet.length-1].name.toString()+"]; ";
     }
-    // Add any reflexive nodes as an edge from the vertex to itself.
-    if(nodeSet[i].reflexive){
-        strEdges = strEdges + "{" + nodeSet[i].name.toString() + ", " + nodeSet[i].name.toString() + "}, ";
-        foundReflexive = true;
+    var facetStr = "simplicialComplex{";
+    var facets = simplicialComplexFacets(nodeSet,edgeSet,faceSet);
+    for(var i=0; i < facets.length-1; i++){
+        for(var j=0; j < facets[i].length-1; j++){
+            facetStr = facetStr + nodeSet[facets[i][j]].name.toString() + "*";
+        }
+        facetStr = facetStr + nodeSet[facets[i][facets[i].length-1]].name.toString() + ",";
     }
-  }
-
-  for( var i = 0; i < e; i++ ){
-    var leftEdge = edgeSet[i].left;
-    var rightEdge = edgeSet[i].right;
-    if(i != (e-1)){
-      if(leftEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}, ";}
-      if(rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}, ";}
-    }
-    else{
-      if(leftEdge && rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}, " + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}}";}
-      else if(leftEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}}";}
-      else if(rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}}";}
-    }
-  }
     
-  // Handle some extremal cases such as the empty digraph, or digraphs with no edges.
-  if(foundReflexive && (edgeSet.length == 0)){
-      strEdges = strEdges.slice(0,-2) + "}";
-  }
-  if((!foundReflexive) && (edgeSet.length == 0)){
-      strEdges = "{}";
-  }
-  if(nodeSet.length == 0){
-      strNodes = "{}";
-  }
+    for(var j=0; j < facets[facets.length-1].length-1; j++){
+        facetStr = facetStr + nodeSet[facets[facets.length-1][j]].name.toString() + "*";
+    }
     
-  return "digraph(" + strNodes + "," + strEdges + ")";
-
+    facetStr = facetStr + nodeSet[facets[facets.length-1][facets[facets.length-1].length-1]].name.toString() + "}";
+    
+    if(changedNodes){
+        return ringStr+facetStr;
+    } else {
+        return facetStr;
+    }
 }
 
 // determines if a graph contains singletons, if it does it returns an array containing their id, if not returns empty array
@@ -887,6 +880,49 @@ function singletons(nodeSet, edgeSet){
     occur = 0; //reset occurrences for next node id
   }
   return singSet;
+}
+
+function simplicialComplexFacets(nodeSet,edgeSet,faceSet){
+    var results = [];
+    // If a vertex is not involved in any 1-dimensional face, then it is a facet.
+    for(var i=0; i < nodeSet.length; i++){
+        if(edgeSet.every(function(d){return ((d.source != nodeSet[i]) && (d.target != nodeSet[i]));})){results.push([nodeSet[i].id]);}
+    }
+    
+    // If a 1-dimensional face is not a subset of any 2-dimensional face, then it is a facet.
+    for(var i=0; i < edgeSet.length; i++){
+        if(faceSet.every(function(d){return (((d.v1 != edgeSet[i].source) && (d.v2 != edgeSet[i].source) && (d.v3 != edgeSet[i].source)) || ((d.v1 != edgeSet[i].target) && (d.v2 != edgeSet[i].target) && (d.v3 != edgeSet[i].target)));})){results.push([edgeSet[i].source.id,edgeSet[i].target.id]);}
+    }
+    
+    // All 2-dimensional faces are facets since the simplicial complex is 2-dimensional.
+    faceSet.forEach(function(d){results.push([d.v1.id,d.v2.id,d.v3.id]);});
+    
+    return results;
+    
+}
+
+function isPureComplex(nodeSet,edgeSet,faceSet){
+    var facets = simplicialComplexFacets(nodeSet,edgeSet,faceSet);
+    // If the simplicial complex is the irrelevant complex, return true.
+    if(facets.length == 0){return true;}
+    // If two facets have different sizes, return false.
+    if(facets.some(function(d){return d.length != facets[0].length;})){return false;}
+    return true;    
+}
+
+// Given an array and an element, this method returns true if the element is contained in the array, else it returns false.
+function containedIn(n,arr){
+    for(var i=0; i < arr.length; i++){
+        if(arr[i] == n){return true;}
+    }
+    return false;
+}
+
+
+// Turns an integer into a string of lower-case letters.
+function intToAlphabet(i) {
+    return (i >= 26 ? intToAlphabet((i / 26 >> 0) - 1) : '') +
+        'abcdefghijklmnopqrstuvwxyz'[i % 26 >> 0];
 }
 
 // Constructs the incidence matrix for a graph as a multidimensional array.
