@@ -750,6 +750,11 @@ function unHighlightAll() {
        links[i].highlighted = false;
     }
     
+    // Un-highlight all faces.
+    for (var i = 0; i<faces.length; i++) {
+       faces[i].highlighted = false;
+    }
+    
     // Update graph based on changes to nodes and links.
     restart();
 }
@@ -1079,18 +1084,6 @@ function onclickResults(m2Response) {
     if (clickTest == "hasEulerianTrail"){
       d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail :: <b>"+m2Response+"</b>");
     } 
-
-    else if (clickTest == "isEulerian") {
-      d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isStronglyConnected") {
-      d3.select("#isStronglyConnected").html("&nbsp;&nbsp; isStronglyConnected :: <b>"+m2Response+"</b>");    
-    }    
-
-    else if (clickTest == "isWeaklyConnected") {
-      d3.select("#isWeaklyConnected").html("&nbsp;&nbsp; isWeaklyConnected :: <b>"+m2Response+"</b>");    
-    }    
     
 }
 
@@ -1098,10 +1091,7 @@ function onclickResults(m2Response) {
 // Anytime the graph is edited by user we call this function.
 // It changes the menu items to default.
 function menuDefaults() {
-  d3.select("#hasEulerianTrail").html("&nbsp;&nbsp; hasEulerianTrail");
-  d3.select("#isEulerian").html("&nbsp;&nbsp; isEulerian");  
-  d3.select("#isStronglyConnected").html("&nbsp;&nbsp; isStronglyConnected");  
-  d3.select("#isWeaklyConnected").html("&nbsp;&nbsp; isWeaklyConnected");
+  d3.select("#isPure").html("&nbsp;&nbsp; isPure");
 }
 
 
