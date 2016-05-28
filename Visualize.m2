@@ -475,8 +475,7 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
-    local visTemplate;
-    
+    local visTemplate; local browserOutput;
     
     vertexSet = flatten entries faces(0,D);
     edgeSet = flatten entries faces(1,D);
@@ -485,10 +484,16 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
     edgeList = apply(edgeSet, e -> apply(new List from factor e, i -> i#0));
     face2List = apply(face2Set, f -> apply(new List from factor f, i -> i#0));
 
-    vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
-    edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
-    face2String = toString new Array from apply(#face2List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face2List#i#2))|",\"v2\": "|toString(position(vertexSet, j -> j == face2List#i#1))|",\"v3\": "|toString(position(vertexSet, j -> j == face2List#i#0))});
+    --vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
+    vertexString = toString new Array from apply(vertexSet, i -> "'"|toString(i)|"'");
+    --edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
+    edgeString = toString new Array from apply(#edgeList, i -> new Array from {position(vertexSet, j -> j === edgeList#i#1),position(vertexSet, j -> j === edgeList#i#0)});
+    face2String = toString new Array from apply(#face2List, i -> new Array from {position(vertexSet, j -> j == face2List#i#2),position(vertexSet, j -> j == face2List#i#1),position(vertexSet, j -> j == face2List#i#0)});
 
+    print vertexString;
+    print edgeString;
+    print face2String;
+    
     if dim D>2 then (
 	error "3-dimensional simplicial complexes not implemented yet.";
  	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
@@ -510,7 +515,8 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
     searchReplace("visNodes",vertexString, visTemp); -- Replace visNodes in the visSimplicialComplex html file by the ordered list of vertices.
     searchReplace("visEdges",edgeString, visTemp); -- Replace visEdges in the visSimplicialComplex html file by the list of edges.
     searchReplace("vis2Faces",face2String, visTemp); -- Replace vis2Faces in the visSimplicialComplex html file by the list of faces. 
-    
+    searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
+        
     if dim D>2 then (
 	error "3-dimensional simplicial complexes not implemented yet.";
 	face3Set = flatten entries faces(3,D);
@@ -518,9 +524,12 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
        	face3String = toString new Array from apply(#face3List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face3List#i#3))|",\"v2\": "|toString(position(vertexSet, j -> j == face3List#i#2))|",\"v3\": "|toString(position(vertexSet, j -> j == face3List#i#1))|",\"v4\": "|toString(position(vertexSet, j -> j == face3List#i#0))});
 	searchReplace("vis3Faces",face3String, visTemp); -- Replace vis3Faces in the visSimplicialComplex html file by the list of faces. 
     );
-    show new URL from { "file://"|visTemp };
     
-    return visTemp;
+    show new URL from { "file://"|visTemp };
+ 
+    browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
+    
+    return browserOutput; 
 )
 
 {*
@@ -1592,6 +1601,7 @@ visualize P
 restart
 loadPackage "SimplicialComplexes"
 loadPackage "Visualize"
+openPort "8081"
 R = ZZ[a..f]
 D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
 visualize D

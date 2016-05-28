@@ -1,12 +1,14 @@
   // Initialize variables.
   var width  = null,
       height = null,
-      colors = null;
+      colors = null,
+      faceColors = null;
 
   var svg = null;
   var nodes = null,
     lastNodeId = null,
-    links = null;
+    links = null,
+    faces = null;
 
   var constrString = null;
   var incMatrix = null;
@@ -20,7 +22,8 @@
 
   // Handles to link and node element groups.
   var path = null,
-      circle = null;
+      circle = null,
+      polygon = null;
 
   // Mouse event variables.
   var selected_node = null,
@@ -46,7 +49,7 @@
     }());
     
     // Just get the current directory that contains the html file.
-    scriptSource = scriptSource.substring(0, scriptSource.length - 18);
+    scriptSource = scriptSource.substring(0, scriptSource.length - 28);
       
     console.log(scriptSource);
 
@@ -58,6 +61,7 @@ function initializeBuilder() {
   width  = window.innerWidth-document.getElementById("side").clientWidth;
   height = window.innerHeight-10;
   colors = d3.scale.category10();
+  faceColors = d3.scale.category20();
 
   svg = d3.select('body')
     .append('svg')
@@ -69,54 +73,26 @@ function initializeBuilder() {
   //  - nodes are known by 'id', not by index in array.
   //  - reflexive edges are indicated on the node (as a bold black circle).
   //  - links are always source < target; edge directions are set by 'left' and 'right'.
-  var data = dataData;
-  var names = labelData;
-
-  lastNodeId = data.length;
+  
+  lastNodeId = labelData.length;
+    
   nodes = [];
   links = [];
+  faces = [];
     
   // Create the nodes with their appropriate names and id's, and set reflexive to true if and only if there is a 1 in the appropriate
   // spot on the main diagonal.  This represents a loop in the digraph.
-  for (var i = 0; i < data.length; i++) {
-      nodes.push( {name: names[i], id: i, reflexive: data[i][i] == 1, highlighted:false } );
+  for (var i = 0; i < labelData.length; i++) {
+      nodes.push( {name: labelData[i], id: i, highlighted:false } );
   }
 
-  for (var i = 0; i < data.length - 1; i++) {
-      for (var j = i+1; j < data.length; j++) {
-          var leftEdge = (data[j][i] == 1);
-          var rightEdge = (data[i][j] == 1);
-          if (leftEdge || rightEdge) {
-              links.push( { source: nodes[i], target: nodes[j], left: leftEdge, right: rightEdge, highlighted:false} );
-          }
-      }
+  for (var i = 0; i < edgeData.length; i++) {
+      links.push( { source: nodes[edgeData[i][0]], target: nodes[edgeData[i][1]], left: false, right: false, highlighted:false} );
   }
-  /*
-  for (var i = 1; i<data.length; i++) {
-      for (var j = 0; j < i; j++) {
-          if (data[i][j] != 0) {
- 
-            var foundLink = false;
-            var l = links.length;
-            for(var k = 0; k < l; k++) {              
-              
-              if((links[k].source.id == j) && (links[k].target.id == i)){
-                links[k].left = true;
-                console.log("Added left arrow to existing link.");
-                foundLink = true;
-              } 
-              if(foundLink = false) {
-                links.push( { source: nodes[j], target: nodes[i], left: true, right: false} );
-                console.log("Added new link with left arrow only.");
-              }
-            }
-          }
-      }
-  }
-  */
 
-  console.log(nodes);
-  console.log(links);
+  for (var i = 0; i < faceData.length; i++) {
+      faces.push( { v1: nodes[faceData[i][0]], v2: nodes[faceData[i][1]], v3: nodes[faceData[i][2]], highlighted:false} );
+  }
     
   //constrString = digraph2M2Constructor(nodes,links);
     
@@ -154,29 +130,6 @@ function initializeBuilder() {
   // After the force variable is initialized, set the sliders to update the force variables.
   chargeSlider.noUiSlider.on('slide', updateForceCharge);
   linkDistSlider.noUiSlider.on('slide', updateForceLinkDist);
-    
-  // define arrow markers for graph links
-  svg.append('svg:defs').append('svg:marker')
-    .attr('id', 'end-arrow')
-    .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 6)
-    .attr('markerWidth', 3)
-    .attr('markerHeight', 3)
-    .attr('orient', 'auto')
-    .append('svg:path')
-    .attr('d', 'M0,-5L10,0L0,5')
-    .attr('fill', '#000');
-
-  svg.append('svg:defs').append('svg:marker')
-    .attr('id', 'start-arrow')
-    .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 4)
-    .attr('markerWidth', 3)
-    .attr('markerHeight', 3)
-    .attr('orient', 'auto')
-    .append('svg:path')
-    .attr('d', 'M10,-5L0,0L10,5')
-    .attr('fill', '#000');
 
   // When a node begins to be dragged by the user, call the function dragstart.
   drag = force.drag()
@@ -188,6 +141,7 @@ function initializeBuilder() {
     .attr('d', 'M0,0L0,0');
 
   // Handles to link and node element groups.
+  polygon = svg.append('svg:g').selectAll('face');
   path = svg.append('svg:g').selectAll('path');
   circle = svg.append('svg:g').selectAll('g');
 
@@ -247,10 +201,15 @@ function resetMouseVars() {
 
 // Update force layout (called automatically by the force layout simulation each iteration).
 function tick() {
+  // Update the 2-dimensional faces.
+  polygon.attr("points", function(d) { return (d.v1.x > width-15 ? width-15 : ((d.v1.x < 15 ? 15 : d.v1.x))) + "," + (d.v1.y > height-15 ? height-15 : ((d.v1.y < 15 ? 15 : d.v1.y))) + " " + (d.v2.x > width-15 ? width-15 : ((d.v2.x < 15 ? 15 : d.v2.x))) + "," + (d.v2.y > height-15 ? height-15 : ((d.v2.y < 15 ? 15 : d.v2.y))) + " " + (d.v3.x > width-15 ? width-15 : ((d.v3.x < 15 ? 15 : d.v3.x))) + "," + (d.v3.y > height-15 ? height-15 : ((d.v3.y < 15 ? 15 : d.v3.y))); });
+    
+
   // Draw directed edges with proper padding from node centers.
   path.attr('d', function(d) {
     // For each edge, calculate the distance from the source to the target
     // then normalize the x- and y-distances between the source and target.
+    /*
     var deltaX = d.target.x - d.source.x,
         deltaY = d.target.y - d.source.y,
         dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
@@ -294,10 +253,14 @@ function tick() {
     else if (targetY  < 15) {
       targetY = 15;
     }
+    */
+      
+      
+      
     // For each edge, set the attribute 'd' to have the form "MsourcexCoord,sourceyCoord LtargetxCoord,targetyCoord".
     // Then the appropriate coordinates to use for padding the directed edges away from the nodes can be obtained by
     // the 'd' attribute.
-    return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+    return 'M' + (d.source.x > width-15 ? width-15 : ((d.source.x < 15 ? 15 : d.source.x))) + ',' + (d.source.y > height-15 ? height-15 : ((d.source.y < 15 ? 15 : d.source.y))) + 'L' + (d.target.x > width-15 ? width-15 : ((d.target.x < 15 ? 15 : d.target.x))) + ',' + (d.target.y > height-15 ? height-15 : ((d.target.y < 15 ? 15 : d.target.y)));
   });
 
   // Restrict the nodes to be contained within a 15 pixel margin around the svg.
@@ -318,10 +281,28 @@ function tick() {
     // Visually update the locations of the nodes based on the force simulation.
     return 'translate(' + d.x + ',' + d.y + ')';
   });
+    
 }
 
 // Update graph (called when needed).
 function restart() {
+    
+  polygon = polygon.data(faces);
+
+  polygon.classed('highlighted', function(d) { return d.highlighted;});
+    
+   var faceGroup = polygon.enter().append('svg:polygon');
+
+   faceGroup.attr('class', 'face')
+    .attr("points", function(d) { return d.v1.x + "," + d.v1.y + " " + d.v2.x + "," + d.v2.y + " " + d.v3.x + "," + d.v3.y; })
+    .style("fill", function(d,i) { return faceColors(i); })
+    .style("opacity", .4)
+    .classed('highlighted',function(d) {return d.highlighted;}); 
+    
+    // remove old faces
+    polygon.exit().remove();
+    
+    
   // Construct the group of edges from the 'links' array.
   path = path.data(links);
 
@@ -545,9 +526,9 @@ function restart() {
 
   // remove old nodes
   circle.exit().remove();
-
-  // set the graph in motion
-  force.start();
+    
+    // set the graph in motion
+    force.start();
 }
 
 function checkName(name) {

@@ -172,9 +172,8 @@ function initializeBuilder() {
 
 function resetGraph() {
   // Set the 'fixed' attribute to false for all nodes and then restart the force layout.
-  for( var i = 0; i < nodes.length; i++ ){
-    nodes[i].fixed = false;
-  }
+  forceOn = false;
+  toggleForce();
   restart();
 }
 
@@ -918,7 +917,7 @@ function exportTikz (event){
     tikzDiv.appendChild(tikzInput);
     tikzDiv.appendChild(tikzButton);
     var listGroup = document.getElementById("menuList");
-    listGroup.insertBefore(tikzDiv,listGroup.childNodes[12]);
+    listGroup.insertBefore(tikzDiv,listGroup.childNodes[14]);
     document.getElementById("copyButton").setAttribute("data-clipboard-target","#tikzTextBox");
     clipboard = new Clipboard('#copyButton');
     clipboard.on('error', function(e) {

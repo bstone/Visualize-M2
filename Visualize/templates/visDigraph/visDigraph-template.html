@@ -36,14 +36,14 @@
 	     margin: 10px;
 	     display: inline-block;
 	     height: 10px;
-         width: 130px;
+         width: 120px;
       }
     
       #linkdist-slider{
 	     margin: 10px;
 	     display: inline-block;
 	     height: 10px;
-         width: 130px;
+         width: 120px;
       }
     
       .noUi-horizontal .noUi-handle {
@@ -375,7 +375,7 @@
         document.getElementById("forceToggle").innerHTML = "Turn on force";
       }
       else {
-        resetGraph();
+        setAllNodesUnfixed();
         document.getElementById("forceToggle").innerHTML = "Turn off force";
       }
       forceOn = !forceOn;
