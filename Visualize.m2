@@ -1846,7 +1846,7 @@ path = path|{"~/GitHub/Visualize-M2/"}
 path = {"~/GitHub/M2/M2/Macaulay2/packages/"}|path
 
 loadPackage "Visualize"
-openPort "8081"
+openPort "8080"
 closePort()
 -- Graphs
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
