@@ -46,6 +46,7 @@ export {
     
     -- Methods
      "visualize",
+     "lattice",
      
     -- Helpers 
 --     "runServer",
@@ -540,6 +541,32 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
     
     return visTemp;
 )
+
+
+
+lattice =  method()
+lattice(ZZ,ZZ) := {VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visIdeal/interact_vis_ideal/index.html", Warning => true} >> opts -> (maxX,maxY) -> (
+   local visTemp;
+   local visTemplate;
+        
+   visTemplate = basePath | "Visualize/templates/visIdeal/interact_vis_ideal/index.html";
+      
+    if opts.VisPath =!= null 
+    then (
+	visTemp = copyTemplate(visTemplate, opts.VisPath); -- Copy the visSimplicialComplex template to a temporary directory.
+    	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+      )
+    else (
+	visTemp = copyTemplate(visTemplate); -- Copy the visSimplicialComplex template to a temporary directory.
+    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
+    );
+    
+    show new URL from { "file://"|visTemp };
+    
+    return visTemp;--visTemp;--opts.VisPath|A_1;
+    )
+
+
 
 {*
 --input: A parameterized surface in RR^3
