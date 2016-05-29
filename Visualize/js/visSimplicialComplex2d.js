@@ -28,9 +28,15 @@
   // Mouse event variables.
   var selected_node = null,
       selected_link = null,
+      selected_face = null,
+      selected_face_node_1 = null,
+      selected_face_node_2 = null,
       mousedown_link = null,
       mousedown_node = null,
+      mousedown_face = null,
       mouseup_node = null;
+
+  var fHeld = false;
 
   var drag = null;
 
@@ -55,8 +61,6 @@
 
 function initializeBuilder() {
     
-  console.log("building graph");
-    
   // Set up SVG for D3.
   width  = window.innerWidth-document.getElementById("side").clientWidth;
   height = window.innerHeight-10;
@@ -80,8 +84,7 @@ function initializeBuilder() {
   links = [];
   faces = [];
     
-  // Create the nodes with their appropriate names and id's, and set reflexive to true if and only if there is a 1 in the appropriate
-  // spot on the main diagonal.  This represents a loop in the digraph.
+  // Create the nodes, links, and faces with their appropriate names and id's.
   for (var i = 0; i < labelData.length; i++) {
       nodes.push( {name: labelData[i], id: i, highlighted:false } );
   }
@@ -93,30 +96,6 @@ function initializeBuilder() {
   for (var i = 0; i < faceData.length; i++) {
       faces.push( { v1: nodes[faceData[i][0]], v2: nodes[faceData[i][1]], v3: nodes[faceData[i][2]], highlighted:false} );
   }
-    
-  //constrString = digraph2M2Constructor(nodes,links);
-    
-  // (Brett) Removing incidence and adjacency matrices.
-  /*incMatrix = getIncidenceMatrix(nodes,links);
-  adjMatrix = getAdjacencyMatrix(nodes,links);
-  incMatrixString = arraytoM2Matrix(incMatrix);
-  adjMatrixString = arraytoM2Matrix(adjMatrix);*/
-
-  // Add a paragraph containing the Macaulay2 graph constructor string below the svg.
-  /* d3.select("body").append("p")
-  	.text("Macaulay2 Constructor: " + constrString)
-  	.attr("id","constructorString");
-  */
-
-  // (Brett) Removing incidence and adjacency matrices.
-    
-/*  d3.select("body").append("p")
-  	.text("Incidence Matrix: " + incMatrixString)
-  	.attr("id","incString");
-
-  d3.select("body").append("p")
-  	.text("Adjacency Matrix: " + adjMatrixString)
-  	.attr("id","adjString");*/
 
   // Initialize D3 force layout.
   force = d3.layout.force()
@@ -197,6 +176,7 @@ function resetMouseVars() {
   mousedown_node = null;
   mouseup_node = null;
   mousedown_link = null;
+  mousedown_face = null;
 }
 
 // Update force layout (called automatically by the force layout simulation each iteration).
@@ -207,55 +187,6 @@ function tick() {
 
   // Draw directed edges with proper padding from node centers.
   path.attr('d', function(d) {
-    // For each edge, calculate the distance from the source to the target
-    // then normalize the x- and y-distances between the source and target.
-    /*
-    var deltaX = d.target.x - d.source.x,
-        deltaY = d.target.y - d.source.y,
-        dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-        normX = deltaX / dist,
-        normY = deltaY / dist,
-        // If the edge is directed towards the source, then create extra padding (17) away from the source node to show the arrow,
-        // else set the sourcePadding to 12.
-        sourcePadding = d.left ? 17 : 12,
-        // If the edge is directed towards the target, then create extra padding (17) away from the target node to show the arrow,
-        // else set the targetPadding to 12.
-        targetPadding = d.right ? 17 : 12,
-        // Create new x and y coordinates for the source and the target based on whether extra padding was needed
-        // to account for directed edges.
-        sourceX = d.source.x + (sourcePadding * normX),
-        sourceY = d.source.y + (sourcePadding * normY),
-        targetX = d.target.x - (targetPadding * normX),
-        targetY = d.target.y - (targetPadding * normY);
-    
-    // Restrict the padded x and y coordinates of the source and target to be within a 15 pixel margin around the svg.
-    if (sourceX > width - 15) {
-      sourceX = width - 15;
-    }
-    else if (sourceX < 15) {
-      sourceX = 15;
-    }
-    if (targetX > width - 15) {
-      targetX = width -15;
-    }
-    else if (targetX < 15) {
-      targetX = 15;
-    }
-    if (sourceY > height - 15) {
-      sourceY = height - 15;
-    }
-    else if (sourceY < 15) {
-      sourceY = 15;
-    }
-    if (targetY  > height - 15) {
-      targetY = height - 15;
-    }
-    else if (targetY  < 15) {
-      targetY = 15;
-    }
-    */
-      
-      
       
     // For each edge, set the attribute 'd' to have the form "MsourcexCoord,sourceyCoord LtargetxCoord,targetyCoord".
     // Then the appropriate coordinates to use for padding the directed edges away from the nodes can be obtained by
@@ -291,15 +222,42 @@ function restart() {
 
   polygon.classed('highlighted', function(d) { return d.highlighted;})
   .style("fill", function(d,i) { return d.highlighted ? '#FF0000' : faceColors(i); })
-  .style('opacity', function(d) { return d.highlighted ? .6 : .4;});
+  .style('opacity', function(d) { return d.highlighted ? .6 : .4;})
+  .style('stroke', function(d){ return d === selected_face ? '#999' : 'none';})
+  .style('stroke-width', function(d){return d === selected_face ? 6 : 0;})
+  .style('stroke-dasharray', function(d){return d === selected_face ? '5,5' : '0';});
     
    var faceGroup = polygon.enter().append('svg:polygon');
 
    faceGroup.attr('class', 'face')
     .attr("points", function(d) { return d.v1.x + "," + d.v1.y + " " + d.v2.x + "," + d.v2.y + " " + d.v3.x + "," + d.v3.y; })
     .style("fill", function(d,i) { return d.highlighted ? '#FF0000' : faceColors(i); })
-    .style('opacity', function(d) { return d.highlighted ? .6 : .4;});
-    //.classed('highlighted',function(d) {return d.highlighted;}); 
+    .style('opacity', function(d) { return d.highlighted ? .6 : .4;})
+    .style('stroke-width', function(d) {return d === selected_face ? 4 : 0;})
+    .classed('highlighted',function(d) {return d.highlighted;})
+    .on('mousedown', function(d) {
+      // If the user clicks on a face while either the shift key is pressed or curEdit is false, do nothing.
+      if(d3.event.shiftKey || !curEdit) return;
+
+      // If the user clicks on a path while the shift key is not pressed and curEdit is true, set mousedown_face
+      // to be the path that the user clicked on.
+      mousedown_face = d;
+      
+      // If the face was already selected, then unselect it.
+      if(mousedown_face === selected_face) selected_face = null;
+      
+      // If the face was not already selected, then select it.
+      else selected_face = mousedown_face;
+      
+      // Since we selected or unselected a link, set all nodes and links to be unselected.
+      selected_node = null;
+      selected_link = null;
+      // If highlighting neighbors is turned on, un-highlight all nodes and links since there is no currently selected node.
+      if(curHighlight) unHighlightAll();
+      
+      // Update all properties of the graph.
+      restart();
+    });
     
     // remove old faces
     polygon.exit().remove();
@@ -328,7 +286,7 @@ function restart() {
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
     .on('mousedown', function(d) {
       // If the user clicks on a path while either the shift key is pressed or curEdit is false, do nothing.
-      if(d3.event.shiftKey || !curEdit) return;
+      if(d3.event.shiftKey || !curEdit || fHeld) return;
 
       // If the user clicks on a path while the shift key is not pressed and curEdit is true, set mousedown_link
       // to be the path that the user clicked on.
@@ -337,14 +295,13 @@ function restart() {
       // If the link was already selected, then unselect it.
       if(mousedown_link === selected_link) selected_link = null;
       
-      // (Brett) Isn't 'if (curEdit)' redundant since we already checked it above?  Remove this line?
-//      else if (curEdit) selected_link = mousedown_link;
-      
       // If the link was not already selected, then select it.
       else selected_link = mousedown_link;
       
-      // Since we selected or unselected a link, set all nodes to be unselected.
+      // Since we selected or unselected a link, set all nodes and faces to be unselected.
       selected_node = null;
+      selected_face = null;
+      
       // If highlighting neighbors is turned on, un-highlight all nodes and links since there is no currently selected node.
       if(curHighlight) unHighlightAll();
       
@@ -362,9 +319,7 @@ function restart() {
   // Update existing nodes (reflexive & selected visual states).
   circle.selectAll('circle')
     // If a node is currently selected, then make it brighter.
-    .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
-    // Set the 'reflexive' attribute to true for all reflexive nodes.
-    .classed('reflexive', function(d) { return d.reflexive; })
+    .style('fill', function(d) { return (d === selected_node || d === selected_face_node_1 || d === selected_face_node_2) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .classed('highlighted', function(d) { return d.highlighted; });
 
   // Add new nodes.
@@ -375,7 +330,6 @@ function restart() {
     .attr('r', 12)
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
-    .classed('reflexive', function(d) { return d.reflexive; })
     .classed('highlighted',function(d) {return d.highlighted;})
     .on('mouseover', function(d) {
       // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
@@ -396,6 +350,58 @@ function restart() {
       // Brett: Add back in the following line if we don't want selected nodes brightened in non-editing mode.
       //if(d3.event.shiftKey || !curEdit) return;
       if(d3.event.shiftKey) return;
+      
+      if(fHeld) {
+        if(!selected_face_node_1){
+            selected_node = null;
+            selected_link = null;
+            selected_face_node_1 = d;
+        }  else if(selected_face_node_1 && !selected_face_node_2){
+            if(selected_face_node_1 == d){
+                selected_face_node_1 = null;
+            } else {
+                selected_face_node_2 = d;
+            }
+        } else if(selected_face_node_1 && selected_face_node_2){
+            if(selected_face_node_1 == d || selected_face_node_2 == d){
+                selected_face_node_2 = null;
+            } else {
+                var face = faces.filter(function(f) {
+                return ((f.v1 === selected_face_node_1 || f.v2 === selected_face_node_1 || f.v3 === selected_face_node_1) && (f.v1 === selected_face_node_2 || f.v2 === selected_face_node_2 || f.v3 === selected_face_node_2) && (f.v1 === d || f.v2 === d || f.v3 === d));})[0];
+                
+                if(!face){
+                  // If there was not already a face on the three chosen vertices, create one.
+                  face = {v1: selected_face_node_1, v2: selected_face_node_2, v3: d, highlighted:false};
+                  faces.push(face);
+                  selected_face = face;
+                  
+                  // Check to be sure all three links involving the selected nodes either already belong to links or are added to links.
+                  var minNodeId = d3.min([selected_face_node_1.id,selected_face_node_2.id,d.id]);
+                  var minNode = nodes.filter(function(n){return n.id == minNodeId;})[0];
+                  var maxNodeId = d3.max([selected_face_node_1.id,selected_face_node_2.id,d.id]);
+                  var maxNode = nodes.filter(function(n){return n.id == maxNodeId;})[0];
+                  var midNodeId = selected_face_node_1.id + selected_face_node_2.id + d.id - minNodeId - maxNodeId;
+                  var midNode = nodes.filter(function(n){return n.id == midNodeId;})[0];
+                  var link1 = links.filter(function(l) {return l.source.id === minNodeId && l.target.id === midNodeId;})[0];
+                  if(!link1){
+                      links.push( {source: minNode, target: midNode, highlighted: false} );
+                  }
+                  var link2 = links.filter(function(l) {return l.source.id === minNodeId && l.target.id === maxNodeId;})[0];
+                  if(!link2){
+                      links.push( {source: minNode, target: maxNode, highlighted: false} );
+                  }
+                  var link3 = links.filter(function(l) {return l.source.id === midNodeId && l.target.id === maxNodeId;})[0];
+                  if(!link3){
+                      links.push( {source: midNode, target: maxNode, highlighted: false} );
+                  }                    
+                }
+                selected_face_node_1 = null;
+                selected_face_node_2 = null;
+            }
+        }
+        restart();
+        return;
+      }
 
       // Otherwise, select node.
       mousedown_node = d;
@@ -409,6 +415,7 @@ function restart() {
             if(curHighlight) highlightAllNeighbors(selected_node);
       };
       selected_link = null;
+      selected_face = null;
 
       // reposition drag line
       if(curEdit){
@@ -464,15 +471,10 @@ function restart() {
         menuDefaults();
       }
 
-      //document.getElementById("constructorString").innerHTML = "Macaulay2 Constructor: " + digraph2M2Constructor(nodes,links);
-      
-      // (Brett) Removing incidence and adjacency matrices for now.
-      /*document.getElementById("incString").innerHTML = "Incidence Matrix: " + arraytoM2Matrix(getIncidenceMatrix(nodes,links));
-      document.getElementById("adjString").innerHTML = "Adjacency Matrix: " + arraytoM2Matrix(getAdjacencyMatrix(nodes,links));*/
-
       // select new link
       if (curEdit) selected_link = link;
       selected_node = null;
+      selected_face = null;
       if (curHighlight) unHighlightAll();
       restart();
     })
@@ -554,7 +556,7 @@ function mousedown() {
   // because :active only works in WebKit?
   svg.classed('active', true);
 
-  if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link) return;
+  if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link || mousedown_face || fHeld) return;
 
   // insert new node at point
 
@@ -628,6 +630,24 @@ function spliceLinksForNode(node) {
   });
 }
 
+function spliceFacesForNode(node) {
+  var toSplice = faces.filter(function(f) {
+    return (f.v1 === node || f.v2 === node || f.v3 === node);
+  });
+  toSplice.map(function(f) {
+    faces.splice(faces.indexOf(f), 1);
+  });
+}
+
+function spliceFacesForLink(link) {
+  var toSplice = faces.filter(function(f) {
+    return ((f.v1 === link.source || f.v2 === link.source || f.v3 === link.source) && (f.v1 === link.target || f.v2 === link.target || f.v3 === link.target));
+  });
+  toSplice.map(function(f) {
+    faces.splice(faces.indexOf(f), 1);
+  });
+}
+
 // only respond once per keydown
 var lastKeyDown = -1;
 
@@ -642,22 +662,32 @@ function keydown() {
     circle.call(drag);
     svg.classed('shift', true);
   }
+    
+  // While the user holds 'f', allow the user to start creating a face.
+  if(d3.event.keyCode === 70) {
+    fHeld = true;
+  }
 
-  if(!selected_node && !selected_link) return;
+  if(!selected_node && !selected_link && !selected_face) return;
   switch(d3.event.keyCode) {
     case 8: // backspace
     case 46: // delete
       if(curEdit && selected_node) {
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
+        spliceFacesForNode(selected_node);
         changedNodes = true;
         if(curHighlight) unHighlightAll();
       } else if(curEdit && selected_link) {
-
         links.splice(links.indexOf(selected_link), 1);
+        spliceFacesForLink(selected_link);
+        if(curHighlight) unHighlightAll();
+      } else if(curEdit && selected_face) {
+        faces.splice(faces.indexOf(selected_face), 1);
         if(curHighlight) unHighlightAll();
       }
       selected_link = null;
+      selected_face = null;
       if(curEdit) {selected_node = null;}
 
       // Graph Changed :: deleted nodes and links
@@ -673,22 +703,6 @@ function keydown() {
       restart();
       break;
           
-      case 66: // B
-      if(selected_link) {
-        // set link direction to both left and right
-        selected_link.left = true;
-        selected_link.right = true;
-      }
-      restart();
-      break;
-    case 76: // L
-      if(selected_link) {
-        // set link direction to left only
-        selected_link.left = true;
-        selected_link.right = false;
-      }
-      restart();
-      break;
     case 82: // R
       if(selected_node && curEdit) {
         // toggle node reflexivity
@@ -714,6 +728,14 @@ function keyup() {
       .on('touchstart.drag', null);
     svg.classed('shift', false);
   }
+    
+  // If the user releases 'f', exit face addition mode.
+  if(d3.event.keyCode === 70) {
+    selected_face_node_1 = null;
+    selected_face_node_2 = null;
+    fHeld = false;
+  }
+    
 }
 
 function disableEditing() {
@@ -721,6 +743,7 @@ function disableEditing() {
   svg.classed('shift', true);
   //selected_node = null;
   selected_link = null;
+  selected_face = null;
   //if(curHighlight) unHighlightAll();
   restart();
 }

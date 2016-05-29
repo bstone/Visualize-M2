@@ -86,7 +86,7 @@
       path.link {
         fill: none;
         stroke: #999;
-        stroke-width: 2px;
+        stroke-width: 3px;
         cursor: default;
         stroke-opacity: .6;
       }
@@ -142,6 +142,10 @@
         
       polygon.face {
         opacity: .4;
+      }
+        
+      #canvasElement2d:not(.active):not(.shift) polygon.face {
+        cursor: pointer;
       }
         
       polygon.face.highlighted {
