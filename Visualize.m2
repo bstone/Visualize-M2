@@ -1665,8 +1665,8 @@ G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 installPackage"Visualize"
 viewHelp Visualize
 
+uninstallPackage"Visualize"
 restart
-
 path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage"Visualize"
 openPort "8081"
@@ -1907,11 +1907,3 @@ visualize J
 closePort()
 
 
--- semi definite programming
--- pablo parillo maybe at MIT
-
-viewHelp openListener
-
-code methods pushForward
-code methods pushNonLinear
-viewHelp independentSets
