@@ -548,6 +548,8 @@ lattice =  method()
 lattice(ZZ,ZZ) := {VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visIdeal/interact_vis_ideal/index.html", Warning => true} >> opts -> (maxX,maxY) -> (
    local visTemp;
    local visTemplate;
+   local maxX;
+   local maxY;
         
    visTemplate = basePath | "Visualize/templates/visIdeal/interact_vis_ideal/index.html";
       
