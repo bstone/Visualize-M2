@@ -827,6 +827,13 @@ server = () -> (
 	    fun = identity;
 	    u = toString( isTree dataValue );
 	)
+
+	-- isRigid
+	else if match("^POST /isRigid/(.*) ",r) then (
+	    -- testKey = "isRigid";
+	    fun = identity;
+	    u = toString( isRigid dataValue );
+	)    
     
         -- isWeaklyConnected
 	else if match("^POST /isWeaklyConnected/(.*) ",r) then (

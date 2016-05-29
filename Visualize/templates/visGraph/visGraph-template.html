@@ -224,6 +224,7 @@
                     <a id="isRegular" href="#" class="list-group-item"> &nbsp;&nbsp; isRegular</a>
                     <a id="isSimple" href="#" class="list-group-item"> &nbsp;&nbsp; isSimple</a>
                     <a id="isTree" href="#" class="list-group-item"> &nbsp;&nbsp; isTree</a>
+                    <a id="isRigid" href="#" class="list-group-item"> &nbsp;&nbsp; isRigid</a>
                 </div>
             <a href="#collapse2" data-toggle="collapse" class="list-group-item">Numerical invariants &#9662;</a>
                 <div id="collapse2" class="panel-collapse collapse">
@@ -433,6 +434,12 @@
       $("#isTree").on("click", function() {
         clickTest = "isTree";
         makeCorsRequest('POST','http://localhost:'+portData+'/isTree/', graph2M2Constructor(nodes,links));
+      });      
+
+      // Checks to see if users graph is Rigid
+      $("#isRigid").on("click", function() {
+        clickTest = "isRigid";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isRigid/', graph2M2Constructor(nodes,links));
       });      
 
       // Computes the chromatic number of the user's graph
