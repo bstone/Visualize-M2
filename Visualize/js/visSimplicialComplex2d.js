@@ -1049,6 +1049,19 @@ function arraytoM2List (arr){
   return str;
 }
 
+// for making unique timestamps in LaTeX. Numbers are not allowed in macros.
+function makeid()
+{
+    var randomtext = "";
+    var randompossible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    for( var i=0; i < 5; i++ )
+        randomtext += randompossible.charAt(Math.floor(Math.random() * randompossible.length));
+
+    return randomtext;
+}
+
+
 function exportTikz (event){
   var points = [];
   for(var i = 0; i < nodes.length; i++){
@@ -1067,9 +1080,11 @@ function exportTikz (event){
     tikzShade = tikzShade + 50/(faces.length-1);
   }
 
+  var timestamp = makeid();
+
   // Branden: Actual tikz code; displayed in black and white. We could do colors, but I am afriad of shading issues when printing.
   var tikzTex = "";
-  tikzTex =  "\\usetikzlibrary{backgrounds}\n      \\begin{tikzpicture}\n         \\newcommand*\\points{"+points+"}\n          \\newcommand*\\edges{"+edges+"}\n          \\newcommand*\\faces{"+tikzFaces+"}\n          \\newcommand*\\scale{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw,fill=white] {$\\w$};\n          }\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n           \\begin{pgfonlayer}{background}\n     \\foreach \\x/\\y/\\z/\\w in \\faces {\n    \\fill[black!\\w]\n    (\\x.center) -- (\\y.center) -- (\\z.center) -- cycle;\n         }\n       \\end{pgfonlayer}\n          \\end{tikzpicture}\n      % \\points is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges is edge set in the form Source ID/Target ID\n      % \\scale makes the picture able to be viewed on the page\n";  
+  tikzTex =  "\\begin{tikzpicture}\n         \\newcommand*\\points"+timestamp+"{"+points+"}\n          \\newcommand*\\edges"+timestamp+"{"+edges+"}\n          \\newcommand*\\faces"+timestamp+"{"+tikzFaces+"}\n          \\newcommand*\\scale"+timestamp+"{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points"+timestamp+" {\n          \\node (\\z) at (\\scale"+timestamp+"*\\x,-\\scale"+timestamp+"*\\y) [circle,draw,fill=white] {$\\w$};\n          }\n          \\foreach \\x/\\y/\\z/\\w in \\faces"+timestamp+" {\n    \\fill[black!\\w]\n    (\\x.center) -- (\\y.center) -- (\\z.center) -- cycle;\n         }\n       \\foreach \\x/\\y/\\z/\\w in \\points"+timestamp+" {\n          \\node (\\z) at (\\scale"+timestamp+"*\\x,-\\scale"+timestamp+"*\\y) [circle,draw,fill=white] {$\\w$};\n          }\n             \\foreach \\x/\\y in \\edges"+timestamp+" {\n          \\draw (\\x) -- (\\y);\n          }\n                       \\end{tikzpicture}\n      % \\points is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges is edge set in the form Source ID/Target ID\n      % \\scale makes the picture able to be viewed on the page\n      % \\faces is a set in the form (node 1)/(node 2)/(node 3)/fill percent\n";  
     
   if(!tikzGenerated){
     var tikzDiv = document.createElement("div");

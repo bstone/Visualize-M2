@@ -880,6 +880,19 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
+
+// for making unique timestamps in LaTeX. Numbers are not allowed in macros.
+function makeid()
+{
+    var randomtext = "";
+    var randompossible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    for( var i=0; i < 5; i++ )
+        randomtext += randompossible.charAt(Math.floor(Math.random() * randompossible.length));
+
+    return randomtext;
+}
+
 function exportTikz (event){
   var points = [];
   for(var i = 0; i < nodes.length; i++){
@@ -892,8 +905,13 @@ function exportTikz (event){
   }
 
   var tikzTex = "";
+
+  console.log(makeid());
+
+  var timestamp = makeid();
+
 //  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
-  tikzTex =  "\\begin{tikzpicture}\n         \\newcommand*\\points{"+points+"}\n          \\newcommand*\\edges{"+edges+"}\n          \\newcommand*\\scale{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}\n      % \\points is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges is edge set in the form Source ID/Target ID\n      % \\scale makes the picture able to be viewed on the page\n";  
+  tikzTex =  "\\begin{tikzpicture}\n         \\newcommand*\\points"+timestamp+"{"+points+"}\n          \\newcommand*\\edges"+timestamp+"{"+edges+"}\n          \\newcommand*\\scale"+timestamp+"{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points"+timestamp+" {\n          \\node (\\z) at (\\scale"+timestamp+"*\\x,-\\scale"+timestamp+"*\\y) [circle,draw] {$\\w$};\n          }\n          \\foreach \\x/\\y in \\edges"+timestamp+" {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}\n      % \\points"+timestamp+" is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges"+timestamp+" is edge set in the form Source ID/Target ID\n      % \\scale"+timestamp+" makes the picture able to be viewed on the page\n";  
     
   if(!tikzGenerated){
     var tikzDiv = document.createElement("div");
