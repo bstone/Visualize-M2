@@ -1841,12 +1841,16 @@ visGraph A
 
 restart
 
+uninstallPackage"Graphs"
 path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/M2/M2/Macaulay2/packages/"}|path
+
 loadPackage "Visualize"
 openPort "8081"
 closePort()
 -- Graphs
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+isRigid G
 
 visualize( G, Verbose => true )
 visualize(G, VisPath => "/Users/bstone/Desktop/Test/")
