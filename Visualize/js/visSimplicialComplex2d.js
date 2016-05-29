@@ -1060,8 +1060,16 @@ function exportTikz (event){
     edges[j] = [ links[j].source.id.toString()+"/"+links[j].target.id.toString() ];
   }
 
+  var tikzFaces = [];
+  var tikzShade = 10;
+  for(var j = 0; j < faces.length; j++){
+    tikzFaces[j] = [ faces[j].v1.id.toString()+"/"+faces[j].v2.id.toString()+"/"+faces[j].v3.id.toString()+"/"+tikzShade.toString() ];
+    tikzShade = tikzShade + 50/(faces.length-1);
+  }
+
+  // Branden: Actual tikz code; displayed in black and white. We could do colors, but I am afriad of shading issues when printing.
   var tikzTex = "";
-  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
+  tikzTex =  "\\usetikzlibrary{backgrounds}\n      \\begin{tikzpicture}\n         \\newcommand*\\points{"+points+"}\n          \\newcommand*\\edges{"+edges+"}\n          \\newcommand*\\faces{"+tikzFaces+"}\n          \\newcommand*\\scale{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw,fill=white] {$\\w$};\n          }\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n           \\begin{pgfonlayer}{background}\n     \\foreach \\x/\\y/\\z/\\w in \\faces {\n    \\fill[black!\\w]\n    (\\x.center) -- (\\y.center) -- (\\z.center) -- cycle;\n         }\n       \\end{pgfonlayer}\n          \\end{tikzpicture}\n      % \\points is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges is edge set in the form Source ID/Target ID\n      % \\scale makes the picture able to be viewed on the page\n";  
     
   if(!tikzGenerated){
     var tikzDiv = document.createElement("div");
