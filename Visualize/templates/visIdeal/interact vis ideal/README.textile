@@ -1,0 +1,5 @@
+h1. vis-ideal
+
+A way to visualize a monomial ideal in two variables.   
+
+For the source repo see: "https://github.com/vlandham/vis-ideal":https://github.com/vlandham/vis-ideal

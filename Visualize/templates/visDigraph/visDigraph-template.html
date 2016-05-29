@@ -5,6 +5,7 @@
     <title>Macaulay2: Digraph Visualization</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/BootSideMenu.css" rel="stylesheet">
+    <link href="css/nouislider.min.css" rel="stylesheet">
     <style>
 
       .noselect {
@@ -28,6 +29,58 @@
 
       #canvasElement2d:not(.active):not(.shift) {
         cursor: crosshair;
+      }
+        
+      /* CSS for sliders */
+      #charge-slider{
+	     margin: 10px;
+	     display: inline-block;
+	     height: 10px;
+         width: 120px;
+      }
+    
+      #linkdist-slider{
+	     margin: 10px;
+	     display: inline-block;
+	     height: 10px;
+         width: 120px;
+      }
+    
+      .noUi-horizontal .noUi-handle {
+	     width: 24px;
+	     height: 18px;
+	     left: -17px;
+	     top: -6px;
+      }
+    
+      .noUi-horizontal {
+	     height: 14px;
+      }
+
+      /* Vertical lines on the handles */
+      .noUi-handle:before,
+      .noUi-handle:after {
+	     content: "";
+	     display: block;
+	     position: absolute;
+	     height: 10px;
+	     width: 1px;
+	     background: #E8E7E6;
+	     left: 10px;
+	     top: 3px;
+      }
+      .noUi-handle:after {
+	     left: 12px;
+      }
+        
+      .noUi-horizontal.noUi-extended {
+	     padding-right: 20px;
+      }
+      .noUi-horizontal.noUi-extended .noUi-handle {
+	     left: -2px;
+      }
+      .noUi-horizontal.noUi-extended .noUi-origin  {
+	     right: -32px;
       }
 
       path.link {
@@ -86,14 +139,6 @@
         font-weight: bold;
       }
 
-      #canvasElement3d {
-        background-color: #FFF;
-        cursor: default;
-        display:none;
-        z-index: 0;
-        padding-bottom: 10px;
-      }
-
       #constructorString {
         -o-user-select: text;
         -moz-user-select: text;
@@ -128,13 +173,14 @@
       curEdit = false;
       curHighlight = false;
   	  curView = "2d";
-      menuOpen = false;
-//      dataData = [[0, 1, 1, 1, 0, 0], [1, 0, 1, 0, 0, 0], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0]];
+      menuOpen = true;
       dataData = visArray;
-//      labelData = ["0", "1", "3", "4", "2", "5"];
       labelData = visLabels;
       portData = visPort; // initializes port from user
       forceOn = true;
+      labelsOn = true;
+      forceCharge = -1500;
+      forceLinkDist = 150;
     </script>
   </head>
 
@@ -143,7 +189,12 @@
         <div id="side">
           <h3>&#8202;&#8202;Menu</h3>
           <div class="list-group" id="menuList">
+            <div class="list-group-item" href="#" id="sliderDiv"><div style="height:25px;">Force variables</div>
+            <span style="display:inline-block; width:60px;">&#8202; Charge:</span><div class="noUi-extended" id="charge-slider" style="vertical-align:middle;"></div><br>
+            <span style="display:inline-block; width:60px;">&#8202; Links:</span><div class="noUi-extended" id="linkdist-slider" style="vertical-align:middle;"></div>
+            </div>
             <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
+            <a id="labelToggle" href="#" class="list-group-item">Hide labels</a>
             <a id="highlightToggle" href="#" class="list-group-item">Highlight neighbors</a>
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn off force</a>
@@ -172,6 +223,7 @@
   <script src="js/visDigraph2d.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/clipboard.min.js"></script>
+  <script src="js/nouislider.min.js"></script>
 
   <script type="text/javascript">
       
@@ -185,11 +237,41 @@
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
-    document.getElementById("canvasElement2d").style.width = window.innerWidth;
-    document.getElementById("canvasElement2d").style.height = window.innerHeight;
+    // When the side menu bar is opened or closed (i.e, when the "toggler" div is clicked), resize the svg appropriately so that nodes do not go behind the side menu.
+    document.getElementsByClassName("toggler")[0].addEventListener("mousedown", function() {
+            menuOpen = !menuOpen;
+            updateWindowSize2d();    
+    }, false);  
+    
+    //document.getElementById("canvasElement2d").style.width = window.innerWidth;
+    //document.getElementById("canvasElement2d").style.height = window.innerHeight;
       
     window.addEventListener("resize", updateWindowSize2d, false);
 
+    // Initialize sliders
+    var chargeSlider = document.getElementById('charge-slider');
+    noUiSlider.create(chargeSlider, {
+        start: [1500],
+        //tooltips: true,
+        range: {
+			'min': [0],
+			'max': [6000]
+		}
+    });
+    //chargeSlider.noUiSlider.on('update', updateForceCharge);
+      
+    var linkDistSlider = document.getElementById('linkdist-slider');
+    noUiSlider.create(linkDistSlider, {
+        start: [100],
+        //tooltips: true,
+        range: {
+			'min': [0],
+			'max': [400]
+		}
+    });
+    //chargeSlider.noUiSlider.on('update', updateForceLinkDist);
+      
+      
     $(document).ready(function(){
 
       $("#editToggle").on("click", function(){
@@ -201,6 +283,18 @@
           $(this).html("Disable editing");
           curEdit = !curEdit;
           enableEditing();
+        }
+      });
+        
+      $("#labelToggle").on("click", function(){
+        if(!labelsOn) {
+          $(this).html("Hide labels");
+          labelsOn = !labelsOn;
+          showLabels();
+        } else {
+          $(this).html("Show labels");
+          labelsOn = !labelsOn;
+          hideLabels();
         }
       });
     
@@ -281,7 +375,7 @@
         document.getElementById("forceToggle").innerHTML = "Turn on force";
       }
       else {
-        resetGraph();
+        setAllNodesUnfixed();
         document.getElementById("forceToggle").innerHTML = "Turn off force";
       }
       forceOn = !forceOn;

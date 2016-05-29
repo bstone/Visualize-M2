@@ -55,7 +55,7 @@ function initializeBuilder() {
   console.log("building graph");
     
   // Set up SVG for D3.
-  width  = window.innerWidth-10;
+  width  = window.innerWidth-document.getElementById("side").clientWidth;
   height = window.innerHeight-10;
   colors = d3.scale.category10();
 
@@ -78,18 +78,20 @@ function initializeBuilder() {
     
   // Create the nodes with their appropriate names and id's, and set reflexive to true if and only if there is a 1 in the appropriate
   // spot on the main diagonal.  This represents a loop in the digraph.
-  for (var i = 0; i<data.length; i++) {
+  for (var i = 0; i < data.length; i++) {
       nodes.push( {name: names[i], id: i, reflexive: data[i][i] == 1, highlighted:false } );
   }
 
-  for (var i = 0; i<data.length - 1; i++) {
+  for (var i = 0; i < data.length - 1; i++) {
       for (var j = i+1; j < data.length; j++) {
-          if (data[i][j] != 0) {
-              links.push( { source: nodes[i], target: nodes[j], left: false, right: true, highlighted:false} );
+          var leftEdge = (data[j][i] == 1);
+          var rightEdge = (data[i][j] == 1);
+          if (leftEdge || rightEdge) {
+              links.push( { source: nodes[i], target: nodes[j], left: leftEdge, right: rightEdge, highlighted:false} );
           }
       }
   }
-  
+  /*
   for (var i = 1; i<data.length; i++) {
       for (var j = 0; j < i; j++) {
           if (data[i][j] != 0) {
@@ -111,6 +113,7 @@ function initializeBuilder() {
           }
       }
   }
+  */
 
   console.log(nodes);
   console.log(links);
@@ -144,9 +147,13 @@ function initializeBuilder() {
       .nodes(nodes)
       .links(links)
       .size([width, height])
-      .linkDistance(150)
-      .charge(-500)
+      .linkDistance(forceLinkDist)
+      .charge(forceCharge)
       .on('tick', tick);
+    
+  // After the force variable is initialized, set the sliders to update the force variables.
+  chargeSlider.noUiSlider.on('slide', updateForceCharge);
+  linkDistSlider.noUiSlider.on('slide', updateForceLinkDist);
     
   // define arrow markers for graph links
   svg.append('svg:defs').append('svg:marker')
@@ -156,7 +163,7 @@ function initializeBuilder() {
     .attr('markerWidth', 3)
     .attr('markerHeight', 3)
     .attr('orient', 'auto')
-  .append('svg:path')
+    .append('svg:path')
     .attr('d', 'M0,-5L10,0L0,5')
     .attr('fill', '#000');
 
@@ -167,7 +174,7 @@ function initializeBuilder() {
     .attr('markerWidth', 3)
     .attr('markerHeight', 3)
     .attr('orient', 'auto')
-  .append('svg:path')
+    .append('svg:path')
     .attr('d', 'M10,-5L0,0L10,5')
     .attr('fill', '#000');
 
@@ -221,9 +228,8 @@ function initializeBuilder() {
 
 function resetGraph() {
   // Set the 'fixed' attribute to false for all nodes and then restart the force layout.
-  for( var i = 0; i < nodes.length; i++ ){
-    nodes[i].fixed = false;
-  }
+  forceOn = false;
+  toggleForce();
   restart();
 }
 
@@ -422,11 +428,13 @@ function restart() {
       selected_link = null;
 
       // reposition drag line
-      drag_line
-        .style('marker-end', 'url(#end-arrow)')
-        .classed('hidden', false)
-        .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
-
+      if(curEdit){
+        drag_line
+          .style('marker-end', 'url(#end-arrow)')
+          .classed('hidden', false)
+          .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+      }
+          
       restart();
     })
     .on('mouseup', function(d) {
@@ -505,7 +513,7 @@ function restart() {
         }
       }
       
-      if(name != null) {
+      if(name != "null") {
         d.name = name;
         d3.select(this.parentNode).select("text").text(function(d) {return d.name});          
       }
@@ -514,14 +522,15 @@ function restart() {
 
     });
 
+  if(labelsOn){
   // show node IDs
-  g.append('svg:text')
-      .attr('x', 0)
-      .attr('y', 4)
-      .attr('class', 'id noselect')
-      .attr("pointer-events", "none")
-      .text(function(d) { return d.name; });
-
+    g.append('svg:text')
+        .attr('x', 0)
+        .attr('y', 4) 
+        .attr('class', 'id noselect')
+        .attr("pointer-events", "none")
+        .text(function(d) { return d.name; });
+  }
   /*
   var maxLength = d3.max(nodes, function(d) {
         return d.name.length;
@@ -566,13 +575,19 @@ function mousedown() {
   // insert new node at point
 
   var point = d3.mouse(this);
-  var curName = (lastNodeId + 1).toString();
+  var curName = lastNodeId + 1;
+  while(checkName(curName.toString())){
+      curName += 1;
+  }
+  curName = curName.toString();
+  /*
   if (checkName(curName)) {
     curName += 'a';
   }
   while (checkName(curName)) {
     curName = curName.substring(0, curName.length - 1) + getNextAlpha(curName.slice(-1));
   }
+  */
 
   // Graph Changed :: adding nodes
   node = {id: ++lastNodeId, name: curName, reflexive: false, highlighted: false};
@@ -718,25 +733,9 @@ function keyup() {
 function disableEditing() {
   circle.call(drag);
   svg.classed('shift', true);
-  selected_node = null;
+  //selected_node = null;
   selected_link = null;
-  if(curHighlight) unHighlightAll();
-
-  /*
-  for (var i = 0; i<nodes.length; i++) {
-    nodes[i].selected = false;
-  }
-  for (var i = 0; i<links.length; i++) {
-    links[i].selected = false;
-  }
-  path = path.data(links);
-
-  // update existing links
-  path.classed('selected', false)
-    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
-  */
-
+  //if(curHighlight) unHighlightAll();
   restart();
 }
 
@@ -793,7 +792,25 @@ function setAllNodesFixed() {
   for (var i = 0; i<nodes.length; i++) {
     nodes[i].fixed = true;
   }
+}
 
+function setAllNodesUnfixed() {
+  for (var i = 0; i<nodes.length; i++) {
+    nodes[i].fixed = false;
+  }
+}
+
+function hideLabels() {
+    circle.select("text").remove();    
+}
+
+function showLabels() {
+     circle.append('svg:text')
+      .attr('x', 0)
+      .attr('y', 4)
+      .attr('class', 'id noselect')
+      .attr("pointer-events", "none")
+      .text(function(d) { return d.name; });
 }
 
 function updateWindowSize2d() {
@@ -802,16 +819,17 @@ function updateWindowSize2d() {
     
     // get width/height with container selector (body also works)
     // or use other method of calculating desired values
-    var width = window.innerWidth-10;
-    var height = window.innerHeight-10;
+    if(!menuOpen){
+        width = window.innerWidth-10;
+    } else {
+        width = window.innerWidth - document.getElementById("side").clientWidth;
+    }
+    height = window.innerHeight-10;
 
     // set attrs and 'resume' force 
-    //svg.attr('width', width);
-    //svg.attr('height', height);
-    svg.style.width = width;
-    svg.style.height = height;
-    svg.width = width;
-    svg.height = height;
+    svg.attr('width', width);
+    svg.attr('height', height);
+
     force.size([width, height]).resume();
 }
 
@@ -822,15 +840,47 @@ function digraph2M2Constructor( nodeSet, edgeSet ){
   var e = edgeSet.length;
   var strNodes = "{";
   var d = nodeSet.length;
-  for( var i = 0; i < e; i++ ){
-    if(i != (e-1)){
+  var foundReflexive = false;
+  for( var i = 0; i < d; i++ ){
+    if(i != (d-1)){
       strNodes = strNodes + (nodeSet[i].name).toString() + ", ";
     }
-    else{
+    else {
       strNodes = strNodes + (nodeSet[i].name).toString() + "}";
     }
+    // Add any reflexive nodes as an edge from the vertex to itself.
+    if(nodeSet[i].reflexive){
+        strEdges = strEdges + "{" + nodeSet[i].name.toString() + ", " + nodeSet[i].name.toString() + "}, ";
+        foundReflexive = true;
+    }
   }
-  return "digraph(" + strNodes + "," + arraytoM2Matrix(getAdjacencyMatrix(nodeSet,edgeSet)) + ")";
+
+  for( var i = 0; i < e; i++ ){
+    var leftEdge = edgeSet[i].left;
+    var rightEdge = edgeSet[i].right;
+    if(i != (e-1)){
+      if(leftEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}, ";}
+      if(rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}, ";}
+    }
+    else{
+      if(leftEdge && rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}, " + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}}";}
+      else if(leftEdge){ strEdges = strEdges + "{" + (edgeSet[i].target.name).toString() + "," + (edgeSet[i].source.name).toString() + "}}";}
+      else if(rightEdge){ strEdges = strEdges + "{" + (edgeSet[i].source.name).toString() + "," + (edgeSet[i].target.name).toString() + "}}";}
+    }
+  }
+    
+  // Handle some extremal cases such as the empty digraph, or digraphs with no edges.
+  if(foundReflexive && (edgeSet.length == 0)){
+      strEdges = strEdges.slice(0,-2) + "}";
+  }
+  if((!foundReflexive) && (edgeSet.length == 0)){
+      strEdges = "{}";
+  }
+  if(nodeSet.length == 0){
+      strNodes = "{}";
+  }
+    
+  return "digraph(" + strNodes + "," + strEdges + ")";
 
 }
 
@@ -896,6 +946,18 @@ function getAdjacencyMatrix (nodeSet, edgeSet){
   }
 
   return adjMatrix;
+}
+
+function updateForceCharge(){
+    if(!forceOn){toggleForce()};
+    forceCharge = -chargeSlider.noUiSlider.get();
+    force.charge(forceCharge).start();
+}
+
+function updateForceLinkDist(){
+    if(!forceOn){toggleForce()};
+    forceLinkDist = linkDistSlider.noUiSlider.get();
+    force.linkDistance(forceLinkDist).start();
 }
 
 // Takes a rectangular array of arrays and returns a string which can be copy/pasted into M2.
@@ -978,7 +1040,7 @@ function exportTikz (event){
     tikzDiv.appendChild(tikzInput);
     tikzDiv.appendChild(tikzButton);
     var listGroup = document.getElementById("menuList");
-    listGroup.insertBefore(tikzDiv,listGroup.childNodes[10]);
+    listGroup.insertBefore(tikzDiv,listGroup.childNodes[14]);
     document.getElementById("copyButton").setAttribute("data-clipboard-target","#tikzTextBox");
     clipboard = new Clipboard('#copyButton');
     clipboard.on('error', function(e) {
@@ -986,40 +1048,7 @@ function exportTikz (event){
     });  
     tikzGenerated = true;
   }
-  document.getElementById("tikzTextBox").value = tikzTex;
-  /*  
-  var tikzTextArea = document.createElement("textarea");
-  tikzTextArea.setAttribute("type", "hidden"); 
-  document.getElementById("body").appendChild(tikzTextArea);
-  tikzTextArea.value += tikzTex;
-    
-  event.preventDefault();
-  tikzTextArea.select(); // Select the input node's contents
-  var succeeded;
-  try {
-    // Copy it to the clipboard
-    succeeded = document.execCommand("copy");
-  } catch (e) {
-    succeeded = false;
-  }
-  if (succeeded) {
-    console.log("Copy successful.");
-  } else {
-    console.log("Copy failed.");
-  }
-  */
-    
-// tikzTextArea.select().focus();
-//  $('#container').append('To copy emails to clipboard, press: Ctrl+C, then Enter <br />  <textarea id="tikzTex">'+tikzTex+'</textarea>');
-//  $('#tikzTex').select().focus();
-
-//console.log(tikzTex.length);
-//  if (tikzTex.length < 2001){
-//    window.prompt("Copy this text the best way you can.", tikzTex );
-//  } else {
-//    alert("Feeling ambitious? Your TikZ code is "+tikzTex.length.toString()+" characters. The maximum amount of characters is 2000.");
-//  }
-    
+  document.getElementById("tikzTextBox").value = tikzTex;    
 }
 
 // -----------------------------------------
@@ -1106,11 +1135,3 @@ function makeCorsRequest(method,url,browserData) {
 // -----------------------------------------
 // End Server Stuff
 // -----------------------------------------
-
-
-function stopForce() {
-  force.stop();
-}
-function startForce() {
-  force.start();
-}

@@ -5,6 +5,7 @@
     <title>Macaulay2: Poset Visualization</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/BootSideMenu.css" rel="stylesheet">
+    <link href="css/nouislider.min.css" rel="stylesheet">
     <style>
 
       .noselect {
@@ -40,6 +41,58 @@
       #canvasElement2d:not(.active):not(.shift) path.link {
         cursor: pointer;
       }
+        
+      /* CSS for sliders */
+      #charge-slider{
+	     margin: 10px;
+	     display: inline-block;
+	     height: 10px;
+         width: 120px;
+      }
+    
+      #linkdist-slider{
+	     margin: 10px;
+	     display: inline-block;
+	     height: 10px;
+         width: 120px;
+      }
+    
+      .noUi-horizontal .noUi-handle {
+	     width: 24px;
+	     height: 18px;
+	     left: -17px;
+	     top: -6px;
+      }
+    
+      .noUi-horizontal {
+	     height: 14px;
+      }
+
+      /* Vertical lines on the handles */
+      .noUi-handle:before,
+      .noUi-handle:after {
+	     content: "";
+	     display: block;
+	     position: absolute;
+	     height: 10px;
+	     width: 1px;
+	     background: #E8E7E6;
+	     left: 10px;
+	     top: 3px;
+      }
+      .noUi-handle:after {
+	     left: 12px;
+      }
+        
+      .noUi-horizontal.noUi-extended {
+	     padding-right: 20px;
+      }
+      .noUi-horizontal.noUi-extended .noUi-handle {
+	     left: -2px;
+      }
+      .noUi-horizontal.noUi-extended .noUi-origin  {
+	     right: -32px;
+      }
 
       path.link.selected {
         stroke-dasharray: 10,2;
@@ -60,16 +113,18 @@
       path.link.hidden {
         stroke-width: 0;
       }
-    
-      .node {
+      
+      /*
+      circle.node {
           stroke: #fff;
           stroke-width: 1.5px;
       }
 
-      .link {
+      circle.link {
           stroke: #999;
           stroke-opacity: .6;
       }
+      */
 
       circle.node {
         stroke-width: 0px;
@@ -78,6 +133,11 @@
 
       circle.node.reflexive {
         stroke: #000 !important;
+        stroke-width: 2.5px;
+      }
+     
+      circle.node.highlighted {
+        stroke: #000 !important;    
         stroke-width: 2.5px;
       }
 
@@ -89,14 +149,6 @@
       text.id {
         text-anchor: middle;
         font-weight: bold;
-      }
-
-      #canvasElement3d {
-        background-color: #FFF;
-        cursor: default;
-        display:none;
-        z-index: 0;
-        padding-bottom: 10px;
       }
 
       #constructorString {
@@ -129,40 +181,62 @@
       //global variables
       activeSession = true;
       curEdit = false;
-  	  curView = "2d";
-      menuOpen = false;
-  /*    dataNodes = [
-		{"name": "1", "group":0},
-		{"name": "2", "group":1},
-		{"name": "3", "group":1},
-		{"name": "4", "group":2},
-		{"name": "5", "group":1},
-		{"name": "6", "group":2}
-	   ];*/
-      dataNodes = visNodes;
-    /*  dataLinks = [
-		{"source":0,"target":1,"value":1},
-		{"source":0,"target":2,"value":2},
-		{"source":0,"target":4,"value":3},
-		{"source":1,"target":3,"value":1},
-		{"source":2,"target":5,"value":2},
-        {"source":4,"target":3,"value":1}
-	   ];*/
-      dataLinks = visRelations;
+      curHighlight = false;
+      menuOpen = true;
+      dataLabels = visLabels;
+      dataRelMatrix = visRelMatrix;
+      dataCovRel = null;
+      dataGroupList = null;
       portData = visPort; // initializes port from user
+      fixExtremalNodes = visExtremeElts;
+      dataMaxChains = null;
       forceOn = false;
+      labelsOn = true;
+      tikzGenerated = false;
+      forceCharge = -1500;
+      forceLinkDist = 100;
     </script>
   </head>
 
   <body>
 
         <div id="side">
-          <h2>Menu</h2>
-          <div class="list-group">
+          <h2>&#8202;&#8202;Menu</h2>
+          <div class="list-group" id="menuList">
+            <div class="list-group-item" href="#" id="sliderDiv"><div style="height:25px;">Force variables</div>
+            <span style="display:inline-block; width:60px;">&#8202; Charge:</span><div class="noUi-extended" id="charge-slider" style="vertical-align:middle;"></div><br>
+            <span style="display:inline-block; width:60px;">&#8202; Links:</span><div class="noUi-extended" id="linkdist-slider" style="vertical-align:middle;"></div>
+            </div>
             <a id="editToggle" href="#" class="list-group-item">Enable editing</a>
+            <a id="labelToggle" href="#" class="list-group-item">Hide labels</a>
+            <a id="highlightToggle" href="#" class="list-group-item">Highlight comparable elements</a>
+            <a id="extremalNodeToggle" href="#" class="list-group-item">Fix extremal nodes</a>
             <a id="reset" href="#" class="list-group-item">Reset nodes</a>
             <a id="forceToggle" href="#" class="list-group-item">Turn on force</a>
-            <a id="exportTikz" href="#" class="list-group-item">Export TikZ</a>
+            <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
+              
+            <a href="#collapse1" data-toggle="collapse" class="list-group-item">Boolean tests &#9662;</a>
+                <div id="collapse1" class="panel-collapse collapse">
+                    <a id="isAtomic" href="#" class="list-group-item"> &nbsp;&nbsp; isAtomic</a>
+                    <a id="isBounded" href="#" class="list-group-item"> &nbsp;&nbsp; isBounded</a>
+                    <a id="isDistributive" href="#" class="list-group-item"> &nbsp;&nbsp; isDistributive</a>
+                    <a id="isGeometric" href="#" class="list-group-item"> &nbsp;&nbsp; isGeometric</a>
+                    <a id="isGraded" href="#" class="list-group-item"> &nbsp;&nbsp; isGraded</a>
+                    <a id="isLattice" href="#" class="list-group-item"> &nbsp;&nbsp; isLattice</a>
+                    <a id="isLowerSemilattice" href="#" class="list-group-item"> &nbsp;&nbsp; isLowerSemilattice</a>
+                    <a id="isLowerSemimodular" href="#" class="list-group-item"> &nbsp;&nbsp; isLowerSemimodular</a>
+                    <a id="isModular" href="#" class="list-group-item"> &nbsp;&nbsp; isModular</a>
+                    <a id="isRanked" href="#" class="list-group-item"> &nbsp;&nbsp; isRanked</a>
+                    <a id="isSperner" href="#" class="list-group-item"> &nbsp;&nbsp; isSperner</a>
+                    <a id="isStrictSperner" href="#" class="list-group-item"> &nbsp;&nbsp; isStrictSperner</a>
+                    <a id="isUpperSemilattice" href="#" class="list-group-item"> &nbsp;&nbsp; isUpperSemilattice</a>
+                    <a id="isUpperSemimodular" href="#" class="list-group-item"> &nbsp;&nbsp; isUpperSemimodular</a>
+                </div>
+            <a href="#collapse2" data-toggle="collapse" class="list-group-item">Numerical invariants &#9662;</a>
+                <div id="collapse2" class="panel-collapse collapse">
+                    <a id="dilworthNumber" href="#" class="list-group-item"> &nbsp;&nbsp; dilworthNumber</a>
+                </div>
+              
             <a id="endSession" href="#" class="list-group-item">End session</a> 
           </div>
         </div>
@@ -176,16 +250,52 @@
   <script src="js/BootSideMenu.js"></script>
   <script src="js/d3.v3.js"></script>
   <script src="js/visPoset.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/clipboard.min.js"></script>
+  <script src="js/nouislider.min.js"></script>
 
   <script type="text/javascript">
+      
+    // Initialize clipboard.js.
+    var clipboard = null;
+      
 //    $('#side').BootSideMenu({side:"right"});
     $('#side').BootSideMenu({side:"right", autoClose: false});
+    
+    // When the side menu bar is opened or closed (i.e, when the "toggler" div is clicked), resize the svg appropriately so that nodes do not go behind the side menu.
+    document.getElementsByClassName("toggler")[0].addEventListener("mousedown", function() {
+            menuOpen = !menuOpen;
+            updateWindowSize2d();    
+    }, false);
 
-    document.getElementById("canvasElement2d").style.width = window.innerWidth;//change here switched 3 to 2
-    document.getElementById("canvasElement2d").style.height = window.innerHeight - 125;//change here switched 3 to 2
+    //document.getElementById("canvasElement2d").style.width = width;
+    //document.getElementById("canvasElement2d").style.height = height;
 
     window.addEventListener('resize', updateWindowSize2d, false);
-
+      
+    // Initialize sliders
+    var chargeSlider = document.getElementById('charge-slider');
+    noUiSlider.create(chargeSlider, {
+        start: [1500],
+        //tooltips: true,
+        range: {
+			'min': [0],
+			'max': [6000]
+		}
+    });
+    //chargeSlider.noUiSlider.on('update', updateForceCharge);
+      
+    var linkDistSlider = document.getElementById('linkdist-slider');
+    noUiSlider.create(linkDistSlider, {
+        start: [100],
+        //tooltips: true,
+        range: {
+			'min': [0],
+			'max': [400]
+		}
+    });
+    //chargeSlider.noUiSlider.on('update', updateForceLinkDist);
+      
     $(document).ready(function(){
 
       $("#editToggle").on("click", function(){
@@ -199,12 +309,169 @@
           enableEditing();
         }
       });
+        
+      $("#labelToggle").on("click", function(){
+        if(!labelsOn) {
+          $(this).html("Hide labels");
+          labelsOn = !labelsOn;
+          showLabels();
+        } else {
+          $(this).html("Show labels");
+          labelsOn = !labelsOn;
+          hideLabels();
+        }
+      });
+        
+      $("#highlightToggle").on("click", function(){
+        if(curHighlight) {
+          $(this).html("Highlight comparable elements");
+          unHighlightAll();
+          curHighlight = !curHighlight;
+        } else {
+          $(this).html("Disable highlighting");
+          enableHighlight();
+          curHighlight = !curHighlight;
+        }
+      });
 
-      $("#reset").on("click", resetGraph);
+      $("#extremalNodeToggle").on("click", function(){
+        if(fixExtremalNodes) {
+          $(this).html("Fix extremal nodes");
+          fixExtremalNodes = !fixExtremalNodes;
+          
+        } else {
+          $(this).html("Don't fix extremal nodes");
+          fixExtremalNodes = !fixExtremalNodes;
+          
+        }
+        
+        force.stop();
+        nodes = [];
+        links = [];
+        restart();
+          
+        // Recompute node groups and reinitialize the display.
+        dataGroupList = computeNodeGroups(dataRelMatrix);
+        maxGroup = d3.max(dataGroupList);
+        rowSep = (height-2*vPadding)/maxGroup;
+        nodes = nodesFromLabelsGroups(dataLabels,dataGroupList);
+        setAllNodesFixed();
+        links = linksFromNodesRelations(nodes,dataCovRel);
+        force.nodes(nodes)
+          .links(links);
+        tick();
+          
+        // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
+        if(forceOn) toggleForce();
+          
+        // Update the display.  
+        restart();
+      });    
+        
+      $("#reset").on("click", resetPoset);
+        
       $("#forceToggle").on("click", toggleForce);
+    
       $("#exportTikz").on("click", function() {
         exportTikz();
       })
+      
+      // Begin browser-M2 communication.
+      // For each item, a line in the function `onclickResults()`
+      // located in `visGraph2d.js` must be added. 
+      // 
+      // If you wish to delete the text to make it vanish when the graph is edited
+      // search for 'menuDefaults()'.
+
+      // Checks to see if user's poset is atomic
+      $("#isAtomic").on("click", function() {
+        clickTest = "isAtomic";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isAtomic/', poset2M2Constructor(dataLabels));
+      });
+        
+      // Checks to see if user's poset is bounded
+      $("#isBounded").on("click", function() {
+        clickTest = "isBounded";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isBounded/', poset2M2Constructor(dataLabels));
+      }); 
+        
+      // Checks to see if user's poset is distributive
+      $("#isDistributive").on("click", function() {
+        clickTest = "isDistributive";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isDistributive/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is geometric
+      $("#isGeometric").on("click", function() {
+        clickTest = "isGeometric";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isGeometric/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is graded
+      $("#isGraded").on("click", function() {
+        clickTest = "isGraded";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isGraded/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is a lattice
+      $("#isLattice").on("click", function() {
+        clickTest = "isLattice";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isLattice/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is a lower semilattice
+      $("#isLowerSemilattice").on("click", function() {
+        clickTest = "isLowerSemilattice";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isLowerSemilattice/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is lower semimodular
+      $("#isLowerSemimodular").on("click", function() {
+        clickTest = "isLowerSemimodular";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isLowerSemimodular/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is modular
+      $("#isModular").on("click", function() {
+        clickTest = "isModular";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isModular/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is ranked
+      $("#isRanked").on("click", function() {
+        clickTest = "isRanked";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isRanked/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is Sperner
+      $("#isSperner").on("click", function() {
+        clickTest = "isSperner";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isSperner/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is strict Sperner
+      $("#isStrictSperner").on("click", function() {
+        clickTest = "isStrictSperner";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isStrictSperner/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is an upper semilattice
+      $("#isUpperSemilattice").on("click", function() {
+        clickTest = "isUpperSemilattice";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isUpperSemilattice/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Checks to see if user's poset is upper semimodular
+      $("#isUpperSemimodular").on("click", function() {
+        clickTest = "isUpperSemimodular";
+        makeCorsRequest('POST','http://localhost:'+portData+'/isUpperSemimodular/', poset2M2Constructor(dataLabels));
+      });    
+        
+      // Computes the Dilworth number of the user's poset (the maximal length of an antichain)
+      $("#dilworthNumber").on("click", function() {
+        clickTest = "dilworthNumber";
+        makeCorsRequest('POST','http://localhost:'+portData+'/dilworthNumber/', poset2M2Constructor(dataLabels));
+      });
 
       // Ends the browser session and outputs the information to M2
       $("#endSession").on("click", function() {
@@ -214,7 +481,7 @@
           document.getElementById("endSession").style.color = 'white';
           document.getElementById("endSession").style.backgroundColor = 'red';
           document.getElementById("endSession").innerHTML = "Session terminated";
-          makeCorsRequest('POST','http://localhost:'+portData+'/end/',poset2M2Constructor(nodes,links));
+          makeCorsRequest('POST','http://localhost:'+portData+'/end/',poset2M2Constructor(dataLabels));
           activeSession = !activeSession;
         } else {
           return;
@@ -232,12 +499,14 @@
         document.getElementById("forceToggle").innerHTML = "Turn on force";
       }
       else {
-        resetGraph();
+        setAllNodesUnfixed();
+        restart();
         document.getElementById("forceToggle").innerHTML = "Turn off force";
       }
       forceOn = !forceOn;
     }
 
+    /*
     window.addEventListener("mousedown", function(e) {
 
       if (!menuOpen) return;
@@ -249,8 +518,8 @@
       }
 
     }, false);
-  	//window.addEventListener('resize', updateWindowSize2d, false);
-    //window.onresize = updateWindowSize2d;
+    */
+
     </script>
 
   </body>

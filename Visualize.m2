@@ -22,6 +22,7 @@ newPackage(
     	Date => "June 1, 2015",
     	Authors => {       
      	     {Name => "Brett Barwick", Email => "Brett@barwick.edu", HomePage => "http://math.bard.edu/~bstone/"},	     
+	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu", HomePage => "http://math.bu.edu/people/tomenk"},	     
 -- Contributing Author	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
 -- Contributing Author	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
 	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
@@ -270,7 +271,7 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
 	    );
 	
 	arrayList = apply( flatten entries gens J, m -> flatten exponents m);	
-arrayList = toArray arrayList;
+	arrayList = toArray arrayList;
 	arrayString = toString arrayList;
 	
 	searchReplace("visArray",arrayString, visTemp);
@@ -422,13 +423,13 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
 visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
 
     local labelList; local groupList; local relList; local visTemp;
-    local numNodes; local nodeString; local relationString; local browserOutput;
+    local numNodes; local labelString; local nodeString; local relationString;
+    local relMatrixString; local fixExtremeEltsString; local browserOutput;
     
-    
-    labelList = P_*;
-    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
-    relList = coveringRelations P;
-    numNodes = #labelList;
+    labelList = apply(P_*, i -> "'"|(toString i)|"'");
+    --if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
+    --relList = coveringRelations P;
+    --numNodes = #labelList;
     
     if opts.FixExtremeElements == true then (
 	    groupList = relHeightFunction P;
@@ -436,9 +437,12 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
 	    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
     );
 
-    nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
-    relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
-
+    labelString = toString new Array from labelList;
+    --nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
+    --relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
+    relMatrixString = toString toArray entries P.RelationMatrix;
+    fixExtremeEltsString = toString opts.FixExtremeElements;
+  
     if opts.VisPath =!= null 
     then (
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visPoset template to a temporary directory.
@@ -449,9 +453,12 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
     );
     
-    searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
-    searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
+    --searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
+    searchReplace("visLabels",labelString, visTemp); -- Replace visLabels in the visPoset html file by the labels of the nodes in the same order as the ground set of P.
+    --searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
+    searchReplace("visRelMatrix",relMatrixString, visTemp); -- Replace visRelMatrix in the visPoset html file by the relation matrix of the poset.
     searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
+    searchReplace("visExtremeElts",fixExtremeEltsString, visTemp); -- Replace visExtremeElts in the visPoset html file by the option passed by the user of whether to fix the extremal elements at the minimum or maximum levels.
     
     show new URL from { "file://"|visTemp };
  
@@ -464,12 +471,11 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
 --input: A SimplicialComplex
 --output: The SimplicialComplex in the browswer
 --
-visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+visualize(SimplicialComplex) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
-    local visTemplate;
-    
+    local visTemplate; local browserOutput;
     
     vertexSet = flatten entries faces(0,D);
     edgeSet = flatten entries faces(1,D);
@@ -478,10 +484,12 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
     edgeList = apply(edgeSet, e -> apply(new List from factor e, i -> i#0));
     face2List = apply(face2Set, f -> apply(new List from factor f, i -> i#0));
 
-    vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
-    edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
-    face2String = toString new Array from apply(#face2List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face2List#i#2))|",\"v2\": "|toString(position(vertexSet, j -> j == face2List#i#1))|",\"v3\": "|toString(position(vertexSet, j -> j == face2List#i#0))});
-
+    --vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
+    vertexString = toString new Array from apply(vertexSet, i -> "'"|toString(i)|"'");
+    --edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
+    edgeString = toString new Array from apply(#edgeList, i -> new Array from {position(vertexSet, j -> j === edgeList#i#1),position(vertexSet, j -> j === edgeList#i#0)});
+    face2String = toString new Array from apply(#face2List, i -> new Array from {position(vertexSet, j -> j == face2List#i#2),position(vertexSet, j -> j == face2List#i#1),position(vertexSet, j -> j == face2List#i#0)});
+  
     if dim D>2 then (
 	error "3-dimensional simplicial complexes not implemented yet.";
  	visTemplate = basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex3d-template.html"
@@ -503,7 +511,8 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
     searchReplace("visNodes",vertexString, visTemp); -- Replace visNodes in the visSimplicialComplex html file by the ordered list of vertices.
     searchReplace("visEdges",edgeString, visTemp); -- Replace visEdges in the visSimplicialComplex html file by the list of edges.
     searchReplace("vis2Faces",face2String, visTemp); -- Replace vis2Faces in the visSimplicialComplex html file by the list of faces. 
-    
+    searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
+        
     if dim D>2 then (
 	error "3-dimensional simplicial complexes not implemented yet.";
 	face3Set = flatten entries faces(3,D);
@@ -511,12 +520,15 @@ visualize(SimplicialComplex) := {VisPath => defaultPath, VisTemplate => basePath
        	face3String = toString new Array from apply(#face3List, i -> {"\"v1\": "|toString(position(vertexSet, j -> j == face3List#i#3))|",\"v2\": "|toString(position(vertexSet, j -> j == face3List#i#2))|",\"v3\": "|toString(position(vertexSet, j -> j == face3List#i#1))|",\"v4\": "|toString(position(vertexSet, j -> j == face3List#i#0))});
 	searchReplace("vis3Faces",face3String, visTemp); -- Replace vis3Faces in the visSimplicialComplex html file by the list of faces. 
     );
-    show new URL from { "file://"|visTemp };
     
-    return visTemp;
+    show new URL from { "file://"|visTemp };
+ 
+    browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
+    
+    return browserOutput; 
 )
 
-
+{*
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
@@ -543,6 +555,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize
     
     return visTemp;
 )
+*}
 
 --input: a String of a path to a directory
 --output: Copies the needed files and libraries to path
@@ -658,7 +671,7 @@ openPort String := F -> (
     else(
 	portTest = true;
 	inOutPortNum = F;
-	F = "$:"|F;
+	F = "$localhost:"|F;
 	inOutPort = openListener F;
 	print("--Port " | toString inOutPort | " is now open.");    
 	);  
@@ -685,9 +698,8 @@ openServer = method(Options =>{Verbose => true})
 openServer File := opts -> S -> (
  
 local server; local fun; local listener; 
-local httpHeader; local testKey; 
-local u;
-
+local httpHeader; local testKey;
+local u; local data; local dataValue;
 
 testKey = " ";
 listener = S;
@@ -704,7 +716,8 @@ server = () -> (
         if #r == 0 then (close g; continue);
 	
 	data := last r;
-        r = first r;
+        dataValue = value data;
+	r = first r;
 	
 	-- Begin handling requests from browser
 	---------------------------------------
@@ -713,35 +726,42 @@ server = () -> (
 	if match("^POST /hasEulerianTrail/(.*) ",r) then (
 	    -- testKey = "hasEulerianTrail";
 	    fun = identity;
-	    u = toString( hasEulerianTrail indexLabelGraph value data );
+	    u = toString( hasEulerianTrail dataValue );
 	)	
 	
 	-- hasOddHole
 	else if match("^POST /hasOddHole/(.*) ",r) then (
 	    -- testKey = "hasOddHole";
 	    fun = identity;
-	    u = toString( hasOddHole indexLabelGraph value data );
+	    u = toString( hasOddHole dataValue );
 	)	
 	
 	-- isCM
 	else if match("^POST /isCM/(.*) ",r) then (
 	    -- testKey = "isCM";
 	    fun = identity;
-	    u = toString( isCM indexLabelGraph value data );
+	    u = toString( isCM dataValue );
 	)	
 
 	-- isBipartite
 	else if match("^POST /isBipartite/(.*) ",r) then (
 	    -- testKey = "isBipartite";
 	    fun = identity;
-	    u = toString( isBipartite indexLabelGraph value data );
+	    u = toString( isBipartite dataValue );
 	)	
 
 	-- isChordal
 	else if match("^POST /isChordal/(.*) ",r) then (
 	    -- testKey = "isChordal";
 	    fun = identity;
-	    u = toString( isChordal indexLabelGraph value data );
+	    u = toString( isChordal dataValue );
+	)	
+	
+	-- isComparabilityGraph
+	else if match("^POST /isComparabilityGraph/(.*) ",r) then (
+	    -- testKey = "isComparabilityGraph";
+	    fun = identity;
+	    u = toString( isComparabilityGraph dataValue );
 	)	
 	
 	-- isConnected
@@ -749,166 +769,275 @@ server = () -> (
 	    -- testKey = "isConnected";
 	    fun = identity;
 	    print"isConnected else if in M2";
-	    u = toString( isConnected indexLabelGraph value data );
+	    u = toString( isConnected dataValue );
 	)	
 
     	-- isCyclic
 	else if match("^POST /isCyclic/(.*) ",r) then (
 	    -- testKey = "isCyclic";
 	    fun = identity;
-	    u = toString( isCyclic indexLabelGraph value data );
+	    u = toString( isCyclic dataValue );
 	)		
 
     	-- isEulerian
 	else if match("^POST /isEulerian/(.*) ",r) then (
 	    -- testKey = "isEulerian";
 	    fun = identity;
-	    u = toString( isEulerian indexLabelGraph value data );
+	    u = toString( isEulerian dataValue );
 	)		
 
     	-- isForest
 	else if match("^POST /isForest/(.*) ",r) then (
 	    -- testKey = "isForest";
 	    fun = identity;
-	    u = toString( isForest indexLabelGraph value data );
+	    u = toString( isForest dataValue );
 	)		
 
     	-- isPerfect
 	else if match("^POST /isPerfect/(.*) ",r) then (
 	    -- testKey = "isPerfect";
 	    fun = identity;
-	    u = toString( isPerfect indexLabelGraph value data );
+	    u = toString( isPerfect dataValue );
 	)		
 
     	-- isRegular
 	else if match("^POST /isRegular/(.*) ",r) then (
 	    -- testKey = "isRegular";
 	    fun = identity;
-	    u = toString( isRegular indexLabelGraph value data );
+	    u = toString( isRegular dataValue );
 	)		
 
     	-- isSimple
 	else if match("^POST /isSimple/(.*) ",r) then (
 	    -- testKey = "isSimple";
 	    fun = identity;
-	    u = toString( isSimple indexLabelGraph value data );
+	    u = toString( isSimple dataValue );
 	)		
 
     	-- isStronglyConnected
 	else if match("^POST /isStronglyConnected/(.*) ",r) then (
 	    -- testKey = "isStronglyConnected";
 	    fun = identity;
-	    u = toString( isStronglyConnected indexLabelGraph value data );
+	    u = toString( isStronglyConnected dataValue );
 	)	
 	
 	-- isTree
 	else if match("^POST /isTree/(.*) ",r) then (
 	    -- testKey = "isTree";
 	    fun = identity;
-	    u = toString( isTree indexLabelGraph value data );
+	    u = toString( isTree dataValue );
 	)
     
         -- isWeaklyConnected
 	else if match("^POST /isWeaklyConnected/(.*) ",r) then (
 	    -- testKey = "isWeaklyConnected";
 	    fun = identity;
-	    u = toString( isWeaklyConnected indexLabelGraph value data );
+	    u = toString( isWeaklyConnected dataValue );
 	)	
     
         -- chromaticNumber
 	else if match("^POST /chromaticNumber/(.*) ",r) then (
 	    -- testKey = "chromaticNumber";
 	    fun = identity;
-	    u = toString( chromaticNumber indexLabelGraph value data );
+	    u = toString( chromaticNumber dataValue );
 	)			
 	
 	-- independenceNumber
 	else if match("^POST /independenceNumber/(.*) ",r) then (
 	    -- testKey = "independenceNumber";
 	    fun = identity;
-	    u = toString( independenceNumber indexLabelGraph value data );
+	    u = toString( independenceNumber dataValue );
 	)			
 	
 	-- cliqueNumber
 	else if match("^POST /cliqueNumber/(.*) ",r) then (
 	    -- testKey = "cliqueNumber";
 	    fun = identity;
-	    u = toString( cliqueNumber indexLabelGraph value data );
+	    u = toString( cliqueNumber dataValue );
 	)			
 	
 	-- degeneracy
 	else if match("^POST /degeneracy/(.*) ",r) then (
 	    -- testKey = "degeneracy";
 	    fun = identity;
-	    u = toString( degeneracy indexLabelGraph value data );
+	    u = toString( degeneracy dataValue );
 	)			
 	
 	-- density
 	else if match("^POST /density/(.*) ",r) then (
 	    -- testKey = "density";
 	    fun = identity;
-	    u = toString( density indexLabelGraph value data );
+	    u = toString( density dataValue );
 	)			
 	
 	-- diameter
 	else if match("^POST /diameter/(.*) ",r) then (
 	    -- testKey = "diameter";
 	    fun = identity;
-	    u = toString( diameter indexLabelGraph value data );
+	    u = toString( diameter dataValue );
 	)			
 	
 	-- edgeConnectivity
 	else if match("^POST /edgeConnectivity/(.*) ",r) then (
 	    -- testKey = "edgeConnectivity";
 	    fun = identity;
-	    u = toString( edgeConnectivity indexLabelGraph value data );
+	    u = toString( edgeConnectivity dataValue );
 	)			
 	
 	-- minimalDegree
 	else if match("^POST /minimalDegree/(.*) ",r) then (
 	    -- testKey = "minimalDegree";
 	    fun = identity;
-	    u = toString( minimalDegree indexLabelGraph value data );
+	    u = toString( minimalDegree dataValue );
 	)			
 	
 	-- numberOfComponents
 	else if match("^POST /numberOfComponents/(.*) ",r) then (
 	    -- testKey = "numberOfComponents";
 	    fun = identity;
-	    u = toString( numberOfComponents indexLabelGraph value data );
+	    u = toString( numberOfComponents dataValue );
 	)			
 	
 	-- numberOfTriangles
 	else if match("^POST /numberOfTriangles/(.*) ",r) then (
 	    -- testKey = "numberOfTriangles";
 	    fun = identity;
-	    u = toString( numberOfTriangles indexLabelGraph value data );
+	    u = toString( numberOfTriangles dataValue );
 	)			
 	
 	-- radius
 	else if match("^POST /radius/(.*) ",r) then (
 	    -- testKey = "radius";
 	    fun = identity;
-	    if not isConnected indexLabelGraph value data then u = "Not connected." else u = toString( radius indexLabelGraph value data );
+	    if not isConnected dataValue then u = "Not connected." else u = toString( radius dataValue );
 	)			
 	
 	-- vertexConnectivity
 	else if match("^POST /vertexConnectivity/(.*) ",r) then (
 	    -- testKey = "";
 	    fun = identity;
-	    u = toString( vertexConnectivity indexLabelGraph value data );
+	    u = toString( vertexConnectivity dataValue );
 	)			
 	
 	-- vertexCoverNumber
 	else if match("^POST /vertexCoverNumber/(.*) ",r) then (
 	    -- testKey = "vertexCoverNumber";
 	    fun = identity;
-	    u = toString( vertexCoverNumber indexLabelGraph value data );
+	    u = toString( vertexCoverNumber dataValue );
 	)			
-	 
+	
+	----------------------
+	-- Tests for posets --
+	----------------------
+	
+	-- isAtomic
+	else if match("^POST /isAtomic/(.*) ",r) then (
+	    -- testKey = "isAtomic";
+	    fun = identity;
+	    if not isLattice dataValue then u = "Not lattice." else u = toString( isAtomic dataValue );
+	)
+    
+    	-- isBounded
+	else if match("^POST /isBounded/(.*) ",r) then (
+	    -- testKey = "isBounded";
+	    fun = identity;
+	    u = toString( isBounded dataValue );
+	)
+    
+    	-- isDistributive
+	else if match("^POST /isDistributive/(.*) ",r) then (
+	    -- testKey = "isDistributive";
+	    fun = identity;
+	    if not isLattice dataValue then u = "Not lattice." else u = toString( isDistributive dataValue );
+	)
+    
+    	-- isGeometric
+	else if match("^POST /isGeometric/(.*) ",r) then (
+	    -- testKey = "isGeometric";
+	    fun = identity;
+	    if not isLattice dataValue then u = "Not lattice." else u = toString( isGeometric dataValue );
+	)
+    
+    	-- isGraded
+	else if match("^POST /isGraded/(.*) ",r) then (
+	    -- testKey = "isGraded";
+	    fun = identity;
+	    u = toString( isGraded dataValue );
+	)
+    
+    	-- isLattice
+	else if match("^POST /isLattice/(.*) ",r) then (
+	    -- testKey = "isLattice";
+	    fun = identity;
+	    u = toString( isLattice dataValue );
+	)
+    
+    	-- isLowerSemilattice
+	else if match("^POST /isLowerSemilattice/(.*) ",r) then (
+	    -- testKey = "isLowerSemilattice";
+	    fun = identity;
+	    u = toString( isLowerSemilattice dataValue );
+	)
+    
+    	-- isLowerSemimodular (only applies to ranked posets)
+	else if match("^POST /isLowerSemimodular/(.*) ",r) then (
+	    -- testKey = "isLowerSemimodular";
+	    fun = identity;
+	    if not (isRanked dataValue and isLattice dataValue) then u = "Not ranked lattice." else u = toString( isLowerSemimodular dataValue );
+	)
+    
+    	-- isModular
+	else if match("^POST /isModular/(.*) ",r) then (
+	    -- testKey = "isModular";
+	    fun = identity;
+	    if not isLattice dataValue then u = "Not lattice." else u = toString( isModular dataValue );
+	)
+    
+    	-- isRanked
+	else if match("^POST /isRanked/(.*) ",r) then (
+	    -- testKey = "isRanked";
+	    fun = identity;
+	    u = toString( isRanked dataValue );
+	)
+    
+    	-- isSperner (only applies to ranked posets)
+	else if match("^POST /isSperner/(.*) ",r) then (
+	    -- testKey = "isSperner";
+	    fun = identity;
+	    if not isRanked dataValue then u = "Not ranked." else u = toString( isSperner dataValue );
+	)
+    
+    	-- isStrictSperner (only applies to ranked posets)
+	else if match("^POST /isStrictSperner/(.*) ",r) then (
+	    -- testKey = "isStrictSperner";
+	    fun = identity;
+	    if not isRanked dataValue then u = "Not ranked." else u = toString( isStrictSperner dataValue );
+	)
+    
+    	-- isUpperSemilattice
+	else if match("^POST /isUpperSemilattice/(.*) ",r) then (
+	    -- testKey = "isUpperSemilattice";
+	    fun = identity;
+	    u = toString( isUpperSemilattice dataValue );
+	)
+    
+    	-- isUpperSemimodular (only applies to ranked posets)
+	else if match("^POST /isUpperSemimodular/(.*) ",r) then (
+	    -- testKey = "isUpperSemimodular";
+	    fun = identity;
+	    if not(isRanked dataValue and isLattice dataValue) then u = "Not ranked lattice." else u = toString( isUpperSemimodular dataValue );
+	)
+    
+    	-- dilworthNumber
+	else if match("^POST /dilworthNumber/(.*) ",r) then (
+	    -- testKey = "dilworthNumber";
+	    fun = identity;
+	    u = toString( dilworthNumber dataValue );
+	)
+    	
 	-- End Session   
 	else if match("^POST /end/(.*) ",r) then (
-	    R := value data;
+	    R := dataValue;
 	    return R;
 	)
 	
@@ -974,8 +1103,7 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
---     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
-     
+    
      }
 
 
@@ -1048,13 +1176,13 @@ document {
      PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
      Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
      if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
-
+     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
 
      PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
      open with a new graph, the spanning forest of ", TT "H", "."},
      
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => get "!pwd| tr -d '\n'"|"/Visualize/images/Visualize/Visualize_Graph3.png", "alt" => "Spanning Forest"),      
+     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph3.png", "alt" => "Original graph entered into M2"), 
      
      PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
      Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
@@ -1063,48 +1191,70 @@ document {
 	 "closePort()"
 	 },
      
---     Caveat => {"When in the browser, and editing is on, you can move the nodes of a graph by pressing SHIFT and moving them."}
+     Caveat => "When editing is enabled, you can still move the nodes around by pressing SHIFT and then clicking on the nodes."
      
      }
  
- document {
-     Key => VisPath,
-     Headline => "an option to define a path save visualizations",
+document {
+     Key => (visualize,Ideal),
+     Headline => "visualizes an ideal in the browser",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA "Make Graphs perfect and copy with pics"
+     }
+
+document {
+     Key => (visualize,Digraph),
+     Headline => "visualizes a digraph in the browser",
+     
+     PARA "Make Graphs perfect and copy with pics"
+     }
+
+document {
+     Key => (visualize,Poset),
+     Headline => "visualizes a poset in the browser",
+     
+     PARA "Make Graphs perfect and copy with pics"
+     }
+
+document {
+     Key => (visualize,SimplicialComplex),
+     Headline => "visualizes a simplicial complex in the browser",
+     
+     PARA "Make Graphs perfect and copy with pics"
+
+     }
+
+ 
+document {
+     Key => VisPath,
+     Headline => "an option to define a path to save visualizations",
+          
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}
      }
 
 document {
      Key => VisTemplate,
-     Headline => "an option to define a path to a user defined template",
+     Headline => "an option defining the template path",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
      }
  
 document {
      Key => Warning,
      Headline => "an option to squelch warnings",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
      }
 
 document {
      Key => FixExtremeElements,
      Headline => "an option that brett created",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA "I don't know what this is."
      }
 
 
@@ -1113,222 +1263,250 @@ document {
      Key => [(visualize,Poset),FixExtremeElements],
      Headline => "an option that brett created",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA "I don't know what this is."
      }
  
 document {
      Key => [(visualize,Digraph),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of Digraphs",
+     Usage => "H = visualize (D, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"D" => Digraph => "a Digraph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
 
 document {
      Key => [(visualize,Graph),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of Graphs",
+     Usage => "H = visualize (G, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"G" => Graph => "a graph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
+
 
 document {
      Key => [(visualize,Ideal),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of Ideals",
+     Usage => "H = visualize (I, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"I" => Ideal => "an ideal"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
 
 document {
      Key => [(visualize,Poset),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of Posets",
+     Usage => "H = visualize (P, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"P" => Poset => "a poset"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
+
 
 document {
      Key => [(visualize,SimplicialComplex),VisPath],
-     Headline => "an option that brett created",
+     Headline => "an option to define a path to save visualizations of simplicial complexes",
+     Usage => "H = visualize (S, VisPath => \"/PATH/TO/DIRECTORY/\")",
+     Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
+	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
      }
+
 
 document {
      Key => [(visualize,Digraph),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (D, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"D" => Digraph => "a digraph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+
      }
 
 document {
      Key => [(visualize,Graph),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (G, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"G" => Graph => "a graph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
      }
 
 document {
      Key => [(visualize,Ideal),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (I, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"I" => Ideal => "an ideal"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+
      }
 
 document {
      Key => [(visualize,Poset),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (P, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"P" => Poset => "a poset"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+
      }
 
 document {
      Key => [(visualize,SimplicialComplex),VisTemplate],
-     Headline => "an option that brett created",
+     Headline => "an option defining the template path",
+     Usage => "H = visualize (S, VisPath => \"/PATH/TO/TEMPLATE/\")",
+     Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+
      }
 
 document {
      Key => [(visualize,Digraph),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (D, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"D" => Digraph => "a digraph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
 
 document {
      Key => [(visualize,Graph),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (G, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"G" => Graph => "a graph"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
- 
+
+
 document {
      Key => [(visualize,Ideal),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (I, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"I" => Ideal => "an ideal"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
+
 
 document {
      Key => [(visualize,Poset),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (P, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"P" => Poset => "a poset"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
 
 document {
      Key => [(visualize,SimplicialComplex),Warning],
-     Headline => "an option that brett created",
+     Headline => "an option to squelch warnings",
+     Usage => "H = visualize (S, VisPath => \"/PATH/TO/DIRECTORY/\", Warning => false)",     
+     Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+
      }
 
 
 
+
 document {
-     Key => (visualize,Ideal),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     Key => [(visualize,Graph),Verbose],
+     Headline => "an to view communication between Macaulay2 server and browser ",
+     Usage => "H = visualize (G, Verbose => true)",     
+     Inputs => {"G" => Graph => "a graph"},
+
+     PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
+	 The communication will be displayed in the instance of Macaulay2."}
      }
 
 document {
-     Key => (visualize,Digraph),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     Key => [(visualize,Digraph),Verbose],
+     Headline => "an to view communication between Macaulay2 server and browser ",
+     Usage => "H = visualize (D, Verbose => true)",     
+     Inputs => {"D" => Digraph => "a digraph"},
+
+     PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
+	 The communication will be displayed in the instance of Macaulay2."}
+
      }
 
-document {
-     Key => (visualize,Poset),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
-     }
 
 document {
-     Key => (visualize,SimplicialComplex),
-     Headline => "A package to help visualize algebraic objects in the browser using javascript",
-     
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     Key => [(visualize,Poset),Verbose],
+     Headline => "an to view communication between Macaulay2 server and browser ",
+     Usage => "H = visualize (P, Verbose => true)",     
+     Inputs => {"P" => Poset => "a poset"},
+
+     PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
+	 The communication will be displayed in the instance of Macaulay2."}
      }
 
 document {
      Key => {openPort,(openPort,String)},
      Headline => "opens a port",
+     Usage => "openPort N",
+     Inputs => {"N" => String => "a port number"},
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"In order to use the ", TO "visualize", " method, the user must first open a port on their machine. This
+	 can be dangerous."},
+	 
+     EXAMPLE {
+	 "openPort \"8080\"",
+	 },
+     
+     PARA {"Once a port is open, another instance of ", TO "openPort", " will not be allowed to open another port. 
+	 Hence the user can only open one port at a time with this method. Once finished visualizing, you can close the 
+	 port with the ", TO "closePort", " method."},
+	 
+     EXAMPLE {
+	 "closePort()",
+	 },	 
+
+    PARA "Restarting Macaulay2 will also close the port."
      }
+
 
 document {
      Key => (closePort),
      Headline => "closes and open port",
      
-     PARA "Using JavaScript, this package creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
-     run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session."
+     PARA {"When a port is opened with the ", TO "openPort", " method, ", TT "closePort()", 
+	 " is used to close the port. If the user forgets to close the port, closing or restarting
+	 Macaulay2 will automatically close the port."},
+     
+      EXAMPLE {
+	 "openPort \"8080\"",
+	 "closePort()"
+	 },
      }
 
 
@@ -1419,9 +1597,11 @@ visualize P
 restart
 loadPackage "SimplicialComplexes"
 loadPackage "Visualize"
+openPort "8081"
 R = ZZ[a..f]
 D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
 visualize D
+visualize(D,Verbose => true)
 
 R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
@@ -1485,8 +1665,8 @@ G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 installPackage"Visualize"
 viewHelp Visualize
 
+uninstallPackage"Visualize"
 restart
-run "pwd"
 path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage"Visualize"
 openPort "8081"
@@ -1531,7 +1711,7 @@ viewHelp Graphs
 -- ideal tests
 restart
 loadPackage"Visualize"
-openPort "8081"
+openPort "8080"
 R = QQ[a,b,c]
 I = ideal"a2,ab,b2c,c5,b4"
 -- I = ideal"x4,xyz3,yz,xz,z6,y5"
@@ -1661,12 +1841,12 @@ closePort()
 -- Graphs
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 
-visualize G
+visualize( G, Verbose => true )
 visualize(G, VisPath => "/Users/bstone/Desktop/Test/")
 
 cycleGraph 9
 visualize oo
-
+run"pwd"
 wheelGraph 8
 visualize oo
 
@@ -1692,10 +1872,14 @@ visualize D2
 
 
 -- Posets
+restart
+path = path|{"~/GitHub/Visualize-M2/"}
+loadPackage "Visualize"
+openPort "8081"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize P2
 visualize(P2,FixExtremeElements => true)
-
+visualize oo
 
 -- Simplicial Complexes
 R = ZZ[a..f]
@@ -1723,5 +1907,3 @@ visualize J
 closePort()
 
 
--- semi definite programming
--- pablo parillo maybe at MIT
