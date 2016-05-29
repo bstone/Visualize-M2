@@ -248,7 +248,7 @@ relHeightFunction(Poset) := P -> (
 --
 visualize = method(Options => true)
 
-visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
+visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal"} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList;
         
@@ -262,11 +262,11 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
     then (
 	if opts.VisPath =!= null 
 	then (
-	    	visTemp = copyTemplate(opts.VisTemplate|"2D.html",opts.VisPath);
+	    	visTemp = copyTemplate(opts.VisTemplate|"/interact_vis_ideal/index.html",opts.VisPath);
 	    	copyJS(opts.VisPath, Warning => opts.Warning);	    
 	    )
 	else (
-	    	visTemp = copyTemplate(opts.VisTemplate|"2D.html");
+	    	visTemp = copyTemplate(opts.VisTemplate|"/interact_vis_ideal/index.html");
 	    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning);	    
 	    );
 	
@@ -283,7 +283,7 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
 	
 	if opts.VisPath =!= null 
 	then (
-	    	visTemp = copyTemplate(opts.VisTemplate|"3D.html",opts.VisPath);
+	    	visTemp = copyTemplate(opts.VisTemplate|"/visIdeal3D.html",opts.VisPath);
 	    	copyJS(opts.VisPath, Warning => opts.Warning);	    
 	    )
 	else (
