@@ -880,16 +880,17 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
+
 // for making unique timestamps in LaTeX. Numbers are not allowed in macros.
 function makeid()
 {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    var randomtext = "";
+    var randompossible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     for( var i=0; i < 5; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
+        randomtext += randompossible.charAt(Math.floor(Math.random() * randompossible.length));
 
-    return text;
+    return randomtext;
 }
 
 function exportTikz (event){
