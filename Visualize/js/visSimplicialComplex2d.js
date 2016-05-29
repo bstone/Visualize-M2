@@ -31,11 +31,12 @@
       selected_face = null,
       selected_face_node_1 = null,
       selected_face_node_2 = null,
-      selected_face_node_3 = null,
       mousedown_link = null,
       mousedown_node = null,
       mousedown_face = null,
       mouseup_node = null;
+
+  var fHeld = false;
 
   var drag = null;
 
@@ -59,8 +60,6 @@
     console.log(scriptSource);
 
 function initializeBuilder() {
-    
-  console.log("building graph");
     
   // Set up SVG for D3.
   width  = window.innerWidth-document.getElementById("side").clientWidth;
@@ -287,7 +286,7 @@ function restart() {
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
     .on('mousedown', function(d) {
       // If the user clicks on a path while either the shift key is pressed or curEdit is false, do nothing.
-      if(d3.event.shiftKey || !curEdit) return;
+      if(d3.event.shiftKey || !curEdit || fHeld) return;
 
       // If the user clicks on a path while the shift key is not pressed and curEdit is true, set mousedown_link
       // to be the path that the user clicked on.
@@ -320,9 +319,7 @@ function restart() {
   // Update existing nodes (reflexive & selected visual states).
   circle.selectAll('circle')
     // If a node is currently selected, then make it brighter.
-    .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
-    // Set the 'reflexive' attribute to true for all reflexive nodes.
-    .classed('reflexive', function(d) { return d.reflexive; })
+    .style('fill', function(d) { return (d === selected_node || d === selected_face_node_1 || d === selected_face_node_2) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .classed('highlighted', function(d) { return d.highlighted; });
 
   // Add new nodes.
@@ -333,7 +330,6 @@ function restart() {
     .attr('r', 12)
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
-    .classed('reflexive', function(d) { return d.reflexive; })
     .classed('highlighted',function(d) {return d.highlighted;})
     .on('mouseover', function(d) {
       // If no node has been previously clicked on or if the user has not dragged the cursor to a different node after clicking,
@@ -354,6 +350,58 @@ function restart() {
       // Brett: Add back in the following line if we don't want selected nodes brightened in non-editing mode.
       //if(d3.event.shiftKey || !curEdit) return;
       if(d3.event.shiftKey) return;
+      
+      if(fHeld) {
+        if(!selected_face_node_1){
+            selected_node = null;
+            selected_link = null;
+            selected_face_node_1 = d;
+        }  else if(selected_face_node_1 && !selected_face_node_2){
+            if(selected_face_node_1 == d){
+                selected_face_node_1 = null;
+            } else {
+                selected_face_node_2 = d;
+            }
+        } else if(selected_face_node_1 && selected_face_node_2){
+            if(selected_face_node_1 == d || selected_face_node_2 == d){
+                selected_face_node_2 = null;
+            } else {
+                var face = faces.filter(function(f) {
+                return ((f.v1 === selected_face_node_1 || f.v2 === selected_face_node_1 || f.v3 === selected_face_node_1) && (f.v1 === selected_face_node_2 || f.v2 === selected_face_node_2 || f.v3 === selected_face_node_2) && (f.v1 === d || f.v2 === d || f.v3 === d));})[0];
+                
+                if(!face){
+                  // If there was not already a face on the three chosen vertices, create one.
+                  face = {v1: selected_face_node_1, v2: selected_face_node_2, v3: d, highlighted:false};
+                  faces.push(face);
+                  selected_face = face;
+                  
+                  // Check to be sure all three links involving the selected nodes either already belong to links or are added to links.
+                  var minNodeId = d3.min([selected_face_node_1.id,selected_face_node_2.id,d.id]);
+                  var minNode = nodes.filter(function(n){return n.id == minNodeId;})[0];
+                  var maxNodeId = d3.max([selected_face_node_1.id,selected_face_node_2.id,d.id]);
+                  var maxNode = nodes.filter(function(n){return n.id == maxNodeId;})[0];
+                  var midNodeId = selected_face_node_1.id + selected_face_node_2.id + d.id - minNodeId - maxNodeId;
+                  var midNode = nodes.filter(function(n){return n.id == midNodeId;})[0];
+                  var link1 = links.filter(function(l) {return l.source.id === minNodeId && l.target.id === midNodeId;})[0];
+                  if(!link1){
+                      links.push( {source: minNode, target: midNode, highlighted: false} );
+                  }
+                  var link2 = links.filter(function(l) {return l.source.id === minNodeId && l.target.id === maxNodeId;})[0];
+                  if(!link2){
+                      links.push( {source: minNode, target: maxNode, highlighted: false} );
+                  }
+                  var link3 = links.filter(function(l) {return l.source.id === midNodeId && l.target.id === maxNodeId;})[0];
+                  if(!link3){
+                      links.push( {source: midNode, target: maxNode, highlighted: false} );
+                  }                    
+                }
+                selected_face_node_1 = null;
+                selected_face_node_2 = null;
+            }
+        }
+        restart();
+        return;
+      }
 
       // Otherwise, select node.
       mousedown_node = d;
@@ -508,7 +556,7 @@ function mousedown() {
   // because :active only works in WebKit?
   svg.classed('active', true);
 
-  if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link || mousedown_face) return;
+  if(!curEdit || d3.event.shiftKey || mousedown_node || mousedown_link || mousedown_face || fHeld) return;
 
   // insert new node at point
 
@@ -614,6 +662,11 @@ function keydown() {
     circle.call(drag);
     svg.classed('shift', true);
   }
+    
+  // While the user holds 'f', allow the user to start creating a face.
+  if(d3.event.keyCode === 70) {
+    fHeld = true;
+  }
 
   if(!selected_node && !selected_link && !selected_face) return;
   switch(d3.event.keyCode) {
@@ -650,22 +703,6 @@ function keydown() {
       restart();
       break;
           
-      case 66: // B
-      if(selected_link) {
-        // set link direction to both left and right
-        selected_link.left = true;
-        selected_link.right = true;
-      }
-      restart();
-      break;
-    case 76: // L
-      if(selected_link) {
-        // set link direction to left only
-        selected_link.left = true;
-        selected_link.right = false;
-      }
-      restart();
-      break;
     case 82: // R
       if(selected_node && curEdit) {
         // toggle node reflexivity
@@ -691,6 +728,14 @@ function keyup() {
       .on('touchstart.drag', null);
     svg.classed('shift', false);
   }
+    
+  // If the user releases 'f', exit face addition mode.
+  if(d3.event.keyCode === 70) {
+    selected_face_node_1 = null;
+    selected_face_node_2 = null;
+    fHeld = false;
+  }
+    
 }
 
 function disableEditing() {
@@ -698,6 +743,7 @@ function disableEditing() {
   svg.classed('shift', true);
   //selected_node = null;
   selected_link = null;
+  selected_face = null;
   //if(curHighlight) unHighlightAll();
   restart();
 }
