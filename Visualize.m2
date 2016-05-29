@@ -256,17 +256,18 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
     numVar = rank source vars R;
     varList = flatten entries vars R;
         
-    if ((numVar != 2) and (numVar != 3)) then (error "Ring needs to have either 2 or 3 variables.");
+    if ((numVar != 2) and (numVar != 3) and (numVar !=0)) then (error "Ring needs to have either 2 or 3 variables.");
     
     if numVar == 2 
     then (
+
 	if opts.VisPath =!= null 
 	then (
-	    	visTemp = copyTemplate(opts.VisTemplate|"/interact_vis_ideal/index.html",opts.VisPath);
+	    	visTemp = copyTemplate(opts.VisTemplate|"/visIdeal2D.html",opts.VisPath);
 	    	copyJS(opts.VisPath, Warning => opts.Warning);	    
 	    )
 	else (
-	    	visTemp = copyTemplate(opts.VisTemplate|"/interact_vis_ideal/index.html");
+	    	visTemp = copyTemplate(opts.VisTemplate|"/visIdeal2D.html");
 	    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning);	    
 	    );
 	
@@ -278,16 +279,33 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
 --	searchReplace("XXX",toString(varList_0), visTemp);
 --	searchReplace("YYY",toString(varList_1), visTemp);
 --	searchReplace("ZZZ",toString(varList_2), visTemp)
-    )
-    else (
+    	)
+    	
+	else if(numVar == 0) then (
+	    if opts.VisPath =!= null 
+	then (
+	    	visTemp = copyTemplate(opts.VisTemplate|"/interact_vis_ideal/index.html",opts.VisPath);
+	    	copyJS(opts.VisPath, Warning => opts.Warning);	    
+	    )
+	else (
+	    	visTemp = copyTemplate(opts.VisTemplate|"/interact_vis_ideal/index.html");
+	    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning);	    
+	    );
 	
-	if opts.VisPath =!= null 
+	arrayList = {[0,0]};
+	arrayString = toString arrayList;
+	
+	searchReplace("visArray",arrayString, visTemp);
+    	)
+
+    else (
+       	if opts.VisPath =!= null 
 	then (
 	    	visTemp = copyTemplate(opts.VisTemplate|"/visIdeal3D.html",opts.VisPath);
 	    	copyJS(opts.VisPath, Warning => opts.Warning);	    
 	    )
 	else (
-	    	visTemp = copyTemplate(opts.VisTemplate|"3D.html");
+	    	visTemp = copyTemplate(opts.VisTemplate|"/visIdeal3D.html");
 	    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning);	    
 	    );
 	    
@@ -1573,6 +1591,14 @@ P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
 visualize(P2,FixExtremeElements => true,Verbose=>true)
 visualize P2
 visualize(oo, Verbose=>true)
+
+R=ZZ/101[x,y]
+J=ideal()
+visualize J
+K=ideal(0)
+visualize K
+L=ideal(x,y)
+visualize L
 
 closePort()
 
