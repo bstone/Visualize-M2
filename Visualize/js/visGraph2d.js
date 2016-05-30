@@ -917,6 +917,7 @@ function exportTikz (event){
     var tikzDiv = document.createElement("div");
     tikzDiv.id = "tikzHolder";
     tikzDiv.className = "list-group-item";
+    tikzDiv.setAttribute('href','#');
     var tikzInput = document.createElement("input");
     tikzInput.value = "";
     tikzInput.id = "tikzTextBox";
@@ -925,7 +926,6 @@ function exportTikz (event){
     var tikzButton = document.createElement("button");
     tikzButton.id = "copyButton";
     tikzButton.style = "vertical-align:middle;";
-    //tikzButton.dataClipboardTarget = "#tikzTextBox";
     tikzButton.type = "button";
     var clipboardImg = document.createElement("img");
     clipboardImg.src = scriptSource+"images/32px-Octicons-clippy.png";
