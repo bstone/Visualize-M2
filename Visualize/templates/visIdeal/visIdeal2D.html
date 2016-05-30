@@ -244,6 +244,7 @@
                         .attr("width", w)
                         .attr("id", "svgMain");
 
+        // find largest x and y exponents
         xMax = 0;
         yMax = 0;
         for (i = 0; i < dataset.length; i++) {
@@ -255,6 +256,8 @@
                 }
         }
 
+        // make the lattice go one unit beyond max x and y values
+        // looks like chart is an array of arrays of 1's
         chart = [];
         for (i = 0; i < yMax+1; i++) {
                 chart.push([]);
@@ -263,8 +266,11 @@
                 }
         }
 
+        // determine the size of each unit square
         sq = Math.ceil(Math.min(h/(yMax+2), w/(xMax+2)));
 
+        // datum will be a coordinate in the plane and blankout will 
+        // put a 0 in every lattice point above and to the right
         var blankOut = function(datum, chart) {
                 for (i = 0; i < chart.length; i++) {
                         if (i >= datum[1]) {
@@ -278,13 +284,13 @@
                 return chart;
         }
 
-
+        // put 0 in coordinates for elements of ideal
         for (k = 0; k < dataset.length; k++) {
                 chart = blankOut(dataset[k], chart);
                 }
 
 
-
+        // the lattice points not in the ideal
         var makeDatFromChart = function(chart) {
                 dat = [];
                 for (i = 0; i < chart.length; i++) {
@@ -297,11 +303,13 @@
                 return dat;
         }
 
+        // the coordinates of the points not in the ideal
         dat = makeDatFromChart(chart);
 
 
         
-
+        // i'm not sure but i think the lines we get when switching
+        // between convex hull are coming from the scale
         var xScale = d3.scale.linear();
         xScale.domain([0,xMax+1]);
         xScale.range([sq/2, (xMax+1.5)*sq]);
@@ -313,11 +321,12 @@
 
 
 
-
+        // list of triangles from generator to another generator to
+        // the point with (x max, y max)
         tri = [];
 
         for (i = 0; i < dataset.length-1; i++) {
-                for(j = i; j < dataset.length; j++) {
+                for(j = i+1; j < dataset.length; j++) {
                         tri.push(xScale(dataset[i][0]).toString() + "," +
                         yScale(dataset[i][1]-1).toString() + " " +
                         xScale(dataset[j][0]).toString() + "," +
@@ -351,6 +360,7 @@
         }
 
 
+        // shades all the squares not in the ideal
         ideal = svg.selectAll("rect")
                         .data(dat)
                         .enter()
@@ -361,6 +371,7 @@
                         .attr("height", sq) 
                         .attr("fill", "#FF9763");
 
+        // shades all the triangles. default is transparent
         hull = svg.selectAll("polygon")
                         .data(tri)
                         .enter()
@@ -369,7 +380,7 @@
                         .attr("fill", "#FFFFFF")
                         .attr("opacity", 0);
 
-
+        // shades all the lattice points
         lattice = svg.selectAll("circle.lattice")
                         .data(latticePoints)
                         .enter()
@@ -394,13 +405,23 @@
         
         var hullOn = d3.select("#hullOn")
         hullOn.on("click", function() {
+                hull.attr("opacity",1);
+        });
+        var hullOff = d3.select("#hullOff")
+        hullOff.on("click", function() {
+                hull.attr("opacity",0);
+        });
+
+        /*
+        var hullOn = d3.select("#hullOn")
+        hullOn.on("click", function() {
                 hull.transition().attr("opacity",1).duration(1);
         });
         var hullOff = d3.select("#hullOff")
         hullOff.on("click", function() {
                 hull.transition().attr("opacity",0).duration(1);
         });
-
+        */
 
         var makeXYstring = function(x,y) {
                 if (x === 0) { xstr = ""; }
