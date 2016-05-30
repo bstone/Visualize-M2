@@ -1090,6 +1090,7 @@ function exportTikz (event){
     var tikzDiv = document.createElement("div");
     tikzDiv.id = "tikzHolder";
     tikzDiv.className = "list-group-item";
+    tikzDiv.setAttribute('href','#');
     var tikzInput = document.createElement("input");
     tikzInput.value = "";
     tikzInput.id = "tikzTextBox";

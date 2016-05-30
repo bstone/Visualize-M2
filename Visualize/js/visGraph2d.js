@@ -906,7 +906,7 @@ function exportTikz (event){
 
   var tikzTex = "";
 
-  console.log(makeid());
+//  console.log(makeid());
 
   var timestamp = makeid();
 
@@ -917,6 +917,7 @@ function exportTikz (event){
     var tikzDiv = document.createElement("div");
     tikzDiv.id = "tikzHolder";
     tikzDiv.className = "list-group-item";
+    tikzDiv.setAttribute('href','#');
     var tikzInput = document.createElement("input");
     tikzInput.value = "";
     tikzInput.id = "tikzTextBox";
@@ -925,7 +926,6 @@ function exportTikz (event){
     var tikzButton = document.createElement("button");
     tikzButton.id = "copyButton";
     tikzButton.style = "vertical-align:middle;";
-    //tikzButton.dataClipboardTarget = "#tikzTextBox";
     tikzButton.type = "button";
     var clipboardImg = document.createElement("img");
     clipboardImg.src = scriptSource+"images/32px-Octicons-clippy.png";
@@ -1008,6 +1008,10 @@ function onclickResults(m2Response) {
     else if (clickTest == "isTree") {
       d3.select("#isTree").html("&nbsp;&nbsp; isTree :: <b>"+m2Response+"</b>");    
     }
+
+    else if (clickTest == "isRigid") {
+      d3.select("#isRigid").html("&nbsp;&nbsp; isRigid :: <b>"+m2Response+"</b>");    
+    }
     
     else if (clickTest == "chromaticNumber") {
       d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber :: <b>"+m2Response+"</b>");    
@@ -1080,6 +1084,7 @@ function menuDefaults() {
   d3.select("#isRegular").html("&nbsp;&nbsp; isRegular");  
   d3.select("#isSimple").html("&nbsp;&nbsp; isSimple");  
   d3.select("#isTree").html("&nbsp;&nbsp; isTree");
+  d3.select("#isRigid").html("&nbsp;&nbsp; isRigid");
   d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber");
   d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber");
   d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber");

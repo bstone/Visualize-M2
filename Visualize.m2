@@ -827,6 +827,13 @@ server = () -> (
 	    fun = identity;
 	    u = toString( isTree dataValue );
 	)
+
+	-- isRigid
+	else if match("^POST /isRigid/(.*) ",r) then (
+	    -- testKey = "isRigid";
+	    fun = identity;
+	    u = toString( isRigid dataValue );
+	)    
     
         -- isWeaklyConnected
 	else if match("^POST /isWeaklyConnected/(.*) ",r) then (
@@ -1834,12 +1841,16 @@ visGraph A
 
 restart
 
+uninstallPackage"Graphs"
 path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/M2/M2/Macaulay2/packages/"}|path
+
 loadPackage "Visualize"
-openPort "8081"
+openPort "8080"
 closePort()
 -- Graphs
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+isRigid G
 
 visualize( G, Verbose => true )
 visualize(G, VisPath => "/Users/bstone/Desktop/Test/")
