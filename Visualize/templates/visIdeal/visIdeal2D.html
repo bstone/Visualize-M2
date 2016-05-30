@@ -198,13 +198,13 @@
           <h2>&#8202;&#8202;Menu</h2>
           <div class="list-group" id="menuList">
             <div class="list-group-item" href="#" id="sliderDiv"><div style="height:25px;">Convex Hull</div>
-<!--            <span style="display:inline-block; width:60px;">&#8202; Charge:</span><div class="noUi-extended" id="charge-slider" style="vertical-align:middle;"></div><br>
-            <span style="display:inline-block; width:60px;">&#8202; Links:</span><div class="noUi-extended" id="linkdist-slider" style="vertical-align:middle;"></div>-->
         <form>
         <input type="radio" name="hull" value="on" id="hullOn">On<br>
         <input type="radio" name="hull" value="off" id="hullOff">Off
         </form>
             </div>
+            <!--<a id="idealGens" href="#" class="list-group-item">Ideal Generators
+             makeXYstring;</a>-->
             <a id="idealGens" href="#" class="list-group-item">Ideal Generators</a>
             <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
             <a id="endSession" href="#" class="list-group-item">End session</a>            
@@ -234,40 +234,9 @@
 
         <script type="text/javascript">
 
+
     $('#side').BootSideMenu({side:"right", autoClose: false});
-      //  function updateWindowSize2d() {
-    //var svg = document.getElementById("canvasElement2d");
-    
-    // get width/height with container selector (body also works)
-    // or use other method of calculating desired values
-   // if(!menuOpen){
-    //    width = window.innerWidth-10;
-  //  } else {
-   //     width = window.innerWidth - document.getElementById("side").clientWidth;
-    //}
-  //  height = window.innerHeight-10;
-
-    // set attrs and 'resume' force 
-  //  svg.attr('width', width);
-  //  svg.attr('height', height);
-
-   // force.size([width, height]).resume();
-//}
-
-/* document.getElementsByClassName("toggler")[0].addEventListener("mousedown", function() {
-            menuOpen = !menuOpen;
-            updateWindowSize2d();    
-    }, false);
-*/
-  //  document.getElementById("canvasElement2d").style.width = window.innerWidth;
-  //  document.getElementById("canvasElement2d").style.height = window.innerHeight;
-      
-  //  window.addEventListener("resize", updateWindowSize2d, false);
-
-
-
-
-
+     
         h = window.innerHeight-10;//600;
         w = window.innerWidth-10;//900;
         dataset = visArray;
@@ -402,7 +371,7 @@
                         .append("polygon")
                         .attr("points", function(d) { return d; })
                         .attr("fill", "#FFFFFF")
-                        .attr("opacity", 1);
+                        .attr("opacity", 0);
 
 
         lattice = svg.selectAll("circle.lattice")
@@ -429,11 +398,11 @@
         
         var hullOn = d3.select("#hullOn")
         hullOn.on("click", function() {
-                hull.transition().attr("opacity",1).duration(1000);
+                hull.transition().attr("opacity",1).duration(1);
         });
         var hullOff = d3.select("#hullOff")
         hullOff.on("click", function() {
-                hull.transition().attr("opacity",0).duration(1000);
+                hull.transition().attr("opacity",0).duration(1);
         });
 
 
@@ -453,7 +422,8 @@
                 labels.push(makeXYstring(dataset[i][0],dataset[i][1]));
         }
 
-        label = d3.select("body").selectAll("p")
+// move gens to side menu??
+        label = d3.select("idealGens").selectAll("p")
                 .data(labels)
                 .enter()
                 .append("p")
