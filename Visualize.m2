@@ -1580,6 +1580,11 @@ visualize P2
 visualize(oo, Verbose=>true)
 
 closePort()
+-- ideals
+R=ZZ/101[x,y]
+I=ideal(x^5,x^2*y,y^4)
+visualize I
+
 
 G=graph({})
 visualize(G,Verbose=>true)
