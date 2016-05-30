@@ -425,11 +425,11 @@
 
         var makeXYstring = function(x,y) {
                 if (x === 0) { xstr = ""; }
-                else if (x === 1) { xstr = "X"; }
-                else { xstr = "X<sup>" + x.toString() + "</sup>"; }
+                else if (x === 1) { xstr = "x"; }
+                else { xstr = "x<sup>" + x.toString() + "</sup>"; }
                 if (y === 0) { ystr = ""; }
-                else if (y === 1) { ystr = "Y"; }
-                else { ystr = "Y<sup>" + y.toString() + "</sup>"; }
+                else if (y === 1) { ystr = "y"; }
+                else { ystr = "y<sup>" + y.toString() + "</sup>"; }
                 xystr = xstr + ystr;
                 return xystr;
         }
