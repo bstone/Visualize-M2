@@ -906,7 +906,7 @@ function exportTikz (event){
 
   var tikzTex = "";
 
-  console.log(makeid());
+//  console.log(makeid());
 
   var timestamp = makeid();
 
