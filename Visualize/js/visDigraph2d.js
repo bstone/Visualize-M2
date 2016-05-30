@@ -452,6 +452,7 @@ function restart() {
       // unenlarge target node
       d3.select(this).attr('transform', '');
 
+
       // add link to graph (update if exists)
       // NB: links are strictly source < target; arrows separately specified by booleans
       var source, target, direction;
@@ -464,11 +465,13 @@ function restart() {
         target = mousedown_node;
         direction = 'left';
       }
+
       
       var link;
       link = links.filter(function(l) {
         return (l.source === source && l.target === target);
       })[0];
+
 
       // Graph Changed :: adding new links
       if(link) {
@@ -1004,19 +1007,49 @@ function arraytoM2List (arr){
   return str;
 }
 
+
+// for making unique timestamps in LaTeX. Numbers are not allowed in macros.
+function makeid()
+{
+    var randomtext = "";
+    var randompossible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    for( var i=0; i < 5; i++ )
+        randomtext += randompossible.charAt(Math.floor(Math.random() * randompossible.length));
+
+    return randomtext;
+}
+
+
 function exportTikz (event){
   var points = [];
   for(var i = 0; i < nodes.length; i++){
     points[i] = [nodes[i].x.toString()+"/"+nodes[i].y.toString()+"/"+nodes[i].id+"/"+nodes[i].name];
   }
 
+  // arrow direction for TikZ
+  var leftright;
+
   var edges = [];
   for(var j = 0; j < links.length; j++){
-    edges[j] = [ links[j].source.id.toString()+"/"+links[j].target.id.toString() ];
+    // determines the arrow direction for TikZ
+    if (links[j].left  && (links[j].left == links[j].right)) {
+      leftright = "<->";
+    } else if (links[j].left) {
+      leftright = "<-";
+    } else {
+      leftright = "->";
+    }
+    edges[j] = [ links[j].source.id.toString()+"/"+links[j].target.id.toString()+"/"+leftright ];
   }
 
+//console.log(links);
+
+  var timestamp = makeid();
+
   var tikzTex = "";
-  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
+  tikzTex =  "\\begin{tikzpicture}\n         \\newcommand*\\points"+timestamp+"{"+points+"}\n          \\newcommand*\\edges"+timestamp+"{"+edges+"}\n          \\newcommand*\\scale"+timestamp+"{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points"+timestamp+" {\n          \\node (\\z) at (\\scale"+timestamp+"*\\x,-\\scale"+timestamp+"*\\y) [circle,draw] {$\\w$};\n          }\n          \\foreach \\x/\\y/\\z in \\edges"+timestamp+" {\n          \\draw[\\z] (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}\n      % \\points"+timestamp+" is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges"+timestamp+" is edge set in the form Source ID/Target ID/arrow direction\n      % \\scale"+timestamp+" makes the picture able to be viewed on the page\n";  
+//  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
     
   if(!tikzGenerated){
     var tikzDiv = document.createElement("div");
