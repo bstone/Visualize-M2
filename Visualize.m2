@@ -270,7 +270,9 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
 	    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning);	    
 	    );
 	
-	arrayList = apply( flatten entries gens J, m -> flatten exponents m);	
+	-- changed gens to leadTerm so if there's a non monomial ideal
+	-- it will return the initial ideal
+	arrayList = apply( flatten entries leadTerm J, m -> flatten exponents m);	
 	arrayList = toArray arrayList;
 	arrayString = toString arrayList;
 	
