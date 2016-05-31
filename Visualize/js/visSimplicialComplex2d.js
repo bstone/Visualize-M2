@@ -86,7 +86,7 @@ function initializeBuilder() {
     
   // Create the nodes, links, and faces with their appropriate names and id's.
   for (var i = 0; i < labelData.length; i++) {
-      nodes.push( {name: labelData[i], id: i, highlighted:false } );
+      nodes.push( {name: labelData[i], id: i, highlighted:false, x: 0, y: 0 } );
   }
 
   for (var i = 0; i < edgeData.length; i++) {
