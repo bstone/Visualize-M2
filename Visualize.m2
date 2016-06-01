@@ -1,9 +1,9 @@
 ---------------------------------------------------------------------------
 -- PURPOSE : Visualize package for Macaulay2 provides the ability to 
--- visualize various algebraic objects in java script using a 
+-- visualize various algebraic objects in javascript using a 
 -- modern browser.
 --
--- Copyright (C) 2013 Branden Stone and Jim Vallandingham
+-- Copyright (C) 2016 Brett Barwick, Thomas Enkosky, Branden Stone and Jim Vallandingham
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License version 2
@@ -18,11 +18,12 @@
 
 newPackage(
 	"Visualize",
-    	Version => "0.3", 
-    	Date => "June 1, 2015",
+    	Version => "0.8", 
+    	Date => "June 1, 2016",
     	Authors => {       
-     	     {Name => "Brett Barwick", Email => "Brett@barwick.edu", HomePage => "http://math.bard.edu/~bstone/"},	     
+     	     {Name => "Brett Barwick", Email => "bbarwick@uscupstate.edu", HomePage => "http://faculty.uscupstate.edu/bbarwick/"},	     
 	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu", HomePage => "http://math.bu.edu/people/tomenk"},	     
+-- Contributing Author	     {Name => "Ata Firat Pir", Email => "atafirat@math.tamu.edu"},	     
 -- Contributing Author	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
 -- Contributing Author	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
 	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
@@ -48,20 +49,16 @@ export {
      "visualize",
      
     -- Helpers 
---     "runServer",
 --     "toArray", -- Don't need to export?
 --     "getCurrPath", -- Don't need to export?
 --     "copyTemplate",-- Don't need to export?
 --     "replaceInFile",-- Don't need to export?
 --     "heightFunction",
 --     "relHeightFunction",
---     "visOutput", -- do we even use this?
-
      
     -- Server
      "openPort",
      "closePort"
-
 }
 
 
@@ -90,33 +87,16 @@ inOutPortNum = null -- The port number that is being opened. This is passed to t
 getCurrPath = method()
 installMethod(getCurrPath, () -> (local currPath; currPath = get "!pwd"; substring(currPath,0,(length currPath)-1)|"/"))
 
-
 --input: A list of lists
 --output: an array of arrays
---
--- would be nice if we could use this on any nesting of lists/seq
--- we could make the input a BasicList
---
+
 toArray = method() 
 toArray(List) := L -> (
      return new Array from apply(L, i -> new Array from i);
      )
-    
-
-
---input: A path
---output: runs a server for displaying objects
---
--- runServer = method(Options => {VisPath => currentDirectory()})
--- runServer(String) := opts -> (visPath) -> (
---     return run visPath;
---    )
-
---- add methods for output here:
---
 
 --replaceInFile
---	replaces a given pattern by a given patter in a file
+--	replaces a given pattern by a given pattern in a file
 --	input: string containing the pattern
 --	       string containing the replacement
 --	       string containing the file name, 
@@ -137,27 +117,6 @@ replaceInFile(String, String, String) := (patt, repl, fileName) -> (
 		
 		return fileName;
 )	
-
-
---input: Three Stings. The first is a key word to look for.  The second
---    	 is what to replace the key word with. The third is the path 
---    	 where template file is located.
---output: A file with visKey replaced with visString.
---
-{*
-visOutput = method(Options => {VisPath => currentDirectory()})
-visOutput(String,String,String) := opts -> (visKey,visString,visTemplate) -> (
-    local fileName; local openFile; local PATH;
-    
-    fileName = (toString currentTime() )|".html";
-    PATH = opts.VisPath|fileName;
-    openOut PATH << 
-    	replace(visKey, visString , get visTemplate) << 
-	close;
-                  
-    return (show new URL from { "file://"|PATH }, fileName);
-    )
-*}
 
 -- input: path to an html file
 -- output: a copy of the input file in a temporary folder
@@ -199,7 +158,7 @@ copyTemplate(String,String) := (src,dst) -> (
 
 )
 
--- input:
+-- input: three strings
 -- output:
 searchReplace = method() --Options => {VisPath => currentDirectory()}) -- do we use VisPath?
 searchReplace(String,String,String) := (oldString,newString,visSrc) -> (
@@ -214,7 +173,9 @@ searchReplace(String,String,String) := (oldString,newString,visSrc) -> (
     return visSrc;
     )
 
-
+-- Input: Poset
+-- Output: A list where the ith element is the height of the ith element
+-- of P.GroundSet as it appears in a filtration of the poset.
 heightFunction = method()
 heightFunction(Poset) := P -> (
     local F; local G; local tempList;
@@ -227,6 +188,11 @@ heightFunction(Poset) := P -> (
     return toList tempList;
 )
 
+-- Input: Poset
+-- Output: A list where the ith element is the 'relative height' of the ith
+-- element of P.GroundSet, which helps to evenly distribute the elements
+-- of the poset evenly based on how they appear within the maximal chains
+-- in the poset.
 relHeightFunction = method()
 relHeightFunction(Poset) := P -> (
     local nodes; local maxChains;
@@ -302,14 +268,12 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
     );
     
     show new URL from { "file://"|visTemp };
---    A = visOutput( "visArray", arrayString, visTemp, VisPath => opts.VisPath );
     
     return visTemp;--opts.VisPath|A_1;
     )
 
 --input: A graph
---output: the graph in the browswer
---
+--output: A visualization of the graph in the browser
 visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
@@ -341,8 +305,6 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
     then (
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visGraph template to a temporary directory.
     	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
---	visTemp = copyTemplate(opts.VisTemplate|"3D.html",opts.VisPath);
---	copyJS(opts.VisPath, Warning => opts.Warning);	    
       )
     else (
 	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visGraph template to a temporary directory.
@@ -355,13 +317,13 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
     
     show new URL from { "file://"|visTemp };
     
---    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
     browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
-
         
     return browserOutput;
 )
 
+-- Input: A digraph
+-- Output: A visualization of the digraph in the browser
 visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
@@ -395,8 +357,6 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
     then (
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visDigraph template to a temporary directory.
     	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
---	visTemp = copyTemplate(opts.VisTemplate|"3D.html",opts.VisPath);
---	copyJS(opts.VisPath, Warning => opts.Warning);	    
       )
     else (
 	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visDigraph template to a temporary directory.
@@ -409,17 +369,14 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
 
     show new URL from { "file://"|visTemp };
     
---    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
     browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
         
     return browserOutput;
 )
 
 
---input: A poset
---output: The poset in the browswer
---
-
+-- Input: A poset
+-- Output: A visualization of the poset in the browser
 visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
 
     local labelList; local groupList; local relList; local visTemp;
@@ -427,19 +384,8 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     local relMatrixString; local fixExtremeEltsString; local browserOutput;
     
     labelList = apply(P_*, i -> "'"|(toString i)|"'");
-    --if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
-    --relList = coveringRelations P;
-    --numNodes = #labelList;
     
-    if opts.FixExtremeElements == true then (
-	    groupList = relHeightFunction P;
-    ) else (
-	    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
-    );
-
     labelString = toString new Array from labelList;
-    --nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
-    --relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
     relMatrixString = toString toArray entries P.RelationMatrix;
     fixExtremeEltsString = toString opts.FixExtremeElements;
   
@@ -453,24 +399,20 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
     );
     
-    --searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
     searchReplace("visLabels",labelString, visTemp); -- Replace visLabels in the visPoset html file by the labels of the nodes in the same order as the ground set of P.
-    --searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
     searchReplace("visRelMatrix",relMatrixString, visTemp); -- Replace visRelMatrix in the visPoset html file by the relation matrix of the poset.
     searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
     searchReplace("visExtremeElts",fixExtremeEltsString, visTemp); -- Replace visExtremeElts in the visPoset html file by the option passed by the user of whether to fix the extremal elements at the minimum or maximum levels.
     
     show new URL from { "file://"|visTemp };
  
---    browserOutput = openPosetServer(inOutPort, Verbose => opts.Verbose);
     browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
     
     return browserOutput; 
-    --return visTemp;
 )
---input: A SimplicialComplex
---output: The SimplicialComplex in the browswer
---
+
+-- Input: A simplicial complex
+-- Output: A visualization of the simplicial complex in the browser
 visualize(SimplicialComplex) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
@@ -484,9 +426,7 @@ visualize(SimplicialComplex) := {Verbose => false, VisPath => defaultPath, VisTe
     edgeList = apply(edgeSet, e -> apply(new List from factor e, i -> i#0));
     face2List = apply(face2Set, f -> apply(new List from factor f, i -> i#0));
 
-    --vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
     vertexString = toString new Array from apply(vertexSet, i -> "'"|toString(i)|"'");
-    --edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
     edgeString = toString new Array from apply(#edgeList, i -> new Array from {position(vertexSet, j -> j === edgeList#i#1),position(vertexSet, j -> j === edgeList#i#0)});
     face2String = toString new Array from apply(#face2List, i -> new Array from {position(vertexSet, j -> j == face2List#i#2),position(vertexSet, j -> j == face2List#i#1),position(vertexSet, j -> j == face2List#i#0)});
   
@@ -557,12 +497,12 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize
 )
 *}
 
---input: a String of a path to a directory
---output: Copies the needed files and libraries to path
+-- Input: A string of a path to a directory
+-- Output: Copies the needed files and libraries to path
 --
---caveat: Checks to see if files exist. If they do exist, the user
+-- Caveat: Checks to see if files exist. If they do exist, the user
 --        must give permission to continue. Continuing will overwrite
---        current files and cannont be undone.
+--        current files and cannot be undone.
 copyJS = method(Options => {Warning => true})
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
@@ -647,20 +587,19 @@ copyJS(String) := opts -> dst -> (
 --                    :: port has been closed. It takes a bit of time
 --                    :: for M2 to realize no port is open. 
 --                    :: Maybe this is an issue with the garbage collector?
--- 2. Define graph :: G = graph(....)
+-- 2. Define graph or other object :: G = graph(....)
 -- 3. Run visualize :: H = visualize G
 --                  :: This will open the website and start
 --                  :: communication with the server. 
 --                  :: When the user ends session, output is 
 --                  :: sent back to M2 and assigned to H.
 -- 4. End session to export info to browser;
--- 5. Keep working and visualizeing objects;
+-- 5. Keep working and visualizing objects;
 -- 6. When finished, user closes port :: closePort() (or restart M2).
 
 
-
--- input: String, a port number the user wants to open.
--- output: None, a port is open and a message is displayed.
+-- Input: String, a port number the user wants to open.
+-- Output: None, a port is open and a message is displayed.
 --
 openPort = method()
 openPort String := F -> (    
@@ -675,13 +614,11 @@ openPort String := F -> (
 	inOutPort = openListener F;
 	print("--Port " | toString inOutPort | " is now open.");    
 	);  
---    return inOutPort;
 )
 
 --getCurrPath = method()
 --installMethod(getCurrPath, () -> (local currPath; currPath = get "!pwd"; substring(currPath,0,(length currPath)-1)|"/"))
 
--- Need to make this a method without an input.
 closePort = method()
 installMethod(closePort, () -> (
      portTest = false;
@@ -690,9 +627,8 @@ installMethod(closePort, () -> (
      )
 )
 
-
--- input: File, an in-out port for communicating with the browser
--- output: whatever the browser sends
+-- Input: File, an in-out port for communicating with the browser
+-- Output: Whatever the browser sends
 --
 openServer = method(Options =>{Verbose => true})
 openServer File := opts -> S -> (
@@ -1092,8 +1028,6 @@ H := server();
 return H;
 )
  
-
-
 
 --------------------------------------------------
 -- DOCUMENTATION
@@ -1618,39 +1552,6 @@ R = ZZ[a..f]
 L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
 visualize L
 
--- Splines
-restart
-loadPackage "Splines"
-loadPackage "QuillenSuslin"
-loadPackage "Visualize"
--- 2D Star of Vertex Example
-V = {{0,0},{1,0},{1,1},{-1,1},{-2,-1},{0,-1}};
-F = {{0,2,1},{0,2,3},{0,3,4},{0,4,5},{0,1,5}};
-E = {{0,1},{0,2},{0,3},{0,4},{0,5},{1,2},{2,3},{3,4},{4,5},{1,5}};
-M1 = splineModule(V,F,E,1)
-syz gens M -- Already gives free generating set.
-
--- Schlegel Diagram Triangular Prism (nonsimplicial)
-V={{-1,-1},{0,1},{1,-1},{-2,-2},{0,2},{2,-2}};
-F={{0,1,2},{0,1,3,4},{1,2,4,5},{0,2,3,5}};
-E={{0,1},{0,2},{1,2},{0,3},{1,4},{2,5},{3,4},{4,5},{3,5}};
-M2 = splineModule(V,F,E,1)
-isProjective M2 -- M2 is projective.
-syz gens M2 -- Already gives free generating set.
-
-isProjective M
-computeFreeBasis M
-
--- Parameterized Surfaces
-restart
-loadPackage "Visualize"
-R = ZZ[u,v]
-S = {u,v,u^2+v^2}
-visualize S
-
-S = {"u^2 + sin(v)","u^2 + sin(v)","u^2 + sin(v)"}
-visualize S
-
 ----------------
 
 -----------------------------
@@ -1710,11 +1611,6 @@ visualize D2
 
 closePort()
 
- visGraph
-
--- visGraph( G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
-viewHelp Graphs
-
 -- ideal tests
 restart
 loadPackage"Visualize"
@@ -1725,7 +1621,6 @@ I = ideal"a2,ab,b2c,c5,b4"
 visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
-y
 
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
@@ -1840,7 +1735,7 @@ visGraph A
 -- Utah Demo
 
 restart
-uninstallPackage"Visualize"
+
 uninstallPackage"Graphs"
 path = path|{"~/GitHub/Visualize-M2/"}
 path = {"~/GitHub/M2/M2/Macaulay2/packages/"}|path
