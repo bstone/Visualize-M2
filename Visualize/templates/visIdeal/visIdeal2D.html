@@ -254,6 +254,10 @@
             hull.attr("opacity",0);
         }
       });
+
+    $("#idealGens").on("click", function(){
+          $(this).html("Ideal Generators: "  + labels);
+      });
     });
      
         dataset.sort(function(a,b) {return a[0]-b[0]});
