@@ -1812,4 +1812,12 @@ visualize J
 
 closePort()
 
-
+restart
+uninstallPackage"Graphs"
+installPackage"Graphs"
+uninstallPackage"Visualize"
+restart
+path ={"~/GitHub/Visualize-M2/"}|path
+loadPackage"Graphs"
+?isRigid
+installPackage"Visualize"
