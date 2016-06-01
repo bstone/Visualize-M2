@@ -204,16 +204,8 @@
     <div id="side">
           <h2>&#8202;&#8202;Menu</h2>
           <div class="list-group" id="menuList">
-<!--             <div class="list-group-item" href="#" id="sliderDiv"><div style="height:25px;">Convex Hull</div>
-       <form>
-        <input type="radio" name="hull" value="on" id="hullOn">On<br>
-        <input type="radio" name="hull" value="off" id="hullOff">Off
-        </form>
- -->       
             </div>
             <a id="convexToggle" href="#" class="list-group-item">Convex Hull</a>
-            <!--<a id="idealGens" href="#" class="list-group-item">Ideal Generators
-             makeXYstring;</a>-->
             <a id="idealGens" href="#" class="list-group-item">Ideal Generators</a>
             <!-- we can put these options in later
             <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
@@ -238,11 +230,11 @@
 
     <script type="text/javascript">
 
-
     $('#side').BootSideMenu({side:"right", autoClose: false});
 
     $(document).ready(function(){
 
+    // display convex hull when clicked
     $("#convexToggle").on("click", function(){
         if(curConvex) {
           $(this).html("Convex hull on");
@@ -255,6 +247,7 @@
         }
       });
 
+    // show the ideal generators when clicked
     $("#idealGens").on("click", function(){
           $(this).html("Ideal Generators: "  + labels);
       });
@@ -426,27 +419,6 @@
                 .call(yAxis);
 
 
-        /*
-        var hullOn = d3.select("#hullOn")
-        hullOn.on("click", function() {
-                hull.attr("opacity",1);
-        });
-        var hullOff = d3.select("#hullOff")
-        hullOff.on("click", function() {
-                hull.attr("opacity",0);
-        });
-*/
-        /*
-        var hullOn = d3.select("#hullOn")
-        hullOn.on("click", function() {
-                hull.transition().attr("opacity",1).duration(1);
-        });
-        var hullOff = d3.select("#hullOff")
-        hullOff.on("click", function() {
-                hull.transition().attr("opacity",0).duration(1);
-        });
-        */
-
         var makeXYstring = function(x,y) {
                 if (x === 0) { xstr = ""; }
                 else if (x === 1) { xstr = "x"; }
@@ -462,13 +434,6 @@
         for (i = 0; i < dataset.length; i++) {
                 labels.push(makeXYstring(dataset[i][0],dataset[i][1]));
         }
-
-// move gens to side menu??
-        label = d3.select("idealGens").selectAll("p")
-                .data(labels)
-                .enter()
-                .append("p")
-                .html(function(d) { return d; });
 
 
         var pointsBelow = function (point1, point2, extX, extY) {
