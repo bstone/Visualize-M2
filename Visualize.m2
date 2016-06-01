@@ -1840,7 +1840,7 @@ visGraph A
 -- Utah Demo
 
 restart
-
+uninstallPackage"Visualize"
 uninstallPackage"Graphs"
 path = path|{"~/GitHub/Visualize-M2/"}
 path = {"~/GitHub/M2/M2/Macaulay2/packages/"}|path
