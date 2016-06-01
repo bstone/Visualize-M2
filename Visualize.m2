@@ -1814,10 +1814,11 @@ closePort()
 
 restart
 uninstallPackage"Graphs"
+path ={"~/GitHub/Visualize-M2/"}|path
 installPackage"Graphs"
+?isRigid
 uninstallPackage"Visualize"
 restart
 path ={"~/GitHub/Visualize-M2/"}|path
-loadPackage"Graphs"
-?isRigid
 installPackage"Visualize"
+viewHelp Visualize
