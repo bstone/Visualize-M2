@@ -216,7 +216,7 @@ visualize = method(Options => true)
 
 visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
-    local varList;
+    local varList; local newArrayList; local newArrayString;    
         
     R = ring J;
     numVar = rank source vars R;
@@ -236,7 +236,9 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
 	    	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning);	    
 	    );
 	
-	arrayList = apply( flatten entries gens J, m -> flatten exponents m);	
+	-- changed gens to leadTerm so if there's a non monomial ideal
+	-- it will return the initial ideal
+	arrayList = apply( flatten entries leadTerm J, m -> flatten exponents m);	
 	arrayList = toArray arrayList;
 	arrayString = toString arrayList;
 	
@@ -259,9 +261,13 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
 	    
     	arrayList = apply(flatten entries basis(0,infinity, R/J), m -> flatten exponents m );
     	arrayList = toArray arrayList;
+	newArrayList = apply(flatten entries leadTerm J, m -> flatten exponents m );
+    	newArrayList = toArray newArrayList;
     	arrayString = toString arrayList;
+     	newArrayString = toString newArrayList;
 	
 	searchReplace("visArray",arrayString, visTemp);
+	searchReplace("newVisArray",newArrayString, visTemp);
 	searchReplace("XXX",toString(varList_0), visTemp);
 	searchReplace("YYY",toString(varList_1), visTemp);
 	searchReplace("ZZZ",toString(varList_2), visTemp)
@@ -1521,6 +1527,11 @@ visualize P2
 visualize(oo, Verbose=>true)
 
 closePort()
+-- ideals
+R=ZZ/101[x,y]
+I=ideal(x^5,x^2*y,y^4)
+visualize I
+
 
 G=graph({})
 visualize(G,Verbose=>true)

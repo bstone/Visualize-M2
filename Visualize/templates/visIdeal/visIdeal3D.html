@@ -1,6 +1,11 @@
-<html> 
-  <head> 
-    <title>visIdeal</title> 
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <title>visIdeal</title> 
+      <link href="css/bootstrap.min.css" rel="stylesheet">
+      <link href="css/BootSideMenu.css" rel="stylesheet">
+      <link href="css/nouislider.min.css" rel="stylesheet">
      <style>
       canvas { width: 100%; height: 100% }
       #key {
@@ -41,17 +46,78 @@
         background-color: blue;
       }
     </style> 
+    <script type="text/javascript">
+      //global variables
+      //for some reason visArray is every monomial in R/I
+      data = visArray;
+      dataGenz = newVisArray;
+    </script>
   </head> 
-  <body>     
-    <div id="key">
+  <body>
+  <div id="side">
+          <h2>&#8202;&#8202;Menu</h2>
+          <div class="list-group" id="menuList">
+            </div>
+            <a id="idealGens" href="#" class="list-group-item">Ideal Generators</a>
+            <div id="key">
       <div class="section"><div class="key" id="xkey"></div><div class='text'>XXX axis</div></div>
       <div class="section"><div class="key" id="ykey"></div><div class='text'>YYY axis</div></div>
       <div class="section"><div class="key" id="zkey"></div><div class='text'>ZZZ axis</div></div>
     </div>
+  
+            <!-- we can put these options in later
+            <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
+            <a id="endSession" href="#" class="list-group-item">End session</a>            
+            -->
+          </div>
+        </div>
 
+
+
+    
+  <script src="js/jquery-1.11.3.min.js"></script>
+  <script src="js/BootSideMenu.js"></script>
+  <script src="js/d3.v3.js"></script>
+  <script src="js/bootstrap.min.js"></script>
   <script src="js/three.min.js"></script> 
   <script src="js/underscore.js"></script> 
-		<script type="x-shader/x-vertex" id="vertexShader">
+		
+
+<script type="text/javascript">
+
+    $('#side').BootSideMenu({side:"right", autoClose: false});
+
+    $(document).ready(function(){
+
+    // show the ideal generators when clicked
+    $("#idealGens").on("click", function(){
+          $(this).html("Ideal Generators: "  + labels);
+      });
+    });
+
+    var makeXYZstring = function(x,y,z) {
+                if (x === 0) { xstr = ""; }
+                else if (x === 1) { xstr = "x"; }
+                else { xstr = "x<sup>" + x.toString() + "</sup>"; }
+                if (y === 0) { ystr = ""; }
+                else if (y === 1) { ystr = "y"; }
+                else { ystr = "y<sup>" + y.toString() + "</sup>"; }
+                if (z === 0) { zstr = ""; }
+                else if (z === 1) { zstr = "z"; }
+                else { zstr = "z<sup>" + z.toString() + "</sup>"; }
+                xyzstr = xstr + ystr + zstr;
+                return xyzstr;
+        }
+
+
+
+      var labels = []
+        for (i = 0; i < dataGenz.length; i++) {
+                labels.push(makeXYZstring(dataGenz[i][0],dataGenz[i][1],dataGenz[i][2]));
+        }    
+    </script>
+
+    <script type="x-shader/x-vertex" id="vertexShader">
 
 			attribute vec4 center;
 			varying vec4 vCenter;
@@ -112,6 +178,9 @@
 
 			}
 
+      
+
+
 		</script>
 
   <script> 
@@ -131,7 +200,7 @@
 
     // var data = [[4, 0, 0], [0, 6, 0], [0, 0, 4]];
     // var data = [[4,0,0],[2,3,0],[1,6,1],[0,0,4],[0,8,0]];
-    var data = visArray;
+    // var data = visArray;
 
 	var maxX = _.max(data, function(d) { return d[0]; })[0];
     maxX = maxX == 0 ? 1 : maxX;
