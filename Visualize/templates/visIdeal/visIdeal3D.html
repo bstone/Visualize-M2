@@ -46,6 +46,12 @@
         background-color: blue;
       }
     </style> 
+    <script type="text/javascript">
+      //global variables
+      //for some reason visArray is every monomial in R/I
+      data = visArray;
+      dataGenz = newVisArray;
+    </script>
   </head> 
   <body>
   <div id="side">
@@ -80,6 +86,35 @@
 <script type="text/javascript">
 
     $('#side').BootSideMenu({side:"right", autoClose: false});
+
+    $(document).ready(function(){
+
+    // show the ideal generators when clicked
+    $("#idealGens").on("click", function(){
+          $(this).html("Ideal Generators: "  + labels);
+      });
+    });
+
+    var makeXYZstring = function(x,y,z) {
+                if (x === 0) { xstr = ""; }
+                else if (x === 1) { xstr = "x"; }
+                else { xstr = "x<sup>" + x.toString() + "</sup>"; }
+                if (y === 0) { ystr = ""; }
+                else if (y === 1) { ystr = "y"; }
+                else { ystr = "y<sup>" + y.toString() + "</sup>"; }
+                if (z === 0) { zstr = ""; }
+                else if (z === 1) { zstr = "z"; }
+                else { zstr = "z<sup>" + z.toString() + "</sup>"; }
+                xyzstr = xstr + ystr + zstr;
+                return xyzstr;
+        }
+
+
+
+      var labels = []
+        for (i = 0; i < dataGenz.length; i++) {
+                labels.push(makeXYZstring(dataGenz[i][0],dataGenz[i][1],dataGenz[i][2]));
+        }    
     </script>
 
     <script type="x-shader/x-vertex" id="vertexShader">
@@ -143,6 +178,9 @@
 
 			}
 
+      
+
+
 		</script>
 
   <script> 
@@ -162,7 +200,7 @@
 
     // var data = [[4, 0, 0], [0, 6, 0], [0, 0, 4]];
     // var data = [[4,0,0],[2,3,0],[1,6,1],[0,0,4],[0,8,0]];
-    var data = visArray;
+    // var data = visArray;
 
 	var maxX = _.max(data, function(d) { return d[0]; })[0];
     maxX = maxX == 0 ? 1 : maxX;

@@ -250,7 +250,7 @@ visualize = method(Options => true)
 
 visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
     local R; local arrayList; local arrayString; local numVar; local visTemp;
-    local varList;
+    local varList; local newArrayList; local newArrayString;    
         
     R = ring J;
     numVar = rank source vars R;
@@ -295,9 +295,13 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
 	    
     	arrayList = apply(flatten entries basis(0,infinity, R/J), m -> flatten exponents m );
     	arrayList = toArray arrayList;
+	newArrayList = apply(flatten entries leadTerm J, m -> flatten exponents m );
+    	newArrayList = toArray newArrayList;
     	arrayString = toString arrayList;
+     	newArrayString = toString newArrayList;
 	
 	searchReplace("visArray",arrayString, visTemp);
+	searchReplace("newVisArray",newArrayString, visTemp);
 	searchReplace("XXX",toString(varList_0), visTemp);
 	searchReplace("YYY",toString(varList_1), visTemp);
 	searchReplace("ZZZ",toString(varList_2), visTemp)
