@@ -190,6 +190,13 @@
         padding-bottom: 5px;
       }
         </style>
+        <script type="text/javascript">
+      //global variables
+      curConvex = false;
+      h = window.innerHeight-10;//600;
+      w = window.innerWidth-10;//900;
+      dataset = visArray;
+    </script>
     </head>
     <body>
 
@@ -197,12 +204,14 @@
     <div id="side">
           <h2>&#8202;&#8202;Menu</h2>
           <div class="list-group" id="menuList">
-            <div class="list-group-item" href="#" id="sliderDiv"><div style="height:25px;">Convex Hull</div>
-        <form>
+<!--             <div class="list-group-item" href="#" id="sliderDiv"><div style="height:25px;">Convex Hull</div>
+       <form>
         <input type="radio" name="hull" value="on" id="hullOn">On<br>
         <input type="radio" name="hull" value="off" id="hullOff">Off
         </form>
+ -->       
             </div>
+            <a id="convexToggle" href="#" class="list-group-item">Convex Hull</a>
             <!--<a id="idealGens" href="#" class="list-group-item">Ideal Generators
              makeXYstring;</a>-->
             <a id="idealGens" href="#" class="list-group-item">Ideal Generators</a>
@@ -221,21 +230,32 @@
   <script src="js/jquery-1.11.3.min.js"></script>
   <script src="js/BootSideMenu.js"></script>
   <script src="js/d3.v3.js"></script>
-  <script src="js/visGraph2d.js"></script>
   <script src="js/bootstrap.min.js"></script>
-  <script src="js/clipboard.min.js"></script>
+<!--  <script src="js/clipboard.min.js"></script>
   <script src="js/nouislider.min.js"></script>
-
+-->
 
 
     <script type="text/javascript">
 
 
     $('#side').BootSideMenu({side:"right", autoClose: false});
+
+    $(document).ready(function(){
+
+    $("#convexToggle").on("click", function(){
+        if(curConvex) {
+          $(this).html("Convex hull on");
+          curConvex = !curConvex;
+            hull.attr("opacity",1);
+        } else {
+          $(this).html("Convex hull off");
+          curConvex = !curConvex;
+            hull.attr("opacity",0);
+        }
+      });
+    });
      
-        h = window.innerHeight-10;//600;
-        w = window.innerWidth-10;//900;
-        dataset = visArray;
         dataset.sort(function(a,b) {return a[0]-b[0]});
 
         svg = d3.select("body")
@@ -402,7 +422,7 @@
                 .call(yAxis);
 
 
-        
+        /*
         var hullOn = d3.select("#hullOn")
         hullOn.on("click", function() {
                 hull.attr("opacity",1);
@@ -411,7 +431,7 @@
         hullOff.on("click", function() {
                 hull.attr("opacity",0);
         });
-
+*/
         /*
         var hullOn = d3.select("#hullOn")
         hullOn.on("click", function() {
