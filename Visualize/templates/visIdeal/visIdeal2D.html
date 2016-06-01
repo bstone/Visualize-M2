@@ -344,12 +344,12 @@
 
         for (i = 0; i < dataset.length-1; i++) {
                 for(j = i+1; j < dataset.length; j++) {
-                        tri.push(xScale(dataset[i][0]).toString() + "," +
+                        tri.push(xScale(dataset[i][0]+.01).toString() + "," +
                         yScale(dataset[i][1]-1).toString() + " " +
-                        xScale(dataset[j][0]).toString() + "," +
+                        xScale(dataset[j][0]+.01).toString() + "," +
                         yScale(dataset[j][1]-1).toString() + " " +
-                        xScale(Math.max(dataset[i][0],
-                        dataset[j][0])).toString() + "," +
+                        xScale(Math.max(dataset[i][0]+.01,
+                        dataset[j][0]+.01)).toString() + "," +
                         yScale(Math.max(dataset[i][1],
                         dataset[j][1])-1).toString());
                 }
