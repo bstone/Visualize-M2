@@ -386,7 +386,7 @@
                         .attr("y", function(d) { return Math.ceil(yScale(d[0])); })
                         .attr("width", sq)
                         .attr("height", sq) 
-                        .attr("fill", "#63cbff");
+                        .attr("fill", "#00ffff");
 
         // shades all the triangles. default is transparent
         hull = svg.selectAll("polygon")
@@ -405,7 +405,7 @@
                         .attr("cx", function(d) { return Math.floor(xScale(d[1])); })
                         .attr("cy", function(d) { return Math.floor(yScale(d[0])); })
                         .attr("r", 4) 
-                        .attr("fill", "#328A82");
+                        .attr("fill", "#ff3c3c");
 
 
         svg.append("g")
