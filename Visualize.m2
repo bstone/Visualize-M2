@@ -23,12 +23,12 @@ newPackage(
     	Authors => {       
      	     {Name => "Brett Barwick", Email => "bbarwick@uscupstate.edu", HomePage => "http://faculty.uscupstate.edu/bbarwick/"},	     
 	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu", HomePage => "http://math.bu.edu/people/tomenk"},	     
+	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
+	     {Name => "Jim Vallandingham", Email => "vlandham@gmail.com", HomePage => "http://vallandingham.me/"}
 -- Contributing Author	     {Name => "Ata Firat Pir", Email => "atafirat@math.tamu.edu"},	     
 -- Contributing Author	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
 -- Contributing Author	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
-	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
 -- Contributing Author	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
-	     {Name => "Jim Vallandingham", Email => "vlandham@gmail.com", HomePage => "http://vallandingham.me/"}
 	     },
     	Headline => "Visualize",
     	DebuggingMode => false,
@@ -1050,20 +1050,35 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
-    
-     }
-
+     SUBSECTION "Contributors",     
+     "The following people have generously contributed code or worked on our code at various
+     Macaulay2 workshops.",
+     
+     UL {
+	 "Ata Firat Pir",
+	 "Elliot Korte",
+	 "Will Smith",
+	 "Julio Urenda",	 	 
+	},
+     
+     "In particular we are thankful to Dan Grayson and Mike Stillman for their help in creating 
+     communication between Macaualay2 and the browser.",
+     
+     SUBSECTION "Menu",
+     
+     UL {
+	 TO "Basic Workflow for Visualize",
+	 TO "Visualizing Graphs",	 
+	 TO "Visualizing Digraphs",	 	 
+	 TO "Visualizing Posets",	 	 
+	 TO "Visualizing Simplicial Complexes",	 	 
+	 TO "Visualizing Ideals"
+        }
+    }
 
 document {
-     Key => visualize,
-     Headline => "creates an interactive object in a modern browser",
-     
-     PARA "Given an open port, this method will create an interactive visualization of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate the 
-     object, and run various tests. Once finished, the user can export the finished result back to the 
-     Macaulay2 session.",
-               
-     PARA "The workflow for this package is as follows:",
+    Key => "Basic Workflow for Visualize",
+    PARA "The workflow for this package is as follows:",
      
      UL{ "1. Load or install the package."},
      
@@ -1081,6 +1096,48 @@ document {
      UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
      
      UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2."}},
+     
+    SeeAlso => {
+--	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+	"Visualizing Digraphs",	 	 
+	"Visualizing Posets",	 	 
+	"Visualizing Simplicial Complexes",	 	 
+	"Visualizing Ideals"
+	}
+
+    }        
+
+document {
+    Key => "Visualizing Graphs",	 
+    }
+
+document {
+    Key => "Visualizing Digraphs",    
+    }
+
+document {
+    Key => "Visualizing Posets",	 	    
+    }
+
+document {
+    Key => "Visualizing Simplicial Complexes",	 	      
+    }
+
+document {
+    Key => "Visualizing Ideals"   
+    }
+
+
+document {
+     Key => visualize,
+     Headline => "creates an interactive object in a modern browser",
+     
+     PARA "Given an open port, this method will create an interactive visualization of a variety of objects 
+     in a modern browser. While viewing the object, the user has the ability to manipulate the 
+     object, and run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+               
      
      }
 
@@ -1825,8 +1882,10 @@ closePort()
 
 restart
 uninstallPackage"Graphs"
-path ={"~/GitHub/Visualize-M2/"}|path
 installPackage"Graphs"
+restart
+path ={"~/GitHub/Visualize-M2/"}|path
+needsPackage"Graphs"
 ?isRigid
 uninstallPackage"Visualize"
 restart
