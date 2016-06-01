@@ -192,7 +192,7 @@
         </style>
         <script type="text/javascript">
       //global variables
-      curConvex = false;
+      curConvex = true;
       h = window.innerHeight-10;//600;
       w = window.innerWidth-10;//900;
       dataset = visArray;
@@ -205,7 +205,7 @@
           <h2>&#8202;&#8202;Menu</h2>
           <div class="list-group" id="menuList">
             </div>
-            <a id="convexToggle" href="#" class="list-group-item">Convex Hull</a>
+            <a id="convexToggle" href="#" class="list-group-item">Convex Hull: off</a>
             <a id="idealGens" href="#" class="list-group-item">Ideal Generators</a>
             <!-- we can put these options in later
             <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
@@ -237,11 +237,11 @@
     // display convex hull when clicked
     $("#convexToggle").on("click", function(){
         if(curConvex) {
-          $(this).html("Convex hull on");
+          $(this).html("Convex Hull: on");
           curConvex = !curConvex;
             hull.attr("opacity",1);
         } else {
-          $(this).html("Convex hull off");
+          $(this).html("Convex Hull: off");
           curConvex = !curConvex;
             hull.attr("opacity",0);
         }
