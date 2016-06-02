@@ -1078,20 +1078,20 @@ document {
 	},
      
      "In particular we are thankful to Dan Grayson and Mike Stillman for their help in creating 
-     communication between Macaualay2 and the browser.",
+     communication between Macaulay2 and the browser.",
      
      SUBSECTION "Interactive Examples",
      
-     "The following links are interactive examples without the communication between Macaualay2
+     "The following links are interactive examples without the communication between Macaulay2
      and the browser. The editing, manipulation, and TikZ should work.",
      
      UL {
-	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"visgraph-example.html","Example Graphs")},
-	 TO (visualize,Graph),	 
-	 TO (visualize,Digraph),	 	 
-	 TO (visualize,Poset),	 	 
-	 TO (visualize,SimplicialComplex),	 	 
-	 TO (visualize,Ideal)
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"graph-example.html","Visualize Graphs example")},
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"digraph-example.html","Visualize Digraphs example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"poset-example.html","Visualize Posets example")},	  
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"simplicial-complex-example.html","Visualize Simplicial Complexes example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal2d-example.html","Visualize Ideals in 2 variables example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal3d-example.html","Visualize Ideals in 3 variables example")}
         },
 
      SUBSECTION "Methods and Workflow",
@@ -2244,7 +2244,7 @@ G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 isRigid G
 
 visualize( G, Verbose => true )
-visualize(G, VisPath => "/Users/bstone/Desktop/Test/")
+visualize(G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 cycleGraph 9
 visualize oo
@@ -2270,7 +2270,7 @@ D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
 visualize D1
 
 D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
-visualize D2
+visualize (D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 
 -- Posets
@@ -2279,7 +2279,7 @@ path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage "Visualize"
 openPort "8081"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
-visualize P2
+visualize( P2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize(P2,FixExtremeElements => true)
 visualize oo
 
@@ -2290,7 +2290,7 @@ visualize D
 
 R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
-visualize D2
+visualize( D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = ZZ[a..f]
 L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
@@ -2300,11 +2300,11 @@ visualize L
 -- Ideals
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
-visualize I
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = QQ[x,y,z]
 J = ideal"x4,xyz3,yz2,xz3,z6,y5"
-visualize J
+visualize( J, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 closePort()
 
