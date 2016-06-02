@@ -31,7 +31,7 @@ newPackage(
 -- Contributing Author	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
 	     },
     	Headline => "Visualize",
-    	DebuggingMode => false,
+    	DebuggingMode => true,
 	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
@@ -1050,6 +1050,22 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
+     SUBSECTION "Javascript Packages Used", 
+     "Built on the shoulders of giants, this package utilizes a variety of existing open-source javascript packages.",
+     
+     UL {
+	 {HREF("https://github.com/AndreaLombardo/BootSideMenu","BootSideMenu.js")},
+	 {HREF("https://github.com/dataarts/webgl-globe/blob/master/globe-vertex-texture/third-party/Three/Detector.js","Detectors.js")},
+	 {HREF("http://getbootstrap.com/","Bootstrap.js")},
+	 {HREF("https://clipboardjs.com/","clipboard.js")},
+	 {HREF("https://d3js.org/","D3.js")},
+	 {HREF("https://jquery.com/","jQuery")},
+	 {HREF("http://refreshless.com/nouislider/","noUiSlider.js")},
+	 {HREF("https://github.com/mrdoob/three.js/","Three.js")},
+	 {HREF("http://underscorejs.org/","Underscore.js")}
+	},
+         
+     
      SUBSECTION "Contributors",     
      "The following people have generously contributed code or worked on our code at various
      Macaulay2 workshops.",
@@ -1068,26 +1084,28 @@ document {
      
      UL {
 	 TO "Basic Workflow for Visualize",
-	 TO "Visualizing Graphs",	 
-	 TO "Visualizing Digraphs",	 	 
-	 TO "Visualizing Posets",	 	 
-	 TO "Visualizing Simplicial Complexes",	 	 
-	 TO "Visualizing Ideals"
+	 TO (visualize,Graph),	 
+	 TO (visualize,Digraph),	 	 
+	 TO (visualize,Poset),	 	 
+	 TO (visualize,SimplicialComplex),	 	 
+	 TO (visualize,Ideal)
         }
     }
 
 document {
     Key => "Basic Workflow for Visualize",
-    PARA "The workflow for this package is as follows:",
+    PARA {"The basic workflow this package requires the user to open a port for communication between
+    Macaulay2 and the web browser. Once the port is open, the ", TO "visualize", " method can be used
+    freely. In particular, the workflow is as follows:"},
      
      UL{ "1. Load or install the package."},
      
-     UL{{"2. Open a port with ", TT "openPort", " method for communication with the browser. 
+     UL{{"2. Open a port with ", TO "openPort", " method for communication with the browser. 
 	     It is up to the user to choose port and also to close the port when finished."}},
      
      UL{"3. Define an object you wish to visualize. For example, a graph, poset, digraph, etc."},
      
-     UL{{"4. Run ", TT "visualize", " method. This will open the browser with an interactive
+     UL{{"4. Run the ", TO "visualize", " method. This will open the browser with an interactive
 	     interface. This session is in communication with Macaulay2 through the open port above.
 	     At this point you can edit and manipulate the created object."}},
      
@@ -1095,39 +1113,90 @@ document {
      
      UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
      
-     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2."}},
+     UL{{"7. When finished, close the port with ", TO "closePort", " or restart Macaulay2."}},
      
     SeeAlso => {
---	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+
+    }        
+
+{*
+document {
+    Key => "Visualizing Graphs",	 
+    
+    
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+--	"Visualizing Graphs",	 
 	"Visualizing Digraphs",	 	 
 	"Visualizing Posets",	 	 
 	"Visualizing Simplicial Complexes",	 	 
 	"Visualizing Ideals"
 	}
-
-    }        
-
-document {
-    Key => "Visualizing Graphs",	 
+    
     }
 
 document {
     Key => "Visualizing Digraphs",    
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+--	"Visualizing Digraphs",	 	 
+	"Visualizing Posets",	 	 
+	"Visualizing Simplicial Complexes",	 	 
+	"Visualizing Ideals"
+	}
+    
     }
 
 document {
     Key => "Visualizing Posets",	 	    
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+	"Visualizing Digraphs",	 	 
+--	"Visualizing Posets",	 	 
+	"Visualizing Simplicial Complexes",	 	 
+	"Visualizing Ideals"
+	}
+    
     }
+
 
 document {
     Key => "Visualizing Simplicial Complexes",	 	      
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+	"Visualizing Digraphs",	 	 
+	"Visualizing Posets",	 	 
+--	"Visualizing Simplicial Complexes",	 	 
+	"Visualizing Ideals"
+	}
+    
     }
+
 
 document {
-    Key => "Visualizing Ideals"   
-    }
+    Key => "Visualizing Ideals",
 
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+	"Visualizing Digraphs",	 	 
+	"Visualizing Posets",	 	 
+	"Visualizing Simplicial Complexes",	 	 
+--	"Visualizing Ideals"
+	}
+    
+    }
+*}
 
 document {
      Key => visualize,
@@ -1137,8 +1206,17 @@ document {
      in a modern browser. While viewing the object, the user has the ability to manipulate the 
      object, and run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
-               
-     
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+
+    
      }
 
 
@@ -1154,20 +1232,18 @@ document {
 --	 VisTemplate => String => " a path to a user created/modified template",
 --	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath"
 	 },
-	 
      
      PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
-     
-     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
-     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
-     an object to visualize.",
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize."},
 
      EXAMPLE {
-	 "openPort \"8080\"",
+--	 "openPort \"8080\"",
 	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
 	 },
      
@@ -1177,25 +1253,68 @@ document {
      -- make sure this image matches the graph in the example. 
      PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
      
-     PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
-     Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
-     if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
+     PARA {"On the side of the browser will be several options to interact with the graph using the ", TO "Graphs", " package. 
+     Below is a brief overview of the options."},
+     
+     SUBSECTION "Browser Menu Options",
+     
+     UL { 
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges."}, 
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
+	      you can move the vertices around by holding down the shift key."},
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices."}, 	      
+	 
+	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected."}, 	      	 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes."}, 	      	 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other."},
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the graph that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the graph, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code."}, 	      	 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Graphs", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
+	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'ctrl+C+C' in the instance of Macaulay2."}, 	      	     
+	     
+	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Graphs", " package. 
+	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
+	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'ctrl+C+C' in the instance of Macaulay2."}, 	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current graph to Macaulay2. The 
+	     output of ", TT "visualize G", " is the graph on the screen when end session is clicked."} 	      	     
 
-     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
-     open with a new graph, the spanning forest of ", TT "H", "."},
-     
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph3.png", "alt" => "Original graph entered into M2"), 
-     
-     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
-     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
-     
-     EXAMPLE {
-	 "closePort()"
 	 },
+	
      
-     Caveat => "When editing is enabled, you can still move the nodes around by pressing SHIFT and then clicking on the nodes."
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
+
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize G", ", once you 
+	 ended the session, the last graph on the screen would be assigned to ", TT "H", ". After running various computations on this graph, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macualay2 is restarted."},
+     
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+--	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	},
      
      }
  
@@ -1203,28 +1322,67 @@ document {
      Key => (visualize,Ideal),
      Headline => "visualizes an ideal in the browser",
      
-     PARA "Make Graphs perfect and copy with pics"
+     PARA "Make Graphs perfect and copy with pics",
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex)	 	 
+--	 (visualize,Ideal)
+	}
+     
      }
 
 document {
      Key => (visualize,Digraph),
      Headline => "visualizes a digraph in the browser",
      
-     PARA "Make Graphs perfect and copy with pics"
+     PARA "Make Graphs perfect and copy with pics",
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+--	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
      }
 
 document {
      Key => (visualize,Poset),
      Headline => "visualizes a poset in the browser",
      
-     PARA "Make Graphs perfect and copy with pics"
+     PARA "Make Graphs perfect and copy with pics",
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+--	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
      }
 
 document {
      Key => (visualize,SimplicialComplex),
      Headline => "visualizes a simplicial complex in the browser",
      
-     PARA "Make Graphs perfect and copy with pics"
+     PARA "Make Graphs perfect and copy with pics",
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+--	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
 
      }
 
@@ -1235,7 +1393,17 @@ document {
           
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1243,7 +1411,17 @@ document {
      Headline => "an option defining the template path",
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
      }
  
 document {
@@ -1251,25 +1429,49 @@ document {
      Headline => "an option to squelch warnings",
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
-     Key => FixExtremeElements,
-     Headline => "an option that brett created",
+     Key => {FixExtremeElements,[(visualize,Poset),FixExtremeElements]},
+     Headline => "an option to fix extreme elements of a poset",
      
-     PARA "I don't know what this is."
+     PARA "When using this option, the visualized poset will be drawn such that the extreme elements are place 
+     in the top and bottom of the drawing.",
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Poset)
+	}
+     
      }
 
 
-
+{*
 document {
      Key => [(visualize,Poset),FixExtremeElements],
      Headline => "an option that brett created",
      
-     PARA "I don't know what this is."
+     PARA "I don't know what this is.",
+     
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Posets"
+	}
+     
      }
- 
+ *}
+
 document {
      Key => [(visualize,Digraph),VisPath],
      Headline => "an option to define a path to save visualizations of Digraphs",
@@ -1278,7 +1480,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1289,7 +1501,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 
@@ -1301,7 +1523,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1312,7 +1544,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 
@@ -1324,7 +1566,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 
@@ -1335,7 +1587,17 @@ document {
      Inputs => {"D" => Digraph => "a digraph"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
 
      }
 
@@ -1346,7 +1608,17 @@ document {
      Inputs => {"G" => Graph => "a graph"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
      }
 
 document {
@@ -1356,7 +1628,17 @@ document {
      Inputs => {"I" => Ideal => "an ideal"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
 
      }
 
@@ -1367,7 +1649,17 @@ document {
      Inputs => {"P" => Poset => "a poset"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
 
      }
 
@@ -1378,7 +1670,17 @@ document {
      Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
 
      }
 
@@ -1389,7 +1691,17 @@ document {
      Inputs => {"D" => Digraph => "a digraph"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1400,7 +1712,17 @@ document {
      Inputs => {"G" => Graph => "a graph"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1412,7 +1734,17 @@ document {
      Inputs => {"I" => Ideal => "an ideal"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1424,7 +1756,17 @@ document {
      Inputs => {"P" => Poset => "a poset"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1435,7 +1777,17 @@ document {
      Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1449,7 +1801,17 @@ document {
      Inputs => {"G" => Graph => "a graph"},
 
      PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
-	 The communication will be displayed in the instance of Macaulay2."}
+	 The communication will be displayed in the instance of Macaulay2."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1459,7 +1821,17 @@ document {
      Inputs => {"D" => Digraph => "a digraph"},
 
      PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
-	 The communication will be displayed in the instance of Macaulay2."}
+	 The communication will be displayed in the instance of Macaulay2."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1471,7 +1843,17 @@ document {
      Inputs => {"P" => Poset => "a poset"},
 
      PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
-	 The communication will be displayed in the instance of Macaulay2."}
+	 The communication will be displayed in the instance of Macaulay2."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1480,12 +1862,21 @@ document {
      Usage => "openPort N",
      Inputs => {"N" => String => "a port number"},
      
-     PARA {"In order to use the ", TO "visualize", " method, the user must first open a port on their machine. This
-	 can be dangerous."},
+     PARA {"In order to use the ", TO "visualize", " method, the user must first open a port on their 
+	 machine. This can be dangerous as someone could potentially be listening on that port. The port 
+	 being open is only accessible to the localhost and is most vulnerable if the package is being
+	 run on a server. If running on a personal computer/laptop, then the risk of cyber attack is 
+	 very small as the attacker would have to have access to your local machine. Because of this risk, 
+	 and the fact that the examples will throw errors if the user is using the example port, 
+	 the documentation will not actually run examples of ", TT "openPort", "."},
 	 
-     EXAMPLE {
-	 "openPort \"8080\"",
-	 },
+-- adding an example can cause installation to fail if user has port 8080 open
+--     EXAMPLE {
+--	 "openPort \"8080\"",
+--	 },
+     
+     PARA {"The user can use any port number they wish. Common ports are '8080' and '8081'. For example, ",
+     TT "openPort\"8080\"", " will open port '8080' for communication."},
      
      PARA {"Once a port is open, another instance of ", TO "openPort", " will not be allowed to open another port. 
 	 Hence the user can only open one port at a time with this method. Once finished visualizing, you can close the 
@@ -1495,7 +1886,17 @@ document {
 	 "closePort()",
 	 },	 
 
-    PARA "Restarting Macaulay2 will also close the port."
+    PARA "Restarting Macaulay2 will also close the port.",
+    
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+    
      }
 
 
@@ -1508,9 +1909,22 @@ document {
 	 Macaulay2 will automatically close the port."},
      
       EXAMPLE {
-	 "openPort \"8080\"",
+--	 "openPort \"8080\"",
 	 "closePort()"
 	 },
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	},
+    
+    Caveat => {"This method does not have an input. In order for it to run, you must write the '()' at the end as follows: ", TT "closePort()", "."}
+    
+
      }
 
 
@@ -1526,7 +1940,6 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
-run"pwd"
 
 restart
 uninstallPackage"Visualize"
@@ -1534,6 +1947,7 @@ restart
 path = path|{"~/GitHub/Visualize-M2/"}
 installPackage"Visualize"
 viewHelp Visualize
+viewHelp doc
 
 -----------------------------
 -----------------------------
