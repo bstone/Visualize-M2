@@ -31,7 +31,7 @@ newPackage(
 -- Contributing Author	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
 	     },
     	Headline => "Visualize",
-    	DebuggingMode => true,
+    	DebuggingMode => false,
 	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
