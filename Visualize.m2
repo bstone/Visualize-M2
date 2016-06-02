@@ -1050,6 +1050,22 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
+     SUBSECTION "Javascript Packages Used", 
+     "Built on the shoulders of giants, this package utilizes a variety of existing open-source javascript packages.",
+     
+     UL {
+	 {HREF("https://github.com/AndreaLombardo/BootSideMenu","BootSideMenu.js")},
+	 {HREF("https://github.com/dataarts/webgl-globe/blob/master/globe-vertex-texture/third-party/Three/Detector.js","Detectors.js")},
+	 {HREF("http://getbootstrap.com/","Bootstrap.js")},
+	 {HREF("https://clipboardjs.com/","clipboard.js")},
+	 {HREF("https://d3js.org/","D3.js")},
+	 {HREF("https://jquery.com/","jQuery")},
+	 {HREF("http://refreshless.com/nouislider/","noUiSlider.js")},
+	 {HREF("https://github.com/mrdoob/three.js/","Three.js")},
+	 {HREF("http://underscorejs.org/","Underscore.js")}
+	},
+         
+     
      SUBSECTION "Contributors",     
      "The following people have generously contributed code or worked on our code at various
      Macaulay2 workshops.",
