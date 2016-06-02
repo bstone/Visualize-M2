@@ -64,6 +64,12 @@ function initializeBuilder() {
     .attr('width', width)
     .attr('height', height)
     .attr('id', 'canvasElement2d');
+    
+  if(fixExtremalNodes){
+      document.getElementById("extremalNodeToggle").text = "Don't fix extremal nodes";
+      console.log("set text");
+      console.log(document.getElementById("extremalNodeToggle").text);
+  }
 
   // Compute the minimal covering relations from the poset relation matrix.  This is necessary before computing the group for each node.
   dataCovRel = minimalPosetRelations(dataRelMatrix);
