@@ -1068,11 +1068,11 @@ document {
      
      UL {
 	 TO "Basic Workflow for Visualize",
-	 TO "Visualizing Graphs",	 
-	 TO "Visualizing Digraphs",	 	 
-	 TO "Visualizing Posets",	 	 
-	 TO "Visualizing Simplicial Complexes",	 	 
-	 TO "Visualizing Ideals"
+	 TO (visualize,Graph),	 
+	 TO (visualize,Digraph),	 	 
+	 TO (visualize,Poset),	 	 
+	 TO (visualize,SimplicialComplex),	 	 
+	 TO (visualize,Ideal)
         }
     }
 
@@ -1100,51 +1100,20 @@ document {
      UL{{"7. When finished, close the port with ", TO "closePort", " or restart Macaulay2."}},
      
     SeeAlso => {
---	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 
     }        
 
+{*
 document {
     Key => "Visualizing Graphs",	 
     
-     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
-     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
-     an object to visualize.",
-
-     EXAMPLE {
---	 "openPort \"8080\"",
-	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
-	 },
-     
-     PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
-     browser will open with the following interactive image."},
-     
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
-     
-     PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
-     Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
-     if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
-
-     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
-     open with a new graph, the spanning forest of ", TT "H", "."},
-     
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph3.png", "alt" => "Original graph entered into M2"), 
-     
-     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
-     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
-     
---     EXAMPLE {
---	 "closePort()"
---	 },
     
     SeeAlso => {
 	"Basic Workflow for Visualize",
@@ -1183,6 +1152,7 @@ document {
     
     }
 
+
 document {
     Key => "Visualizing Simplicial Complexes",	 	      
     SeeAlso => {
@@ -1195,6 +1165,7 @@ document {
 	}
     
     }
+
 
 document {
     Key => "Visualizing Ideals",
@@ -1209,7 +1180,7 @@ document {
 	}
     
     }
-
+*}
 
 document {
      Key => visualize,
@@ -1221,14 +1192,15 @@ document {
      Macaulay2 session.",
 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
-     
+
+    
      }
 
 
@@ -1244,20 +1216,69 @@ document {
 --	 VisTemplate => String => " a path to a user created/modified template",
 --	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath"
 	 },
-	 
      
      PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
      in a modern browser. While viewing the object, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize."},
+
+     EXAMPLE {
+--	 "openPort \"8080\"",
+	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
+     browser will open with the following interactive image."},
+     
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     PARA {"On the side of the browser will be several options to interact with the graph using the ", TO "Graphs", " package. 
+     Below is a brief overview of the options."},
+     
+     SUBSECTION "Browser Menu Options",
+     
+     UL { 
+	 {BOLD "Foce Variables", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges."}, 
+	 {BOLD "Enable Editing", "In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad."}
+	 
+	 },
+	
+	 
+	 
+
+
+     
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
+
+     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
+     open with a new graph, the spanning forest of ", TT "H", "."},
+     
+     -- make sure this image matches the graph in the example. 
+     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph3.png", "alt" => "Original graph entered into M2"), 
+     
+     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
+     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
+     
+--     EXAMPLE {
+--	 "closePort()"
+--	 },
+     
+     
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+--	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	},
      
      Caveat => "When editing is enabled, you can still move the nodes around by pressing SHIFT and then clicking on the nodes."
@@ -1271,12 +1292,12 @@ document {
      PARA "Make Graphs perfect and copy with pics",
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex)	 	 
+--	 (visualize,Ideal)
 	}
      
      }
@@ -1288,12 +1309,12 @@ document {
      PARA "Make Graphs perfect and copy with pics",
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+--	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
      
      }
@@ -1305,12 +1326,12 @@ document {
      PARA "Make Graphs perfect and copy with pics",
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+--	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
      
      }
@@ -1320,16 +1341,15 @@ document {
      Headline => "visualizes a simplicial complex in the browser",
      
      PARA "Make Graphs perfect and copy with pics",
-     
+
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+--	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
-     
 
      }
 
@@ -1343,12 +1363,12 @@ document {
 	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
@@ -1361,12 +1381,12 @@ document {
      to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
      
      }
@@ -1379,35 +1399,32 @@ document {
 	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
 
 document {
-     Key => FixExtremeElements,
-     Headline => "an option that brett created",
+     Key => {FixExtremeElements,[(visualize,Poset),FixExtremeElements]},
+     Headline => "an option to fix extreme elements of a poset",
      
-     PARA "I don't know what this is.",
+     PARA "When using this option, the visualized poset will be drawn such that the extreme elements are place 
+     in the top and bottom of the drawing.",
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Poset)
 	}
      
      }
 
 
-
+{*
 document {
      Key => [(visualize,Poset),FixExtremeElements],
      Headline => "an option that brett created",
@@ -1416,15 +1433,12 @@ document {
      
     SeeAlso => {
 	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	"Visualizing Posets"
 	}
      
      }
- 
+ *}
+
 document {
      Key => [(visualize,Digraph),VisPath],
      Headline => "an option to define a path to save visualizations of Digraphs",
@@ -1436,12 +1450,12 @@ document {
 	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
@@ -1457,12 +1471,12 @@ document {
 	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
@@ -1479,12 +1493,12 @@ document {
 	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
@@ -1500,12 +1514,12 @@ document {
 	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
@@ -1522,12 +1536,12 @@ document {
 	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
@@ -1543,12 +1557,12 @@ document {
      to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
      
 
@@ -1564,12 +1578,12 @@ document {
      to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
      
      }
@@ -1584,12 +1598,12 @@ document {
      to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
      
 
@@ -1605,12 +1619,12 @@ document {
      to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
      
 
@@ -1626,12 +1640,12 @@ document {
      to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
      
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
      
 
@@ -1647,12 +1661,12 @@ document {
 	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
 
@@ -1668,12 +1682,12 @@ document {
 	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
 
@@ -1690,12 +1704,12 @@ document {
 	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
 
@@ -1712,12 +1726,12 @@ document {
 	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
 
@@ -1733,12 +1747,12 @@ document {
 	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
 
@@ -1757,12 +1771,12 @@ document {
 	 The communication will be displayed in the instance of Macaulay2."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
@@ -1777,12 +1791,12 @@ document {
 	 The communication will be displayed in the instance of Macaulay2."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
 
@@ -1799,8 +1813,12 @@ document {
 	 The communication will be displayed in the instance of Macaulay2."},
 	 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Posets"	 	 
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
 	 
      }
@@ -1838,12 +1856,12 @@ document {
     PARA "Restarting Macaulay2 will also close the port.",
     
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
 	}
     
      }
@@ -1863,13 +1881,13 @@ document {
 	 },
 
     SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
-	}, 
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	},
     
     Caveat => {"This method does not have an input. In order for it to run, you must write the '()' at the end as follows: ", TT "closePort()", "."}
     
