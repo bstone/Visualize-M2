@@ -2573,8 +2573,9 @@ visualize L
 
 
 -- Ideals
-S = QQ[x,y]
+S = ZZ/101[x,y]
 I = ideal"x4,xy3,y5"
+I = ideal"x4,xy3,y5+y"
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = QQ[x,y,z]
