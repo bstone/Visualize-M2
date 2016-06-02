@@ -1259,33 +1259,52 @@ document {
      SUBSECTION "Browser Menu Options",
      
      UL { 
-	 {BOLD "Foce Variables", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
 	     increases and decreases the length of the edges."}, 
-	 {BOLD "Enable Editing", "In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
 	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
-	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad."}
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
+	      you can move the vertices around by holding down the shift key."},
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices."}, 	      
 	 
+	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected."}, 	      	 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes."}, 	      	 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other."},
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the graph that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the graph, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code."}, 	      	 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Graphs", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
+	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'ctrl+C+C' in the instance of Macaulay2."}, 	      	     
+	     
+	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Graphs", " package. 
+	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
+	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'ctrl+C+C' in the instance of Macaulay2."}, 	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current graph to Macaulay2. The 
+	     output of ", TT "visualize G", " is the graph on the screen when end session is clicked."} 	      	     
+
 	 },
 	
-	 
-	 
-
-
      
 --     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
 
-     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
-     open with a new graph, the spanning forest of ", TT "H", "."},
-     
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph3.png", "alt" => "Original graph entered into M2"), 
-     
-     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
-     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
-     
---     EXAMPLE {
---	 "closePort()"
---	 },
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize G", ", once you 
+	 ended the session, the last graph on the screen would be assigned to ", TT "H", ". After running various computations on this graph, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macualay2 is restarted."},
      
      
     SeeAlso => {
@@ -1296,8 +1315,6 @@ document {
 	 (visualize,SimplicialComplex),	 	 
 	 (visualize,Ideal)
 	},
-     
-     Caveat => "When editing is enabled, you can still move the nodes around by pressing SHIFT and then clicking on the nodes."
      
      }
  
@@ -1930,6 +1947,7 @@ restart
 path = path|{"~/GitHub/Visualize-M2/"}
 installPackage"Visualize"
 viewHelp Visualize
+viewHelp doc
 
 -----------------------------
 -----------------------------
