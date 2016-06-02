@@ -1083,7 +1083,8 @@ document {
      SUBSECTION "Interactive Examples",
      
      "The following links are interactive examples without the communication between Macaulay2
-     and the browser. The editing, manipulation, and TikZ should work.",
+     and the browser. The editing, manipulation, and TikZ should work. Depending on the browser, 
+     some features may require you to open the links in a new tab.",
      
      UL {
 	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"graph-example.html","Visualize Graphs example")},
@@ -1339,11 +1340,37 @@ document {
      
      }
  
+ 
+-- (visualize,Ideal)
 document {
      Key => (visualize,Ideal),
      Headline => "visualizes an ideal in the browser",
      
-     PARA "Make Graphs perfect and copy with pics",
+     PARA {"Using JavaScript, this method creates an interactive visualization of an ideal, in either 2 or 3
+     variables, in a modern browser. Unlike other ", TO "Type","s, when visualizing an ideal you 
+     do not need to open a port as there is no communication between Macaulay2 and the browser. 
+     We hope to add more functionality to this method in future versions. The ideal being visualized
+     is actually the ideal of leading terms."},
+
+     EXAMPLE {
+	 "S = QQ[x,y]",
+	 "I = ideal\"x4,xy3,y5\""
+	 },
+     
+     PARA {"In order to visualize this, simply type ", TT "visualize I", " and the following example will appear in the browser."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal2d-example.html","Visualize ideal in 2 variables example")},     
+     
+     EXAMPLE {
+	 "R = QQ[x,y,z]",
+	 "J = ideal\"x4,xyz3,yz2,xz3,z6,y5\""
+	 },
+     
+     PARA {"In order to visualize this, simply type ", TT "visualize J", " and the following example will appear in the browser."},  
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal3d-example.html","Visualize ideal in 3 variables example")},             
+     
+     Caveat => {"Visualizing ideals is still in development so please be gentle with it."},     
      
     SeeAlso => {
 	 "Basic Workflow for Visualize",
@@ -1568,7 +1595,8 @@ document {
 
      EXAMPLE {
 --	 "openPort \"8080\"",
-    	 "D = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}",
+    	 "R = ZZ[a..g]",
+    	 "D = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}"
 	 },
      
      PARA {"At this point we wish to visualize ", TT "D", ". To do this simply execute ", TT "H = visualize D", " and 
