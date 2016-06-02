@@ -31,7 +31,7 @@ newPackage(
 -- Contributing Author	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
 	     },
     	Headline => "Visualize",
-    	DebuggingMode => false,
+    	DebuggingMode => true,
 	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
@@ -1089,7 +1089,7 @@ document {
      
      UL{"3. Define an object you wish to visualize. For example, a graph, poset, digraph, etc."},
      
-     UL{{"4. Run ", TO "visualize", " method. This will open the browser with an interactive
+     UL{{"4. Run the ", TO "visualize", " method. This will open the browser with an interactive
 	     interface. This session is in communication with Macaulay2 through the open port above.
 	     At this point you can edit and manipulate the created object."}},
      
@@ -1800,11 +1800,7 @@ document {
 	 
     SeeAlso => {
 	"Basic Workflow for Visualize",
-	"Visualizing Graphs",	 
-	"Visualizing Digraphs",	 	 
-	"Visualizing Posets",	 	 
-	"Visualizing Simplicial Complexes",	 	 
-	"Visualizing Ideals"
+	"Visualizing Posets"	 	 
 	}
 	 
      }
@@ -1816,20 +1812,28 @@ document {
      Inputs => {"N" => String => "a port number"},
      
      PARA {"In order to use the ", TO "visualize", " method, the user must first open a port on their 
-	 machine. This can be dangerous."},
+	 machine. This can be dangerous as someone could potentially be listening on that port. The port 
+	 being open is only accessible to the localhost and is most vulnerable if the package is being
+	 run on a server. If running on a personal computer/laptop, then the risk of cyber attack is 
+	 very small as the attacker would have to have access to your local machine. Because of this risk, 
+	 and the fact that the examples will throw errors if the user is using the example port, 
+	 the documentation will not actually run examples of ", TT "openPort", "."},
 	 
 -- adding an example can cause installation to fail if user has port 8080 open
 --     EXAMPLE {
 --	 "openPort \"8080\"",
 --	 },
      
+     PARA {"The user can use any port number they wish. Common ports are '8080' and '8081'. For example, ",
+     TT "openPort\"8080\"", " will open port '8080' for communication."},
+     
      PARA {"Once a port is open, another instance of ", TO "openPort", " will not be allowed to open another port. 
 	 Hence the user can only open one port at a time with this method. Once finished visualizing, you can close the 
 	 port with the ", TO "closePort", " method."},
 	 
---     EXAMPLE {
---	 "closePort()",
---	 },	 
+     EXAMPLE {
+	 "closePort()",
+	 },	 
 
     PARA "Restarting Macaulay2 will also close the port.",
     
