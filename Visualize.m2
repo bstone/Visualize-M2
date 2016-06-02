@@ -1074,13 +1074,28 @@ document {
 	 "Ata Firat Pir",
 	 "Elliot Korte",
 	 "Will Smith",
-	 "Julio Urenda",	 	 
+	 "Julio Urenda"	 	 
 	},
      
      "In particular we are thankful to Dan Grayson and Mike Stillman for their help in creating 
-     communication between Macaualay2 and the browser.",
+     communication between Macaulay2 and the browser.",
      
-     SUBSECTION "Menu",
+     SUBSECTION "Interactive Examples",
+     
+     "The following links are interactive examples without the communication between Macaulay2
+     and the browser. The editing, manipulation, and TikZ should work. Depending on the browser, 
+     some features may require you to open the links in a new tab.",
+     
+     UL {
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"graph-example.html","Visualize Graphs example")},
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"digraph-example.html","Visualize Digraphs example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"poset-example.html","Visualize Posets example")},	  
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"simplicial-complex-example.html","Visualize Simplicial Complexes example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal2d-example.html","Visualize Ideals in 2 variables example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal3d-example.html","Visualize Ideals in 3 variables example")}
+        },
+
+     SUBSECTION "Methods and Workflow",
      
      UL {
 	 TO "Basic Workflow for Visualize",
@@ -1220,7 +1235,7 @@ document {
      }
 
 
-
+-- (visualize,Graph)
 document {
      Key => (visualize,Graph),
      Headline => "visualizes a graph in a modern browser",
@@ -1233,65 +1248,76 @@ document {
 --	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath"
 	 },
      
-     PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     PARA "Using JavaScript, this method creates an interactive visualization of a graph
+     in a modern browser. While viewing the graph, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
      PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
      open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
-     port is established, define an object to visualize."},
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following graph."},
 
      EXAMPLE {
 --	 "openPort \"8080\"",
-	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
+	 "G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
 	 },
      
      PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
-     browser will open with the following interactive image."},
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"graph-example.html","Visualize Graphs example")},
      
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
      
-     PARA {"On the side of the browser will be several options to interact with the graph using the ", TO "Graphs", " package. 
-     Below is a brief overview of the options."},
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize G", ", once you 
+	 ended the session, the last graph on the screen would be assigned to ", TT "H", ". After running various computations on this graph, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macualay2 is restarted."},
+     
      
      SUBSECTION "Browser Menu Options",
      
+     PARA {"On the side of the browser will be several options to interact with the graph using the ", TO "Graphs", " package. 
+     Below is a brief overview of the options."},     
+     
+     
      UL { 
 	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
-	     increases and decreases the length of the edges."}, 
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
 	     
 	 {BOLD "Enable Editing: ", "In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
 	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
 	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
-	      you can move the vertices around by holding down the shift key."},
+	      you can move the vertices around by holding down the shift key.", BR{}, BR{}}, 
 	      
-	 {BOLD "Hide Labels: ", "Removes the labels from the vertices."}, 	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
 	 
-	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected."}, 	      	 
+	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected.", BR{}, BR{}}, 
 	 
 	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
-	     undo this process by reseting the nodes. Clicking this will reset all nodes."}, 	      	 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
 	     
 	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
-	     not repel each other."},
+	     not repel each other.", BR{}, BR{}}, 
 	     
 	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the graph that is
 	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
 	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the graph, feel free. All you need do in 
 	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
-	     the same, but it will be a new code."}, 	      	 
+	     the same, but it will be a new code.", BR{}, BR{}}, 
 	     
 	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Graphs", " package. 
 	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
 	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
-	     process you need to kill the session of Macaulay2 with 'ctrl+C+C' in the instance of Macaulay2."}, 	      	     
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
 	     
 	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Graphs", " package. 
 	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
 	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
-	     process you need to kill the session of Macaulay2 with 'ctrl+C+C' in the instance of Macaulay2."}, 	      	     
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
 	     
 	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current graph to Macaulay2. The 
 	     output of ", TT "visualize G", " is the graph on the screen when end session is clicked."} 	      	     
@@ -1301,10 +1327,6 @@ document {
      
 --     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
 
-     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize G", ", once you 
-	 ended the session, the last graph on the screen would be assigned to ", TT "H", ". After running various computations on this graph, 
-	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
-	 TO "closePort", " or Macualay2 is restarted."},
      
      
     SeeAlso => {
@@ -1318,11 +1340,37 @@ document {
      
      }
  
+ 
+-- (visualize,Ideal)
 document {
      Key => (visualize,Ideal),
      Headline => "visualizes an ideal in the browser",
      
-     PARA "Make Graphs perfect and copy with pics",
+     PARA {"Using JavaScript, this method creates an interactive visualization of an ideal, in either 2 or 3
+     variables, in a modern browser. Unlike other ", TO "Type","s, when visualizing an ideal you 
+     do not need to open a port as there is no communication between Macaulay2 and the browser. 
+     We hope to add more functionality to this method in future versions. The ideal being visualized
+     is actually the ideal of leading terms."},
+
+     EXAMPLE {
+	 "S = QQ[x,y]",
+	 "I = ideal\"x4,xy3,y5\""
+	 },
+     
+     PARA {"In order to visualize this, simply type ", TT "visualize I", " and the following example will appear in the browser."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal2d-example.html","Visualize ideal in 2 variables example")},     
+     
+     EXAMPLE {
+	 "R = QQ[x,y,z]",
+	 "J = ideal\"x4,xyz3,yz2,xz3,z6,y5\""
+	 },
+     
+     PARA {"In order to visualize this, simply type ", TT "visualize J", " and the following example will appear in the browser."},  
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal3d-example.html","Visualize ideal in 3 variables example")},             
+     
+     Caveat => {"Visualizing ideals is still in development so please be gentle with it."},     
      
     SeeAlso => {
 	 "Basic Workflow for Visualize",
@@ -1335,11 +1383,89 @@ document {
      
      }
 
+-- (visualize,Digraph)
 document {
      Key => (visualize,Digraph),
      Headline => "visualizes a digraph in the browser",
      
-     PARA "Make Graphs perfect and copy with pics",
+     PARA "Using JavaScript, this method creates an interactive visualization of a digraph
+     in a modern browser. While viewing the digraph, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following digraph."},
+
+     EXAMPLE {
+--	 "openPort \"8080\"",
+	 "D = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "D", ". To do this simply execute ", TT "H = visualize D", " and 
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"digraph-example.html","Visualize Digraphs example")},
+     
+     -- make sure this image matches the graph in the example. 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize D", ", once you 
+	 ended the session, the last digraph on the screen would be assigned to ", TT "H", ". After running various computations on this digraph, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macualay2 is restarted."},
+     
+     
+     SUBSECTION "Browser Menu Options",
+     
+     PARA {"On the side of the browser will be several options to interact with the digraph using the ", TO "Graphs", " package. 
+     Below is a brief overview of the options."},     
+     
+     
+     UL { 
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the digraph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
+	      you can move the vertices around by holding down the shift key. Further, to create a loop, select a node and press the 'r' key.", 
+	      BR{}, BR{}}, 
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
+	 
+	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected.", BR{}, BR{}}, 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other.", BR{}, BR{}}, 
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the digraph that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the digraph, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code. At this time loops, or reflexive edges, are not represented in the TikZ image", BR{}, BR{}}, 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Graphs", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current digraph on the screen. ",
+	     BOLD "Warning:", " If your digraph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
+	     
+	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Graphs", " package. 
+	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current digraph on the screen. ",
+	     BOLD "Warning:", " If your digraph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current digraph to Macaulay2. The 
+	     output of ", TT "visualize D", " is the digraph on the screen when end session is clicked."} 	      	     
+
+	 },
+	
+
      
     SeeAlso => {
 	 "Basic Workflow for Visualize",
@@ -1352,11 +1478,94 @@ document {
      
      }
 
+
+-- (visualize,Poset)
 document {
      Key => (visualize,Poset),
      Headline => "visualizes a poset in the browser",
+
      
-     PARA "Make Graphs perfect and copy with pics",
+     PARA "Using JavaScript, this method creates an interactive visualization of a poset
+     in a modern browser. While viewing the poset, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following poset."},
+
+     EXAMPLE {
+--	 "openPort \"8080\"",
+    	 "P = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "P", ". To do this simply execute ", TT "H = visualize P", " and 
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"poset-example.html","Visualize Posets example")},
+     
+     -- make sure this image matches the graph in the example. 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize P", ", once you 
+	 ended the session, the last poset on the screen would be assigned to ", TT "H", ". After running various computations on this poset, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macualay2 is restarted."},
+     
+     
+     SUBSECTION "Browser Menu Options",
+     
+     PARA {"On the side of the browser will be several options to interact with the poset using the ", TO "Posets", " package. 
+     Below is a brief overview of the options."},     
+     
+     
+     UL { 
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the poset (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
+	      you can move the vertices around by holding down the shift key. Further, to create a loop, select a node and press the 'r' key.", 
+	      BR{}, BR{}}, 
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
+	 
+	 {BOLD "Highlight comparable elements: ", "Allows you to see the comparable elements when a vertex is selected.", BR{}, BR{}}, 
+	 
+	 {BOLD "Fix extremal nodes: ", "Forces extremal nodes to be placed at the top and bottom of the image.", BR{}, BR{}}, 	 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other.", BR{}, BR{}}, 
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the poset that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the poset, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code.", BR{}, BR{}}, 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Posets", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current poset on the screen. ",
+	     BOLD "Warning:", " If your poset is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
+	     
+	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Posets", " package. 
+	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current poset on the screen. ",
+	     BOLD "Warning:", " If your poset is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current poset to Macaulay2. The 
+	     output of ", TT "visualize P", " is the poset on the screen when end session is clicked."} 	      	     
+
+	 },
+	
+
+     
      
     SeeAlso => {
 	 "Basic Workflow for Visualize",
@@ -1369,11 +1578,91 @@ document {
      
      }
 
+-- (visualize,SimplicialComplex)
 document {
      Key => (visualize,SimplicialComplex),
      Headline => "visualizes a simplicial complex in the browser",
      
-     PARA "Make Graphs perfect and copy with pics",
+     PARA "Using JavaScript, this method creates an interactive visualization of a simplicial complex
+     in a modern browser. While viewing the simplicial complex, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following simplicial complex."},
+
+     EXAMPLE {
+--	 "openPort \"8080\"",
+    	 "R = ZZ[a..g]",
+    	 "D = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "D", ". To do this simply execute ", TT "H = visualize D", " and 
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"simplicial-complex-example.html","Visualize Simplicial Complex example")},
+     
+     -- make sure this image matches the graph in the example. 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize D", ", once you 
+	 ended the session, the last simplicial complex on the screen would be assigned to ", TT "H", ". After running various computations on this simplicial complex, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macualay2 is restarted."},
+     
+     
+     SUBSECTION "Browser Menu Options",
+     
+     PARA {"On the side of the browser will be several options to interact with the simplicial complex using the ", TO "SimplicialComplex", " package. 
+     Below is a brief overview of the options."},     
+     
+     
+     UL { 
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the simplicial complex (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
+	      you can move the vertices around by holding down the shift key. Further, to create a face, hold down the 'f' key and select 
+	      three nodes.", 
+	      BR{}, BR{}}, 
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
+	 
+	 {BOLD "Highlight faces: ", "Allows you to see the connecting faces when a vertex is selected.", BR{}, BR{}}, 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other.", BR{}, BR{}}, 
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the simplicial complex that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the simplicial complex, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code.", BR{}, BR{}}, 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "SimplicialComplex", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current simplicial complex on the screen. ",
+	     BOLD "Warning:", " If your simplicial complex is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
+	     
+--	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "SimplicialComplex", " package. 
+--	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current simplicial complex on the screen. ",
+--	     BOLD "Warning:", " If your simplicial complex is too large, clicking a menu item could take a very long time. In order to cancel the 
+--	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current simplicial complex to Macaulay2. The 
+	     output of ", TT "visualize D", " is the simplicial complex on the screen when end session is clicked."} 	      	     
+
+	 },
+	
+     
 
     SeeAlso => {
 	 "Basic Workflow for Visualize",
@@ -2230,7 +2519,7 @@ G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 isRigid G
 
 visualize( G, Verbose => true )
-visualize(G, VisPath => "/Users/bstone/Desktop/Test/")
+visualize(G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 cycleGraph 9
 visualize oo
@@ -2256,7 +2545,7 @@ D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
 visualize D1
 
 D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
-visualize D2
+visualize (D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 
 -- Posets
@@ -2265,7 +2554,7 @@ path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage "Visualize"
 openPort "8081"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
-visualize P2
+visualize( P2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize(P2,FixExtremeElements => true)
 visualize oo
 
@@ -2276,7 +2565,7 @@ visualize D
 
 R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
-visualize D2
+visualize( D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = ZZ[a..f]
 L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
@@ -2286,11 +2575,11 @@ visualize L
 -- Ideals
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
-visualize I
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = QQ[x,y,z]
 J = ideal"x4,xyz3,yz2,xz3,z6,y5"
-visualize J
+visualize( J, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 closePort()
 
