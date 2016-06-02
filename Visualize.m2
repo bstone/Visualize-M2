@@ -1275,7 +1275,7 @@ document {
      PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize G", ", once you 
 	 ended the session, the last graph on the screen would be assigned to ", TT "H", ". After running various computations on this graph, 
 	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
-	 TO "closePort", " or Macualay2 is restarted."},
+	 TO "closePort", " or Macaulay2 is restarted."},
      
      
      SUBSECTION "Browser Menu Options",
@@ -1415,7 +1415,7 @@ document {
      PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize D", ", once you 
 	 ended the session, the last digraph on the screen would be assigned to ", TT "H", ". After running various computations on this digraph, 
 	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
-	 TO "closePort", " or Macualay2 is restarted."},
+	 TO "closePort", " or Macaulay2 is restarted."},
      
      
      SUBSECTION "Browser Menu Options",
@@ -1431,7 +1431,8 @@ document {
 	 {BOLD "Enable Editing: ", "In the browser, you can edit the digraph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
 	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
 	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
-	      you can move the vertices around by holding down the shift key. Further, to create a loop, select a node and press the 'r' key.", 
+	      you can move the vertices around by holding down the shift key. Further, to create a loop, select a node and press the 'r' key.
+	      When an edge is selected, you may press the 'l', 'r', and 'b' keys to change the edge to a left-, right-, or two-sided edge, respectively.", 
 	      BR{}, BR{}}, 
 	      
 	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
@@ -1512,7 +1513,7 @@ document {
      PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize P", ", once you 
 	 ended the session, the last poset on the screen would be assigned to ", TT "H", ". After running various computations on this poset, 
 	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
-	 TO "closePort", " or Macualay2 is restarted."},
+	 TO "closePort", " or Macaulay2 is restarted."},
      
      
      SUBSECTION "Browser Menu Options",
@@ -1526,9 +1527,13 @@ document {
 	     increases and decreases the length of the edges.", BR{}, BR{}}, 
 	     
 	 {BOLD "Enable Editing: ", "In the browser, you can edit the poset (add/delete vertices or edges) by clicking ", TT "Enable Editing",
-	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
-	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
-	      you can move the vertices around by holding down the shift key. Further, to create a loop, select a node and press the 'r' key.", 
+	      ".  For example, in order to remove the edge ", TT "{1,2}" , ", click on 'Enable Editing' and select 
+	      the edge and press delete on the keyboard.  When deleting an edge, the minimal covering relations and visual display are automatically
+	      updated to reflect the new poset structure.  You may also add vertices and edges with the mouse/trackpad. When adding a new edge
+	      (relation), you must drag from the smaller vertex in the relation to the larger vertex.  Each time a new edge is added, a check is
+	      performed to determine whether the new edge would violate antisymmetry, and if so then an alert is displayed.  Also, each time a new
+	      edge is added, the transitive closure is computed, the rank/height of each poset element is recomputed, and the visual display of the
+	      poset is updated.  When editing is enabled, you can move the vertices around by holding down the shift key.  ", 
 	      BR{}, BR{}}, 
 	      
 	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
@@ -1611,7 +1616,7 @@ document {
      PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize D", ", once you 
 	 ended the session, the last simplicial complex on the screen would be assigned to ", TT "H", ". After running various computations on this simplicial complex, 
 	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
-	 TO "closePort", " or Macualay2 is restarted."},
+	 TO "closePort", " or Macaulay2 is restarted."},
      
      
      SUBSECTION "Browser Menu Options",
@@ -1628,7 +1633,7 @@ document {
 	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
 	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
 	      you can move the vertices around by holding down the shift key. Further, to create a face, hold down the 'f' key and select 
-	      three nodes.", 
+	      three distinct nodes.", 
 	      BR{}, BR{}}, 
 	      
 	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
@@ -1735,8 +1740,8 @@ document {
      Key => {FixExtremeElements,[(visualize,Poset),FixExtremeElements]},
      Headline => "an option to fix extreme elements of a poset",
      
-     PARA "When using this option, the visualized poset will be drawn such that the extreme elements are place 
-     in the top and bottom of the drawing.",
+     PARA "When using this option, the visualized poset will be drawn such that the extreme elements are placed 
+     at the top and bottom of the drawing.",
      
     SeeAlso => {
 	 "Basic Workflow for Visualize",
@@ -1744,22 +1749,6 @@ document {
 	}
      
      }
-
-
-{*
-document {
-     Key => [(visualize,Poset),FixExtremeElements],
-     Headline => "an option that brett created",
-     
-     PARA "I don't know what this is.",
-     
-    SeeAlso => {
-	"Basic Workflow for Visualize",
-	"Visualizing Posets"
-	}
-     
-     }
- *}
 
 document {
      Key => [(visualize,Digraph),VisPath],
