@@ -1080,7 +1080,21 @@ document {
      "In particular we are thankful to Dan Grayson and Mike Stillman for their help in creating 
      communication between Macaualay2 and the browser.",
      
-     SUBSECTION "Menu",
+     SUBSECTION "Interactive Examples",
+     
+     "The following links are interactive examples without the communication between Macaualay2
+     and the browser. The editing, manipulation, and TikZ should work.",
+     
+     UL {
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"visgraph-example.html","Example Graphs")},
+	 TO (visualize,Graph),	 
+	 TO (visualize,Digraph),	 	 
+	 TO (visualize,Poset),	 	 
+	 TO (visualize,SimplicialComplex),	 	 
+	 TO (visualize,Ideal)
+        },
+
+     SUBSECTION "Methods and Workflow",
      
      UL {
 	 TO "Basic Workflow for Visualize",
