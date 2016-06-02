@@ -2595,3 +2595,4 @@ restart
 path ={"~/GitHub/Visualize-M2/"}|path
 installPackage"Visualize"
 viewHelp Visualize
+needsPackage"Visualize"
