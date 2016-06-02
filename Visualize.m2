@@ -1074,7 +1074,7 @@ document {
 	 "Ata Firat Pir",
 	 "Elliot Korte",
 	 "Will Smith",
-	 "Julio Urenda",	 	 
+	 "Julio Urenda"	 	 
 	},
      
      "In particular we are thankful to Dan Grayson and Mike Stillman for their help in creating 
@@ -1234,7 +1234,7 @@ document {
      }
 
 
-
+-- (visualize,Graph)
 document {
      Key => (visualize,Graph),
      Headline => "visualizes a graph in a modern browser",
@@ -1247,65 +1247,76 @@ document {
 --	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath"
 	 },
      
-     PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     PARA "Using JavaScript, this method creates an interactive visualization of a graph
+     in a modern browser. While viewing the graph, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
      PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
      open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
-     port is established, define an object to visualize."},
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following graph."},
 
      EXAMPLE {
 --	 "openPort \"8080\"",
-	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
+	 "G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
 	 },
      
      PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
-     browser will open with the following interactive image."},
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"graph-example.html","Visualize Graphs example")},
      
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
      
-     PARA {"On the side of the browser will be several options to interact with the graph using the ", TO "Graphs", " package. 
-     Below is a brief overview of the options."},
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize G", ", once you 
+	 ended the session, the last graph on the screen would be assigned to ", TT "H", ". After running various computations on this graph, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macualay2 is restarted."},
+     
      
      SUBSECTION "Browser Menu Options",
      
+     PARA {"On the side of the browser will be several options to interact with the graph using the ", TO "Graphs", " package. 
+     Below is a brief overview of the options."},     
+     
+     
      UL { 
 	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
-	     increases and decreases the length of the edges."}, 
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
 	     
 	 {BOLD "Enable Editing: ", "In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
 	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
 	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
-	      you can move the vertices around by holding down the shift key."},
+	      you can move the vertices around by holding down the shift key.", BR{}, BR{}}, 
 	      
-	 {BOLD "Hide Labels: ", "Removes the labels from the vertices."}, 	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
 	 
-	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected."}, 	      	 
+	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected.", BR{}, BR{}}, 
 	 
 	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
-	     undo this process by reseting the nodes. Clicking this will reset all nodes."}, 	      	 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
 	     
 	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
-	     not repel each other."},
+	     not repel each other.", BR{}, BR{}}, 
 	     
 	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the graph that is
 	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
 	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the graph, feel free. All you need do in 
 	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
-	     the same, but it will be a new code."}, 	      	 
+	     the same, but it will be a new code.", BR{}, BR{}}, 
 	     
 	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Graphs", " package. 
 	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
 	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
-	     process you need to kill the session of Macaulay2 with 'ctrl+C+C' in the instance of Macaulay2."}, 	      	     
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
 	     
 	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Graphs", " package. 
 	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
 	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
-	     process you need to kill the session of Macaulay2 with 'ctrl+C+C' in the instance of Macaulay2."}, 	      	     
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
 	     
 	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current graph to Macaulay2. The 
 	     output of ", TT "visualize G", " is the graph on the screen when end session is clicked."} 	      	     
@@ -1315,10 +1326,6 @@ document {
      
 --     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
 
-     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize G", ", once you 
-	 ended the session, the last graph on the screen would be assigned to ", TT "H", ". After running various computations on this graph, 
-	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
-	 TO "closePort", " or Macualay2 is restarted."},
      
      
     SeeAlso => {
