@@ -674,7 +674,7 @@ function keydown() {
         // Delete the selected link and update the poset.
         var sourceID = selected_link.source.id;
         var targetID = selected_link.target.id;
-        dataRelMatrix[sourceID,targetID] = 0;
+        dataRelMatrix[sourceID][targetID] = 0;
         dataCovRel = minimalPosetRelations(dataRelMatrix);
         dataGroupList = computeNodeGroups(dataRelMatrix);
         maxGroup = d3.max(dataGroupList);
