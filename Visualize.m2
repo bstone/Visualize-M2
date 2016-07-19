@@ -69,6 +69,7 @@ export {
 defaultPath = (options Visualize).Configuration#"DefaultPath"
 basePath = currentFileDirectory -- created this because copyJS would not handle 
     	    	    	    	-- currentFileDirectory for some reason.
+commonVisOpts = {VisPath => defaultPath, Warning => true, Verbose => false} -- list of common options for visualize method
 
 -- (options Visualize).Configuration
 
@@ -214,7 +215,8 @@ relHeightFunction(Poset) := P -> (
 --
 visualize = method(Options => true)
 
-visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
+--{VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
+visualize(Ideal) := commonVisOpts|{VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> ( 
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList; local newArrayList; local newArrayString;    
         
@@ -280,7 +282,8 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
 
 --input: A graph
 --output: A visualization of the graph in the browser
-visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
+--{VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
+visualize(Graph) := commonVisOpts|{VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html"} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
     
@@ -332,7 +335,8 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
 
 -- Input: A digraph
 -- Output: A visualization of the digraph in the browser
-visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
+--{Verbose => false, VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
+visualize(Digraph) := commonVisOpts|{VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html"} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
 
@@ -387,7 +391,8 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
 
 -- Input: A poset
 -- Output: A visualization of the poset in the browser
-visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+--{Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+visualize(Poset) := commonVisOpts|{FixExtremeElements => false, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html"} >> opts -> P -> (
 
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local labelString; local nodeString; local relationString;
@@ -425,7 +430,8 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
 
 -- Input: A simplicial complex
 -- Output: A visualization of the simplicial complex in the browser
-visualize(SimplicialComplex) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+--{Verbose => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+visualize(SimplicialComplex) := commonVisOpts|{VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
@@ -2283,7 +2289,7 @@ visualize D2
 -- tom examples
 -- Posets
 restart
-path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/Visualize-M2/"}|path
 loadPackage "Visualize"
 openPort "8081"
 --P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
@@ -2295,6 +2301,9 @@ visualize(oo, Verbose=>true)
 
 closePort()
 -- ideals
+restart
+path = {"~/GitHub/Visualize-M2/"}|path
+loadPackage "Visualize"
 R=ZZ/101[x,y]
 I=ideal(x^5,x^2*y,y^4)
 visualize I
@@ -2405,7 +2414,7 @@ I = ideal"x4,xy3,y5"
 visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
-
+y
 closePort()
 
 
@@ -2465,9 +2474,9 @@ visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
 
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
-visIdeal I
-visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
-
+visualize I
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
+y
 
 copyJS "/Users/bstone/Desktop/Test/"
 yes
@@ -2617,7 +2626,7 @@ m = method()
 m(ZZ) := z -> z+1
 userFunction m    
 
-commonVisOpts = {VisPath => defaultPath, Warning => true, Verbose => false};
+
 
 
 
