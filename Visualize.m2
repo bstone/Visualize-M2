@@ -687,6 +687,26 @@ server = () -> (
 	
 	-- Begin handling requests from browser
 	---------------------------------------
+///
+restart
+makeVisualizeFun = method()
+makeVisualizeFun(Function) := g -> (
+    return g a == b;
+    )
+a = "Hello"; b=a;
+
+f := s -> s
+userFunction f
+
+m = method()
+m(ZZ) := z -> z+1
+userFunction m    
+
+restart
+path = {"~/GitHub/Visualize-M2/"}|path
+loadPackage"Visualize"
+
+///
 	
 	-- hasEulerianTrail
 	if match("^POST /hasEulerianTrail/(.*) ",r) then (
@@ -2612,26 +2632,5 @@ path ={"~/GitHub/Visualize-M2/"}|path
 installPackage"Visualize"
 viewHelp Visualize
 
-restart
-userFunction = method()
-userFunction(Function) := g -> (
-    return g a == b;
-    )
-a = "Hello"; b=a;
-
-f := s -> s
-userFunction f
-
-m = method()
-m(ZZ) := z -> z+1
-userFunction m    
 
 
-
-
-
-testvisualize = method(Options => true)
-testvisualize(ZZ) := {VisPath => defaultPath, Warning => true, Verbose => false}|{VisTemplate => "basePath" | "Visualize/templates/visGraph/visGraph-template.html"} >> opts -> G -> (
-    return G;
-    )
-testvisualize 5
