@@ -646,7 +646,7 @@ installMethod(closePort, () -> (
 --
 openPortTest = method()
 installMethod(openPortTest, () -> (
-    	if (portTest == false ) then error("-- You must open a port with 'openPort()' before you can communicate with the browser.");
+    	--if (portTest == false ) then error("-- You must open a port with 'openPort()' before you can communicate with the browser.");
      )
 )
 
