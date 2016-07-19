@@ -1,6 +1,0 @@
-R = ZZ[a,b,c]
-f = {a*b*c}
-G = factor f
-	
-H = apply(new List from G, i -> i#0)
-H#0

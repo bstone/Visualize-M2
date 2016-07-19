@@ -1,9 +1,9 @@
 ---------------------------------------------------------------------------
 -- PURPOSE : Visualize package for Macaulay2 provides the ability to 
--- visualize various algebraic objects in java script using a 
+-- visualize various algebraic objects in javascript using a 
 -- modern browser.
 --
--- Copyright (C) 2013 Branden Stone and Jim Vallandingham
+-- Copyright (C) 2016 Brett Barwick, Thomas Enkosky, Branden Stone and Jim Vallandingham
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License version 2
@@ -18,19 +18,20 @@
 
 newPackage(
 	"Visualize",
-    	Version => "0.3", 
-    	Date => "June 1, 2015",
+    	Version => "0.8", 
+    	Date => "June 1, 2016",
     	Authors => {       
-     	     {Name => "Brett Barwick", Email => "Brett@barwick.edu", HomePage => "http://math.bard.edu/~bstone/"},	     
-	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu", HomePage => "http://math.bu.edu/people/tomenk"},	     
+     	     {Name => "Brett Barwick", Email => "bbarwick@uscupstate.edu", HomePage => "http://faculty.uscupstate.edu/bbarwick/"},	     
+	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu", HomePage => "http://math.bu.edu/people/tomenk/"},	     
+	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
+	     {Name => "Jim Vallandingham", Email => "vlandham@gmail.com", HomePage => "http://vallandingham.me/"}
+-- Contributing Author	     {Name => "Ata Firat Pir", Email => "atafirat@math.tamu.edu"},	     
 -- Contributing Author	     {Name => "Elliot Korte", Email => "ek2872@bard.edu"},	     
 -- Contributing Author	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
-	     {Name => "Branden Stone", Email => "bstone@adelphi.edu", HomePage => "http://math.adelpi.edu/~bstone/"},
 -- Contributing Author	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
-	     {Name => "Jim Vallandingham", Email => "vlandham@gmail.com", HomePage => "http://vallandingham.me/"}
 	     },
     	Headline => "Visualize",
-    	DebuggingMode => false,
+    	DebuggingMode => true,
 	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
 	Configuration => {"DefaultPath" => null } 
@@ -48,20 +49,16 @@ export {
      "visualize",
      
     -- Helpers 
---     "runServer",
 --     "toArray", -- Don't need to export?
 --     "getCurrPath", -- Don't need to export?
 --     "copyTemplate",-- Don't need to export?
 --     "replaceInFile",-- Don't need to export?
 --     "heightFunction",
 --     "relHeightFunction",
---     "visOutput", -- do we even use this?
-
      
     -- Server
      "openPort",
      "closePort"
-
 }
 
 
@@ -72,6 +69,7 @@ export {
 defaultPath = (options Visualize).Configuration#"DefaultPath"
 basePath = currentFileDirectory -- created this because copyJS would not handle 
     	    	    	    	-- currentFileDirectory for some reason.
+commonVisOpts = {VisPath => defaultPath, Warning => true, Verbose => false} -- list of common options for visualize method
 
 -- (options Visualize).Configuration
 
@@ -90,33 +88,16 @@ inOutPortNum = null -- The port number that is being opened. This is passed to t
 getCurrPath = method()
 installMethod(getCurrPath, () -> (local currPath; currPath = get "!pwd"; substring(currPath,0,(length currPath)-1)|"/"))
 
-
 --input: A list of lists
 --output: an array of arrays
---
--- would be nice if we could use this on any nesting of lists/seq
--- we could make the input a BasicList
---
+
 toArray = method() 
 toArray(List) := L -> (
      return new Array from apply(L, i -> new Array from i);
      )
-    
-
-
---input: A path
---output: runs a server for displaying objects
---
--- runServer = method(Options => {VisPath => currentDirectory()})
--- runServer(String) := opts -> (visPath) -> (
---     return run visPath;
---    )
-
---- add methods for output here:
---
 
 --replaceInFile
---	replaces a given pattern by a given patter in a file
+--	replaces a given pattern by a given pattern in a file
 --	input: string containing the pattern
 --	       string containing the replacement
 --	       string containing the file name, 
@@ -137,27 +118,6 @@ replaceInFile(String, String, String) := (patt, repl, fileName) -> (
 		
 		return fileName;
 )	
-
-
---input: Three Stings. The first is a key word to look for.  The second
---    	 is what to replace the key word with. The third is the path 
---    	 where template file is located.
---output: A file with visKey replaced with visString.
---
-{*
-visOutput = method(Options => {VisPath => currentDirectory()})
-visOutput(String,String,String) := opts -> (visKey,visString,visTemplate) -> (
-    local fileName; local openFile; local PATH;
-    
-    fileName = (toString currentTime() )|".html";
-    PATH = opts.VisPath|fileName;
-    openOut PATH << 
-    	replace(visKey, visString , get visTemplate) << 
-	close;
-                  
-    return (show new URL from { "file://"|PATH }, fileName);
-    )
-*}
 
 -- input: path to an html file
 -- output: a copy of the input file in a temporary folder
@@ -199,7 +159,7 @@ copyTemplate(String,String) := (src,dst) -> (
 
 )
 
--- input:
+-- input: three strings
 -- output:
 searchReplace = method() --Options => {VisPath => currentDirectory()}) -- do we use VisPath?
 searchReplace(String,String,String) := (oldString,newString,visSrc) -> (
@@ -214,7 +174,9 @@ searchReplace(String,String,String) := (oldString,newString,visSrc) -> (
     return visSrc;
     )
 
-
+-- Input: Poset
+-- Output: A list where the ith element is the height of the ith element
+-- of P.GroundSet as it appears in a filtration of the poset.
 heightFunction = method()
 heightFunction(Poset) := P -> (
     local F; local G; local tempList;
@@ -227,6 +189,11 @@ heightFunction(Poset) := P -> (
     return toList tempList;
 )
 
+-- Input: Poset
+-- Output: A list where the ith element is the 'relative height' of the ith
+-- element of P.GroundSet, which helps to evenly distribute the elements
+-- of the poset evenly based on how they appear within the maximal chains
+-- in the poset.
 relHeightFunction = method()
 relHeightFunction(Poset) := P -> (
     local nodes; local maxChains;
@@ -248,7 +215,8 @@ relHeightFunction(Poset) := P -> (
 --
 visualize = method(Options => true)
 
-visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
+--{VisPath => defaultPath, Warning => true, VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> (
+visualize(Ideal) := commonVisOpts|{VisTemplate => basePath |"Visualize/templates/visIdeal/visIdeal"} >> opts -> J -> ( 
     local R; local arrayList; local arrayString; local numVar; local visTemp;
     local varList; local newArrayList; local newArrayString;    
         
@@ -308,18 +276,19 @@ visualize(Ideal) := {VisPath => defaultPath, Warning => true, VisTemplate => bas
     );
     
     show new URL from { "file://"|visTemp };
---    A = visOutput( "visArray", arrayString, visTemp, VisPath => opts.VisPath );
     
     return visTemp;--opts.VisPath|A_1;
     )
 
 --input: A graph
---output: the graph in the browswer
---
-visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
+--output: A visualization of the graph in the browser
+--{VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html", Warning => true, Verbose => false} >> opts -> G -> (
+visualize(Graph) := commonVisOpts|{VisTemplate => basePath | "Visualize/templates/visGraph/visGraph-template.html"} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
     
+    openPortTest();
+        
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
     
@@ -347,8 +316,6 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
     then (
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visGraph template to a temporary directory.
     	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
---	visTemp = copyTemplate(opts.VisTemplate|"3D.html",opts.VisPath);
---	copyJS(opts.VisPath, Warning => opts.Warning);	    
       )
     else (
 	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visGraph template to a temporary directory.
@@ -361,16 +328,19 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
     
     show new URL from { "file://"|visTemp };
     
---    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
     browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
-
         
     return browserOutput;
 )
 
-visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
+-- Input: A digraph
+-- Output: A visualization of the digraph in the browser
+--{Verbose => false, VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
+visualize(Digraph) := commonVisOpts|{VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html"} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
+
+    openPortTest();    
     
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
@@ -401,8 +371,6 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
     then (
 	visTemp = copyTemplate(opts.VisTemplate, opts.VisPath); -- Copy the visDigraph template to a temporary directory.
     	copyJS(opts.VisPath, Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
---	visTemp = copyTemplate(opts.VisTemplate|"3D.html",opts.VisPath);
---	copyJS(opts.VisPath, Warning => opts.Warning);	    
       )
     else (
 	visTemp = copyTemplate(opts.VisTemplate); -- Copy the visDigraph template to a temporary directory.
@@ -415,37 +383,26 @@ visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => 
 
     show new URL from { "file://"|visTemp };
     
---    browserOutput = openGraphServer(inOutPort, Verbose => opts.Verbose);
     browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
         
     return browserOutput;
 )
 
 
---input: A poset
---output: The poset in the browswer
---
-
-visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+-- Input: A poset
+-- Output: A visualization of the poset in the browser
+--{Verbose=>false,FixExtremeElements => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html", Warning => true} >> opts -> P -> (
+visualize(Poset) := commonVisOpts|{FixExtremeElements => false, VisTemplate => basePath | "Visualize/templates/visPoset/visPoset-template.html"} >> opts -> P -> (
 
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local labelString; local nodeString; local relationString;
     local relMatrixString; local fixExtremeEltsString; local browserOutput;
-    
-    labelList = apply(P_*, i -> "'"|(toString i)|"'");
-    --if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
-    --relList = coveringRelations P;
-    --numNodes = #labelList;
-    
-    if opts.FixExtremeElements == true then (
-	    groupList = relHeightFunction P;
-    ) else (
-	    if isRanked P then groupList = rankFunction P else groupList = heightFunction P;
-    );
 
+    openPortTest();
+        
+    labelList = apply(P_*, i -> "'"|(toString i)|"'");
+    
     labelString = toString new Array from labelList;
-    --nodeString = toString new Array from apply(numNodes, i -> {"\"name\": \""|toString(labelList#i)|"\" , \"group\": "|toString(groupList#i)});
-    --relationString = toString new Array from apply(#relList, i -> {"\"source\": "|toString(position(labelList, j -> j === relList#i#0))|", \"target\": "|toString(position(labelList, j -> j === relList#i#1))});
     relMatrixString = toString toArray entries P.RelationMatrix;
     fixExtremeEltsString = toString opts.FixExtremeElements;
   
@@ -459,30 +416,29 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     	copyJS(replace(baseFilename visTemp, "", visTemp), Warning => opts.Warning); -- Copy the javascript libraries to the temp folder.
     );
     
-    --searchReplace("visNodes",nodeString, visTemp); -- Replace visNodes in the visPoset html file by the ordered list of vertices.
     searchReplace("visLabels",labelString, visTemp); -- Replace visLabels in the visPoset html file by the labels of the nodes in the same order as the ground set of P.
-    --searchReplace("visRelations",relationString, visTemp); -- Replace visRelations in the visPoset html file by the list of minimal covering relations.
     searchReplace("visRelMatrix",relMatrixString, visTemp); -- Replace visRelMatrix in the visPoset html file by the relation matrix of the poset.
     searchReplace("visPort",inOutPortNum, visTemp); -- Replace visPort in the visGraph html file by the user port number.
     searchReplace("visExtremeElts",fixExtremeEltsString, visTemp); -- Replace visExtremeElts in the visPoset html file by the option passed by the user of whether to fix the extremal elements at the minimum or maximum levels.
     
     show new URL from { "file://"|visTemp };
  
---    browserOutput = openPosetServer(inOutPort, Verbose => opts.Verbose);
     browserOutput = openServer(inOutPort, Verbose => opts.Verbose);
     
     return browserOutput; 
-    --return visTemp;
 )
---input: A SimplicialComplex
---output: The SimplicialComplex in the browswer
---
-visualize(SimplicialComplex) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+
+-- Input: A simplicial complex
+-- Output: A visualization of the simplicial complex in the browser
+--{Verbose => false, VisPath => defaultPath, VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html", Warning => true} >> opts -> D -> (
+visualize(SimplicialComplex) := commonVisOpts|{VisTemplate => basePath | "Visualize/templates/visSimplicialComplex/visSimplicialComplex2d-template.html"} >> opts -> D -> (
     local vertexSet; local edgeSet; local face2Set; local face3Set; local visTemp;
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
     local visTemplate; local browserOutput;
-    
+
+    openPortTest();
+        
     vertexSet = flatten entries faces(0,D);
     edgeSet = flatten entries faces(1,D);
     face2Set = flatten entries faces(2,D);
@@ -490,9 +446,7 @@ visualize(SimplicialComplex) := {Verbose => false, VisPath => defaultPath, VisTe
     edgeList = apply(edgeSet, e -> apply(new List from factor e, i -> i#0));
     face2List = apply(face2Set, f -> apply(new List from factor f, i -> i#0));
 
-    --vertexString = toString new Array from apply(#vertexList, i -> {"\"name\": \""|toString(vertexList#i#0)|"\""});
     vertexString = toString new Array from apply(vertexSet, i -> "'"|toString(i)|"'");
-    --edgeString = toString new Array from apply(#edgeList, i -> {"\"source\": "|toString(position(vertexSet, j -> j === edgeList#i#1))|", \"target\": "|toString(position(vertexSet, j -> j === edgeList#i#0))});
     edgeString = toString new Array from apply(#edgeList, i -> new Array from {position(vertexSet, j -> j === edgeList#i#1),position(vertexSet, j -> j === edgeList#i#0)});
     face2String = toString new Array from apply(#face2List, i -> new Array from {position(vertexSet, j -> j == face2List#i#2),position(vertexSet, j -> j == face2List#i#1),position(vertexSet, j -> j == face2List#i#0)});
   
@@ -563,12 +517,12 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize
 )
 *}
 
---input: a String of a path to a directory
---output: Copies the needed files and libraries to path
+-- Input: A string of a path to a directory
+-- Output: Copies the needed files and libraries to path
 --
---caveat: Checks to see if files exist. If they do exist, the user
+-- Caveat: Checks to see if files exist. If they do exist, the user
 --        must give permission to continue. Continuing will overwrite
---        current files and cannont be undone.
+--        current files and cannot be undone.
 copyJS = method(Options => {Warning => true})
 copyJS(String) := opts -> dst -> (
     local jsdir; local ans; local quest;
@@ -653,20 +607,19 @@ copyJS(String) := opts -> dst -> (
 --                    :: port has been closed. It takes a bit of time
 --                    :: for M2 to realize no port is open. 
 --                    :: Maybe this is an issue with the garbage collector?
--- 2. Define graph :: G = graph(....)
+-- 2. Define graph or other object :: G = graph(....)
 -- 3. Run visualize :: H = visualize G
 --                  :: This will open the website and start
 --                  :: communication with the server. 
 --                  :: When the user ends session, output is 
 --                  :: sent back to M2 and assigned to H.
 -- 4. End session to export info to browser;
--- 5. Keep working and visualizeing objects;
+-- 5. Keep working and visualizing objects;
 -- 6. When finished, user closes port :: closePort() (or restart M2).
 
 
-
--- input: String, a port number the user wants to open.
--- output: None, a port is open and a message is displayed.
+-- Input: String, a port number the user wants to open.
+-- Output: None, a port is open and a message is displayed.
 --
 openPort = method()
 openPort String := F -> (    
@@ -681,13 +634,11 @@ openPort String := F -> (
 	inOutPort = openListener F;
 	print("--Port " | toString inOutPort | " is now open.");    
 	);  
---    return inOutPort;
 )
 
 --getCurrPath = method()
 --installMethod(getCurrPath, () -> (local currPath; currPath = get "!pwd"; substring(currPath,0,(length currPath)-1)|"/"))
 
--- Need to make this a method without an input.
 closePort = method()
 installMethod(closePort, () -> (
      portTest = false;
@@ -696,9 +647,18 @@ installMethod(closePort, () -> (
      )
 )
 
+-- Input: none
+-- Output: Error is user trys to run 'visualize' without first opening a port.
+--
+openPortTest = method()
+installMethod(openPortTest, () -> (
+    	if (portTest == false ) then error("-- You must open a port with 'openPort()' before you can communicate with the browser.");
+     )
+)
 
--- input: File, an in-out port for communicating with the browser
--- output: whatever the browser sends
+
+-- Input: File, an in-out port for communicating with the browser
+-- Output: Whatever the browser sends
 --
 openServer = method(Options =>{Verbose => true})
 openServer File := opts -> S -> (
@@ -833,6 +793,13 @@ server = () -> (
 	    fun = identity;
 	    u = toString( isTree dataValue );
 	)
+
+	-- isRigid
+	else if match("^POST /isRigid/(.*) ",r) then (
+	    -- testKey = "isRigid";
+	    fun = identity;
+	    u = toString( isRigid dataValue );
+	)    
     
         -- isWeaklyConnected
 	else if match("^POST /isWeaklyConnected/(.*) ",r) then (
@@ -1092,8 +1059,6 @@ return H;
 )
  
 
-
-
 --------------------------------------------------
 -- DOCUMENTATION
 --------------------------------------------------
@@ -1109,9 +1074,168 @@ document {
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
-    
-     }
+     SUBSECTION "Javascript Packages Used", 
+     "Built on the shoulders of giants, this package utilizes a variety of existing open-source javascript packages.",
+     
+     UL {
+	 {HREF("https://github.com/AndreaLombardo/BootSideMenu","BootSideMenu.js")},
+	 {HREF("https://github.com/dataarts/webgl-globe/blob/master/globe-vertex-texture/third-party/Three/Detector.js","Detectors.js")},
+	 {HREF("http://getbootstrap.com/","Bootstrap.js")},
+	 {HREF("https://clipboardjs.com/","clipboard.js")},
+	 {HREF("https://d3js.org/","D3.js")},
+	 {HREF("https://jquery.com/","jQuery")},
+	 {HREF("http://refreshless.com/nouislider/","noUiSlider.js")},
+	 {HREF("https://github.com/mrdoob/three.js/","Three.js")},
+	 {HREF("http://underscorejs.org/","Underscore.js")}
+	},
+         
+     
+     SUBSECTION "Contributors",     
+     "The following people have generously contributed code or worked on our code at various
+     Macaulay2 workshops.",
+     
+     UL {
+	 "Ata Firat Pir",
+	 "Elliot Korte",
+	 "Will Smith",
+	 "Julio Urenda"	 	 
+	},
+     
+     "In particular we are thankful to Dan Grayson and Mike Stillman for their help in creating 
+     communication between Macaulay2 and the browser.",
+     
+     SUBSECTION "Interactive Examples",
+     
+     "The following links are interactive examples without the communication between Macaulay2
+     and the browser. The editing, manipulation, and TikZ should work. Depending on the browser, 
+     some features may require you to open the links in a new tab.",
+     
+     UL {
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"graph-example.html","Visualize Graphs example")},
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"digraph-example.html","Visualize Digraphs example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"poset-example.html","Visualize Posets example")},	  
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"simplicial-complex-example.html","Visualize Simplicial Complexes example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal2d-example.html","Visualize Ideals in 2 variables example")},	 
+	 {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal3d-example.html","Visualize Ideals in 3 variables example")}
+        },
 
+     SUBSECTION "Methods and Workflow",
+     
+     UL {
+	 TO "Basic Workflow for Visualize",
+	 TO (visualize,Graph),	 
+	 TO (visualize,Digraph),	 	 
+	 TO (visualize,Poset),	 	 
+	 TO (visualize,SimplicialComplex),	 	 
+	 TO (visualize,Ideal)
+        }
+    }
+
+document {
+    Key => "Basic Workflow for Visualize",
+    PARA {"The basic workflow this package requires the user to open a port for communication between
+    Macaulay2 and the web browser. Once the port is open, the ", TO "visualize", " method can be used
+    freely. In particular, the workflow is as follows:"},
+     
+     UL{ "1. Load or install the package."},
+     
+     UL{{"2. Open a port with ", TO "openPort", " method for communication with the browser. 
+	     It is up to the user to choose port and also to close the port when finished."}},
+     
+     UL{"3. Define an object you wish to visualize. For example, a graph, poset, digraph, etc."},
+     
+     UL{{"4. Run the ", TO "visualize", " method. This will open the browser with an interactive
+	     interface. This session is in communication with Macaulay2 through the open port above.
+	     At this point you can edit and manipulate the created object."}},
+     
+     UL{"5. End the session and export work back to Macaulay2."},
+     
+     UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
+     
+     UL{{"7. When finished, close the port with ", TO "closePort", " or restart Macaulay2."}},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+
+    }        
+
+{*
+document {
+    Key => "Visualizing Graphs",	 
+    
+    
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+--	"Visualizing Graphs",	 
+	"Visualizing Digraphs",	 	 
+	"Visualizing Posets",	 	 
+	"Visualizing Simplicial Complexes",	 	 
+	"Visualizing Ideals"
+	}
+    
+    }
+
+document {
+    Key => "Visualizing Digraphs",    
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+--	"Visualizing Digraphs",	 	 
+	"Visualizing Posets",	 	 
+	"Visualizing Simplicial Complexes",	 	 
+	"Visualizing Ideals"
+	}
+    
+    }
+
+document {
+    Key => "Visualizing Posets",	 	    
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+	"Visualizing Digraphs",	 	 
+--	"Visualizing Posets",	 	 
+	"Visualizing Simplicial Complexes",	 	 
+	"Visualizing Ideals"
+	}
+    
+    }
+
+
+document {
+    Key => "Visualizing Simplicial Complexes",	 	      
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+	"Visualizing Digraphs",	 	 
+	"Visualizing Posets",	 	 
+--	"Visualizing Simplicial Complexes",	 	 
+	"Visualizing Ideals"
+	}
+    
+    }
+
+
+document {
+    Key => "Visualizing Ideals",
+
+    SeeAlso => {
+	"Basic Workflow for Visualize",
+	"Visualizing Graphs",	 
+	"Visualizing Digraphs",	 	 
+	"Visualizing Posets",	 	 
+	"Visualizing Simplicial Complexes",	 	 
+--	"Visualizing Ideals"
+	}
+    
+    }
+*}
 
 document {
      Key => visualize,
@@ -1121,30 +1245,21 @@ document {
      in a modern browser. While viewing the object, the user has the ability to manipulate the 
      object, and run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
-               
-     PARA "The workflow for this package is as follows:",
-     
-     UL{ "1. Load or install the package."},
-     
-     UL{{"2. Open a port with ", TT "openPort", " method for communication with the browser. 
-	     It is up to the user to choose port and also to close the port when finished."}},
-     
-     UL{"3. Define an object you wish to visualize. For example, a graph, poset, digraph, etc."},
-     
-     UL{{"4. Run ", TT "visualize", " method. This will open the browser with an interactive
-	     interface. This session is in communication with Macaulay2 through the open port above.
-	     At this point you can edit and manipulate the created object."}},
-     
-     UL{"5. End the session and export work back to Macaulay2."},
-     
-     UL{"6. Continue manipulating the object and repeat steps 3-5 as necessary."},
-     
-     UL{{"7. When finished, close the port with ", TT "closePort()", " or restart Macaulay2."}},
-     
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+
+    
      }
 
 
-
+-- (visualize,Graph)
 document {
      Key => (visualize,Graph),
      Headline => "visualizes a graph in a modern browser",
@@ -1156,77 +1271,436 @@ document {
 --	 VisTemplate => String => " a path to a user created/modified template",
 --	 Warning => Boolean => " gives a warning if files will be overwritten when using VisPath"
 	 },
-	 
      
-     PARA "Using JavaScript, this method creates interactive visualizations of a variety of objects 
-     in a modern browser. While viewing the object, the user has the ability to manipulate and 
+     PARA "Using JavaScript, this method creates an interactive visualization of a graph
+     in a modern browser. While viewing the graph, the user has the ability to manipulate and 
      run various tests. Once finished, the user can export the finished result back to the 
      Macaulay2 session.",
      
-     
-     PARA "The workflow for this package is as follows. Once we have loaded the package, we first 
-     open a port for Macaulay2 to communicate with the browser. Once a port is established, define 
-     an object to visualize.",
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following graph."},
 
      EXAMPLE {
-	 "openPort \"8080\"",
-	 "G = graph({{0,1},{1,4},{2,4},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
+--	 "openPort \"8080\"",
+	 "G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})"
 	 },
      
      PARA {"At this point we wish to visualize ", TT "G", ". To do this simply execute ", TT "H = visualize G", " and 
-     browser will open with the following interactive image."},
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"graph-example.html","Visualize Graphs example")},
      
      -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
      
-     PARA {"In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing", ". 
-     Once finished, your new object can be exported to Macaulay2 when you click ", TT "End Session",". For example,
-     if we remove edges ", TT "{0,1}", " and ", TT "{1,3}", "we visually have this."},
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize G", ", once you 
+	 ended the session, the last graph on the screen would be assigned to ", TT "H", ". After running various computations on this graph, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macaulay2 is restarted."},
+     
+     
+     SUBSECTION "Browser Menu Options",
+     
+     PARA {"On the side of the browser will be several options to interact with the graph using the ", TO "Graphs", " package. 
+     Below is a brief overview of the options."},     
+     
+     
+     UL { 
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the graph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
+	      you can move the vertices around by holding down the shift key.", BR{}, BR{}}, 
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
+	 
+	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected.", BR{}, BR{}}, 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other.", BR{}, BR{}}, 
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the graph that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the graph, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code.", BR{}, BR{}}, 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Graphs", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
+	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
+	     
+	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Graphs", " package. 
+	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current graph on the screen. ",
+	     BOLD "Warning:", " If your graph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current graph to Macaulay2. The 
+	     output of ", TT "visualize G", " is the graph on the screen when end session is clicked."} 	      	     
 
-     PARA {"Once again we can visualize be executing ", TT "J = visualize K", ". At this point your browser will
-     open with a new graph, the spanning forest of ", TT "H", "."},
-     
-     -- make sure this image matches the graph in the example. 
-     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph3.png", "alt" => "Original graph entered into M2"), 
-     
-     PARA {"Once you are finished, click ", TT "End Session", ". Once again in the browser. To end your session, either close 
-     Macaulay2 or run ", TT "closePort()", ". Either one will close the port you opened earlier."},
-     
-     EXAMPLE {
-	 "closePort()"
 	 },
+	
      
-     Caveat => "When editing is enabled, you can still move the nodes around by pressing SHIFT and then clicking on the nodes."
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
+
+     
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+--	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	},
      
      }
  
+ 
+-- (visualize,Ideal)
 document {
      Key => (visualize,Ideal),
      Headline => "visualizes an ideal in the browser",
      
-     PARA "Make Graphs perfect and copy with pics"
+     PARA {"Using JavaScript, this method creates an interactive visualization of an ideal, in either 2 or 3
+     variables, in a modern browser. Unlike other ", TO "Type","s, when visualizing an ideal you 
+     do not need to open a port as there is no communication between Macaulay2 and the browser. 
+     We hope to add more functionality to this method in future versions. The ideal being visualized
+     is actually the ideal of leading terms."},
+
+     EXAMPLE {
+	 "S = QQ[x,y]",
+	 "I = ideal\"x4,xy3,y5\""
+	 },
+     
+     PARA {"In order to visualize this, simply type ", TT "visualize I", " and the following example will appear in the browser."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal2d-example.html","Visualize ideal in 2 variables example")},     
+     
+     EXAMPLE {
+	 "R = QQ[x,y,z]",
+	 "J = ideal\"x4,xyz3,yz2,xz3,z6,y5\""
+	 },
+     
+     PARA {"In order to visualize this, simply type ", TT "visualize J", " and the following example will appear in the browser."},  
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"ideal3d-example.html","Visualize ideal in 3 variables example")},             
+     
+     Caveat => {"Visualizing ideals is still in development so please be gentle with it."},     
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex)	 	 
+--	 (visualize,Ideal)
+	}
+     
      }
 
+-- (visualize,Digraph)
 document {
      Key => (visualize,Digraph),
      Headline => "visualizes a digraph in the browser",
      
-     PARA "Make Graphs perfect and copy with pics"
+     PARA "Using JavaScript, this method creates an interactive visualization of a digraph
+     in a modern browser. While viewing the digraph, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following digraph."},
+
+     EXAMPLE {
+--	 "openPort \"8080\"",
+	 "D = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "D", ". To do this simply execute ", TT "H = visualize D", " and 
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"digraph-example.html","Visualize Digraphs example")},
+     
+     -- make sure this image matches the graph in the example. 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize D", ", once you 
+	 ended the session, the last digraph on the screen would be assigned to ", TT "H", ". After running various computations on this digraph, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macaulay2 is restarted."},
+     
+     
+     SUBSECTION "Browser Menu Options",
+     
+     PARA {"On the side of the browser will be several options to interact with the digraph using the ", TO "Graphs", " package. 
+     Below is a brief overview of the options."},     
+     
+     
+     UL { 
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the digraph (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
+	      you can move the vertices around by holding down the shift key. Further, to create a loop, select a node and press the 'r' key.
+	      When an edge is selected, you may press the 'l', 'r', and 'b' keys to change the edge to a left-, right-, or two-sided edge, respectively.", 
+	      BR{}, BR{}}, 
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
+	 
+	 {BOLD "Highlight Neighbors: ", "Allows you to see the neighbors of a vertex when selected.", BR{}, BR{}}, 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other.", BR{}, BR{}}, 
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the digraph that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the digraph, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code. At this time loops, or reflexive edges, are not represented in the TikZ image", BR{}, BR{}}, 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Graphs", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current digraph on the screen. ",
+	     BOLD "Warning:", " If your digraph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
+	     
+	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Graphs", " package. 
+	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current digraph on the screen. ",
+	     BOLD "Warning:", " If your digraph is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current digraph to Macaulay2. The 
+	     output of ", TT "visualize D", " is the digraph on the screen when end session is clicked."} 	      	     
+
+	 },
+	
+
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+--	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
      }
 
+
+-- (visualize,Poset)
 document {
      Key => (visualize,Poset),
      Headline => "visualizes a poset in the browser",
+
      
-     PARA "Make Graphs perfect and copy with pics"
+     PARA "Using JavaScript, this method creates an interactive visualization of a poset
+     in a modern browser. While viewing the poset, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following poset."},
+
+     EXAMPLE {
+--	 "openPort \"8080\"",
+    	 "P = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "P", ". To do this simply execute ", TT "H = visualize P", " and 
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"poset-example.html","Visualize Posets example")},
+     
+     -- make sure this image matches the graph in the example. 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize P", ", once you 
+	 ended the session, the last poset on the screen would be assigned to ", TT "H", ". After running various computations on this poset, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macaulay2 is restarted."},
+     
+     
+     SUBSECTION "Browser Menu Options",
+     
+     PARA {"On the side of the browser will be several options to interact with the poset using the ", TO "Posets", " package. 
+     Below is a brief overview of the options."},     
+     
+     
+     UL { 
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the poset (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edge ", TT "{1,2}" , ", click on 'Enable Editing' and select 
+	      the edge and press delete on the keyboard.  When deleting an edge, the minimal covering relations and visual display are automatically
+	      updated to reflect the new poset structure.  You may also add vertices and edges with the mouse/trackpad. When adding a new edge
+	      (relation), you must drag from the smaller vertex in the relation to the larger vertex.  Each time a new edge is added, a check is
+	      performed to determine whether the new edge would violate antisymmetry, and if so then an alert is displayed.  Also, each time a new
+	      edge is added, the transitive closure is computed, the rank/height of each poset element is recomputed, and the visual display of the
+	      poset is updated.  When editing is enabled, you can move the vertices around by holding down the shift key.  ", 
+	      BR{}, BR{}}, 
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
+	 
+	 {BOLD "Highlight comparable elements: ", "Allows you to see the comparable elements when a vertex is selected.", BR{}, BR{}}, 
+	 
+	 {BOLD "Fix extremal nodes: ", "Forces extremal nodes to be placed at the top and bottom of the image.", BR{}, BR{}}, 	 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other.", BR{}, BR{}}, 
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the poset that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the poset, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code.", BR{}, BR{}}, 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Posets", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current poset on the screen. ",
+	     BOLD "Warning:", " If your poset is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
+	     
+	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "Posets", " package. 
+	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current poset on the screen. ",
+	     BOLD "Warning:", " If your poset is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current poset to Macaulay2. The 
+	     output of ", TT "visualize P", " is the poset on the screen when end session is clicked."} 	      	     
+
+	 },
+	
+
+     
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+--	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
      }
 
+-- (visualize,SimplicialComplex)
 document {
      Key => (visualize,SimplicialComplex),
      Headline => "visualizes a simplicial complex in the browser",
      
-     PARA "Make Graphs perfect and copy with pics"
+     PARA "Using JavaScript, this method creates an interactive visualization of a simplicial complex
+     in a modern browser. While viewing the simplicial complex, the user has the ability to manipulate and 
+     run various tests. Once finished, the user can export the finished result back to the 
+     Macaulay2 session.",
+     
+     PARA {"The workflow for this package is as follows. Once we have loaded the package, we first 
+     open a port with ", TO "openPort", " for Macaulay2 to communicate with the browser. Once a 
+     port is established, define an object to visualize. In this example we could use the command ", 
+     TT "openPort\"8080\""," before or after we define the following simplicial complex."},
+
+     EXAMPLE {
+--	 "openPort \"8080\"",
+    	 "R = ZZ[a..g]",
+    	 "D = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}"
+	 },
+     
+     PARA {"At this point we wish to visualize ", TT "D", ". To do this simply execute ", TT "H = visualize D", " and 
+     browser will open with interactive image. You can view this image in the link below."},
+     
+     PARA {HREF(replace("PKG","Visualize",Layout#1#"package")|"simplicial-complex-example.html","Visualize Simplicial Complex example")},
+     
+     -- make sure this image matches the graph in the example. 
+--     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph1.png", "alt" => "Original graph entered into M2"), 
+     
+     
+     PARA {"Once finished with a session, you can keep visualizing. For example if you were to say ", TT "H = visualize D", ", once you 
+	 ended the session, the last simplicial complex on the screen would be assigned to ", TT "H", ". After running various computations on this simplicial complex, 
+	 you can then visualize it once more with the ", TO "visualize", " method. You can keep using this method until the port is closed with ",
+	 TO "closePort", " or Macaulay2 is restarted."},
+     
+     
+     SUBSECTION "Browser Menu Options",
+     
+     PARA {"On the side of the browser will be several options to interact with the simplicial complex using the ", TO "SimplicialComplex", " package. 
+     Below is a brief overview of the options."},     
+     
+     
+     UL { 
+	 {BOLD "Force Variables: ", "The 'charge' slider will force the vertices to repel or attract each other while the 'links' slider
+	     increases and decreases the length of the edges.", BR{}, BR{}}, 
+	     
+	 {BOLD "Enable Editing: ", "In the browser, you can edit the simplicial complex (add/delete vertices or edges) by clicking ", TT "Enable Editing",
+	      ".  For example, in order to remove the edges ", TT "{0,1}", " and ", TT "{1,3}", " click on 'Enable Editing' and select 
+	      the edges and press delete on the keyboard. You may also add vertices and edges with the mouse/trackpad. When editing is enabled,
+	      you can move the vertices around by holding down the shift key. Further, to create a face, hold down the 'f' key and select 
+	      three distinct nodes.", 
+	      BR{}, BR{}}, 
+	      
+	 {BOLD "Hide Labels: ", "Removes the labels from the vertices.", BR{}, BR{}},  	      
+	 
+	 {BOLD "Highlight faces: ", "Allows you to see the connecting faces when a vertex is selected.", BR{}, BR{}}, 
+	 
+	 {BOLD "Reset Nodes: ", "When you move a vertex, it will pin it to the canvas. If you have pinned a node to the canvas, you can 
+	     undo this process by reseting the nodes. Clicking this will reset all nodes.", BR{}, BR{}}, 
+	     
+	 {BOLD "Turn off force: ", "The force is what creates the charges on the nodes. Turning this off will make the vertices 
+	     not repel each other.", BR{}, BR{}}, 
+	     
+	 {BOLD "Generate TikZ code: ", "Clicking this will generate the TikZ code for a black and white version of the simplicial complex that is
+	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
+	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the simplicial complex, feel free. All you need do in 
+	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
+	     the same, but it will be a new code.", BR{}, BR{}}, 
+	     
+	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "SimplicialComplex", " package. 
+	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current simplicial complex on the screen. ",
+	     BOLD "Warning:", " If your simplicial complex is too large, clicking a menu item could take a very long time. In order to cancel the 
+	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}}, 
+	     
+--	 {BOLD "Numerical invariants: ", "Clicking this will pull up a submenu of numerical invariants supported by the ", TO "SimplicialComplex", " package. 
+--	     Clicking on these will send a request to Macaulay2 to calculate the answer for the current simplicial complex on the screen. ",
+--	     BOLD "Warning:", " If your simplicial complex is too large, clicking a menu item could take a very long time. In order to cancel the 
+--	     process you need to kill the session of Macaulay2 with 'Ctrl+c+c' in the instance of Macaulay2.", BR{}, BR{}},  	      	     
+	     
+	 {BOLD "End session: ", "When you are finished editing, you can end the session and send the current simplicial complex to Macaulay2. The 
+	     output of ", TT "visualize D", " is the simplicial complex on the screen when end session is clicked."} 	      	     
+
+	 },
+	
+     
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+--	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
 
      }
 
@@ -1237,7 +1711,17 @@ document {
           
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1245,7 +1729,17 @@ document {
      Headline => "an option defining the template path",
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
      }
  
 document {
@@ -1253,25 +1747,33 @@ document {
      Headline => "an option to squelch warnings",
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
-     Key => FixExtremeElements,
-     Headline => "an option that brett created",
+     Key => {FixExtremeElements,[(visualize,Poset),FixExtremeElements]},
+     Headline => "an option to fix extreme elements of a poset",
      
-     PARA "I don't know what this is."
+     PARA "When using this option, the visualized poset will be drawn such that the extreme elements are placed 
+     at the top and bottom of the drawing.",
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Poset)
+	}
+     
      }
 
-
-
-document {
-     Key => [(visualize,Poset),FixExtremeElements],
-     Headline => "an option that brett created",
-     
-     PARA "I don't know what this is."
-     }
- 
 document {
      Key => [(visualize,Digraph),VisPath],
      Headline => "an option to define a path to save visualizations of Digraphs",
@@ -1280,7 +1782,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1291,7 +1803,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 
@@ -1303,7 +1825,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1314,7 +1846,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 
@@ -1326,7 +1868,17 @@ document {
      
      PARA {"The default nature of the Visualize package is to open the visualization in a temporary file. Use the ", TT "VisPath", 
 	 " option if you wish to save the visualization to a given directory. If the process will overwrite files, a warning appears
-	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."}     
+	 asking the user if they would like to proceed. You can squelch this warning with the ", TO "Warning", " option."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 
@@ -1337,7 +1889,17 @@ document {
      Inputs => {"D" => Digraph => "a digraph"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
 
      }
 
@@ -1348,7 +1910,17 @@ document {
      Inputs => {"G" => Graph => "a graph"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
      }
 
 document {
@@ -1358,7 +1930,17 @@ document {
      Inputs => {"I" => Ideal => "an ideal"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
 
      }
 
@@ -1369,7 +1951,17 @@ document {
      Inputs => {"P" => Poset => "a poset"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
 
      }
 
@@ -1380,7 +1972,17 @@ document {
      Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
      PARA {"This option is used internally to pass paths from one method to another. A savvy user would be able to use this option 
-     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."}
+     to create a personal template and pass the path for ", TT "Visualize.m2", " to use."},
+     
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+     
 
      }
 
@@ -1391,7 +1993,17 @@ document {
      Inputs => {"D" => Digraph => "a digraph"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1402,7 +2014,17 @@ document {
      Inputs => {"G" => Graph => "a graph"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1414,7 +2036,17 @@ document {
      Inputs => {"I" => Ideal => "an ideal"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1426,7 +2058,17 @@ document {
      Inputs => {"P" => Poset => "a poset"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1437,7 +2079,17 @@ document {
      Inputs => {"S" => SimplicialComplex => "a simplicial complex"},
      
      PARA {"When using the option ", TO "VisPath", " a warning is produced if files will be overwritten. ", TT "Warning", " is 
-	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."}
+	 used to squelch these warnings. The default value is true, meaning the warning will be displayed."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1451,7 +2103,17 @@ document {
      Inputs => {"G" => Graph => "a graph"},
 
      PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
-	 The communication will be displayed in the instance of Macaulay2."}
+	 The communication will be displayed in the instance of Macaulay2."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1461,7 +2123,17 @@ document {
      Inputs => {"D" => Digraph => "a digraph"},
 
      PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
-	 The communication will be displayed in the instance of Macaulay2."}
+	 The communication will be displayed in the instance of Macaulay2."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
 
      }
 
@@ -1473,7 +2145,17 @@ document {
      Inputs => {"P" => Poset => "a poset"},
 
      PARA {"When this option is used, the user can view the communication between the Macaulay2 server and the browser.
-	 The communication will be displayed in the instance of Macaulay2."}
+	 The communication will be displayed in the instance of Macaulay2."},
+	 
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+	 
      }
 
 document {
@@ -1482,12 +2164,21 @@ document {
      Usage => "openPort N",
      Inputs => {"N" => String => "a port number"},
      
-     PARA {"In order to use the ", TO "visualize", " method, the user must first open a port on their machine. This
-	 can be dangerous."},
+     PARA {"In order to use the ", TO "visualize", " method, the user must first open a port on their 
+	 machine. This can be dangerous as someone could potentially be listening on that port. The port 
+	 being open is only accessible to the localhost and is most vulnerable if the package is being
+	 run on a server. If running on a personal computer/laptop, then the risk of cyber attack is 
+	 very small as the attacker would have to have access to your local machine. Because of this risk, 
+	 and the fact that the examples will throw errors if the user is using the example port, 
+	 the documentation will not actually run examples of ", TT "openPort", "."},
 	 
-     EXAMPLE {
-	 "openPort \"8080\"",
-	 },
+-- adding an example can cause installation to fail if user has port 8080 open
+--     EXAMPLE {
+--	 "openPort \"8080\"",
+--	 },
+     
+     PARA {"The user can use any port number they wish. Common ports are '8080' and '8081'. For example, ",
+     TT "openPort\"8080\"", " will open port '8080' for communication."},
      
      PARA {"Once a port is open, another instance of ", TO "openPort", " will not be allowed to open another port. 
 	 Hence the user can only open one port at a time with this method. Once finished visualizing, you can close the 
@@ -1497,7 +2188,17 @@ document {
 	 "closePort()",
 	 },	 
 
-    PARA "Restarting Macaulay2 will also close the port."
+    PARA "Restarting Macaulay2 will also close the port.",
+    
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	}
+    
      }
 
 
@@ -1510,9 +2211,22 @@ document {
 	 Macaulay2 will automatically close the port."},
      
       EXAMPLE {
-	 "openPort \"8080\"",
+--	 "openPort \"8080\"",
 	 "closePort()"
 	 },
+
+    SeeAlso => {
+	 "Basic Workflow for Visualize",
+	 (visualize,Graph),	 
+	 (visualize,Digraph),	 	 
+	 (visualize,Poset),	 	 
+	 (visualize,SimplicialComplex),	 	 
+	 (visualize,Ideal)
+	},
+    
+    Caveat => {"This method does not have an input. In order for it to run, you must write the '()' at the end as follows: ", TT "closePort()", "."}
+    
+
      }
 
 
@@ -1528,14 +2242,14 @@ end
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
-run"pwd"
 
 restart
 uninstallPackage"Visualize"
 restart
-path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/Visualize-M2/"}|path
 installPackage"Visualize"
 viewHelp Visualize
+viewHelp doc
 
 -----------------------------
 -----------------------------
@@ -1547,7 +2261,7 @@ viewHelp Visualize
 
 -- Graphs
 restart
-loadPackage "Graphs"
+path = {"~/GitHub/Visualize-M2/"}|path
 loadPackage"Visualize"
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visualize G
@@ -1575,7 +2289,7 @@ visualize D2
 -- tom examples
 -- Posets
 restart
-path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/Visualize-M2/"}|path
 loadPackage "Visualize"
 openPort "8081"
 --P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
@@ -1587,6 +2301,9 @@ visualize(oo, Verbose=>true)
 
 closePort()
 -- ideals
+restart
+path = {"~/GitHub/Visualize-M2/"}|path
+loadPackage "Visualize"
 R=ZZ/101[x,y]
 I=ideal(x^5,x^2*y,y^4)
 visualize I
@@ -1621,39 +2338,6 @@ visualize D2
 R = ZZ[a..f]
 L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
 visualize L
-
--- Splines
-restart
-loadPackage "Splines"
-loadPackage "QuillenSuslin"
-loadPackage "Visualize"
--- 2D Star of Vertex Example
-V = {{0,0},{1,0},{1,1},{-1,1},{-2,-1},{0,-1}};
-F = {{0,2,1},{0,2,3},{0,3,4},{0,4,5},{0,1,5}};
-E = {{0,1},{0,2},{0,3},{0,4},{0,5},{1,2},{2,3},{3,4},{4,5},{1,5}};
-M1 = splineModule(V,F,E,1)
-syz gens M -- Already gives free generating set.
-
--- Schlegel Diagram Triangular Prism (nonsimplicial)
-V={{-1,-1},{0,1},{1,-1},{-2,-2},{0,2},{2,-2}};
-F={{0,1,2},{0,1,3,4},{1,2,4,5},{0,2,3,5}};
-E={{0,1},{0,2},{1,2},{0,3},{1,4},{2,5},{3,4},{4,5},{3,5}};
-M2 = splineModule(V,F,E,1)
-isProjective M2 -- M2 is projective.
-syz gens M2 -- Already gives free generating set.
-
-isProjective M
-computeFreeBasis M
-
--- Parameterized Surfaces
-restart
-loadPackage "Visualize"
-R = ZZ[u,v]
-S = {u,v,u^2+v^2}
-visualize S
-
-S = {"u^2 + sin(v)","u^2 + sin(v)","u^2 + sin(v)"}
-visualize S
 
 ----------------
 
@@ -1714,11 +2398,6 @@ visualize D2
 
 closePort()
 
- visGraph
-
--- visGraph( G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
-viewHelp Graphs
-
 -- ideal tests
 restart
 loadPackage"Visualize"
@@ -1729,14 +2408,13 @@ I = ideal"a2,ab,b2c,c5,b4"
 visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
-y
 
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
 visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
-
+y
 closePort()
 
 
@@ -1796,9 +2474,9 @@ visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
 
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
-visIdeal I
-visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
-
+visualize I
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
+y
 
 copyJS "/Users/bstone/Desktop/Test/"
 yes
@@ -1845,15 +2523,19 @@ visGraph A
 
 restart
 
+uninstallPackage"Graphs"
 path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/M2/M2/Macaulay2/packages/"}|path
+
 loadPackage "Visualize"
-openPort "8081"
+openPort "8080"
 closePort()
 -- Graphs
 G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+isRigid G
 
 visualize( G, Verbose => true )
-visualize(G, VisPath => "/Users/bstone/Desktop/Test/")
+visualize(G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 cycleGraph 9
 visualize oo
@@ -1879,7 +2561,7 @@ D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
 visualize D1
 
 D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
-visualize D2
+visualize (D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 
 -- Posets
@@ -1888,7 +2570,7 @@ path = path|{"~/GitHub/Visualize-M2/"}
 loadPackage "Visualize"
 openPort "8081"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
-visualize P2
+visualize( P2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 visualize(P2,FixExtremeElements => true)
 visualize oo
 
@@ -1899,7 +2581,7 @@ visualize D
 
 R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
-visualize D2
+visualize( D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = ZZ[a..f]
 L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
@@ -1909,12 +2591,47 @@ visualize L
 -- Ideals
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
-visualize I
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = QQ[x,y,z]
 J = ideal"x4,xyz3,yz2,xz3,z6,y5"
-visualize J
+visualize( J, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 closePort()
 
+restart
+uninstallPackage"Graphs"
+installPackage"Graphs"
+restart
+path ={"~/GitHub/Visualize-M2/"}|path
+needsPackage"Graphs"
+?isRigid
+uninstallPackage"Visualize"
+restart
+path ={"~/GitHub/Visualize-M2/"}|path
+installPackage"Visualize"
+viewHelp Visualize
 
+restart
+userFunction = method()
+userFunction(Function) := g -> (
+    return g a == b;
+    )
+a = "Hello"; b=a;
+
+f := s -> s
+userFunction f
+
+m = method()
+m(ZZ) := z -> z+1
+userFunction m    
+
+
+
+
+
+testvisualize = method(Options => true)
+testvisualize(ZZ) := {VisPath => defaultPath, Warning => true, Verbose => false}|{VisTemplate => "basePath" | "Visualize/templates/visGraph/visGraph-template.html"} >> opts -> G -> (
+    return G;
+    )
+testvisualize 5

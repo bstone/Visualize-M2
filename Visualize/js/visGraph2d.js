@@ -880,6 +880,19 @@ function arraytoM2Matrix (arr){
   return str;
 }
 
+
+// for making unique timestamps in LaTeX. Numbers are not allowed in macros.
+function makeid()
+{
+    var randomtext = "";
+    var randompossible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    for( var i=0; i < 5; i++ )
+        randomtext += randompossible.charAt(Math.floor(Math.random() * randompossible.length));
+
+    return randomtext;
+}
+
 function exportTikz (event){
   var points = [];
   for(var i = 0; i < nodes.length; i++){
@@ -892,13 +905,19 @@ function exportTikz (event){
   }
 
   var tikzTex = "";
+
+//  console.log(makeid());
+
+  var timestamp = makeid();
+
 //  tikzTex =  "\\begin{tikzpicture}\n          % Point set in the form x-coord/y-coord/node ID/node label\n          \\newcommand*\\points{"+points+"}\n          % Edge set in the form Source ID/Target ID\n          \\newcommand*\\edges{"+edges+"}\n          % Scale to make the picture able to be viewed on the page\n          \\newcommand*\\scale{0.02}\n          % Creates nodes\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          % Creates edges\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}";
-  tikzTex =  "\\begin{tikzpicture}\n         \\newcommand*\\points{"+points+"}\n          \\newcommand*\\edges{"+edges+"}\n          \\newcommand*\\scale{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points {\n          \\node (\\z) at (\\scale*\\x,-\\scale*\\y) [circle,draw] {$\\w$};\n          }\n          \\foreach \\x/\\y in \\edges {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}\n      % \\points is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges is edge set in the form Source ID/Target ID\n      % \\scale makes the picture able to be viewed on the page\n";  
+  tikzTex =  "\\begin{tikzpicture}\n         \\newcommand*\\points"+timestamp+"{"+points+"}\n          \\newcommand*\\edges"+timestamp+"{"+edges+"}\n          \\newcommand*\\scale"+timestamp+"{0.02}\n          \\foreach \\x/\\y/\\z/\\w in \\points"+timestamp+" {\n          \\node (\\z) at (\\scale"+timestamp+"*\\x,-\\scale"+timestamp+"*\\y) [circle,draw] {$\\w$};\n          }\n          \\foreach \\x/\\y in \\edges"+timestamp+" {\n          \\draw (\\x) -- (\\y);\n          }\n      \\end{tikzpicture}\n      % \\points"+timestamp+" is point set in the form x-coord/y-coord/node ID/node label\n     % \\edges"+timestamp+" is edge set in the form Source ID/Target ID\n      % \\scale"+timestamp+" makes the picture able to be viewed on the page\n";  
     
   if(!tikzGenerated){
     var tikzDiv = document.createElement("div");
     tikzDiv.id = "tikzHolder";
     tikzDiv.className = "list-group-item";
+    tikzDiv.setAttribute('href','#');
     var tikzInput = document.createElement("input");
     tikzInput.value = "";
     tikzInput.id = "tikzTextBox";
@@ -907,7 +926,6 @@ function exportTikz (event){
     var tikzButton = document.createElement("button");
     tikzButton.id = "copyButton";
     tikzButton.style = "vertical-align:middle;";
-    //tikzButton.dataClipboardTarget = "#tikzTextBox";
     tikzButton.type = "button";
     var clipboardImg = document.createElement("img");
     clipboardImg.src = scriptSource+"images/32px-Octicons-clippy.png";
@@ -990,6 +1008,10 @@ function onclickResults(m2Response) {
     else if (clickTest == "isTree") {
       d3.select("#isTree").html("&nbsp;&nbsp; isTree :: <b>"+m2Response+"</b>");    
     }
+
+    else if (clickTest == "isRigid") {
+      d3.select("#isRigid").html("&nbsp;&nbsp; isRigid :: <b>"+m2Response+"</b>");    
+    }
     
     else if (clickTest == "chromaticNumber") {
       d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber :: <b>"+m2Response+"</b>");    
@@ -1062,6 +1084,7 @@ function menuDefaults() {
   d3.select("#isRegular").html("&nbsp;&nbsp; isRegular");  
   d3.select("#isSimple").html("&nbsp;&nbsp; isSimple");  
   d3.select("#isTree").html("&nbsp;&nbsp; isTree");
+  d3.select("#isRigid").html("&nbsp;&nbsp; isRigid");
   d3.select("#chromaticNumber").html("&nbsp;&nbsp; chromaticNumber");
   d3.select("#independenceNumber").html("&nbsp;&nbsp; independenceNumber");
   d3.select("#cliqueNumber").html("&nbsp;&nbsp; cliqueNumber");
