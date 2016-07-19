@@ -284,6 +284,8 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
     
+    openPortTest();
+        
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
     
@@ -333,6 +335,8 @@ visualize(Graph) := {VisPath => defaultPath, VisTemplate => basePath | "Visualiz
 visualize(Digraph) := {Verbose => false, VisPath => defaultPath, VisTemplate => basePath |"Visualize/templates/visDigraph/visDigraph-template.html", Warning => true} >> opts -> G -> (
     local A; local arrayString; local vertexString; local visTemp;
     local keyPosition; local vertexSet; local browserOutput;
+
+    openPortTest();    
     
     A = adjacencyMatrix G;
     arrayString = toString toArray entries A; -- Turn the adjacency matrix into a nested array (as a string) to copy to the template html file.
@@ -388,7 +392,9 @@ visualize(Poset) := {Verbose=>false,FixExtremeElements => false, VisPath => defa
     local labelList; local groupList; local relList; local visTemp;
     local numNodes; local labelString; local nodeString; local relationString;
     local relMatrixString; local fixExtremeEltsString; local browserOutput;
-    
+
+    openPortTest();
+        
     labelList = apply(P_*, i -> "'"|(toString i)|"'");
     
     labelString = toString new Array from labelList;
@@ -424,7 +430,9 @@ visualize(SimplicialComplex) := {Verbose => false, VisPath => defaultPath, VisTe
     local vertexList; local edgeList; local face2List; local face3List;
     local vertexString; local edgeString; local face2String; local face3String;
     local visTemplate; local browserOutput;
-    
+
+    openPortTest();
+        
     vertexSet = flatten entries faces(0,D);
     edgeSet = flatten entries faces(1,D);
     face2Set = flatten entries faces(2,D);
@@ -632,6 +640,16 @@ installMethod(closePort, () -> (
      print("--Port " | toString inOutPort | " is now closing. This could take a few seconds.");
      )
 )
+
+-- Input: none
+-- Output: Error is user trys to run 'visualize' without first opening a port.
+--
+openPortTest = method()
+installMethod(openPortTest, () -> (
+    	if (portTest == false ) then error("-- You must open a port with 'openPort()' before you can communicate with the browser.");
+     )
+)
+
 
 -- Input: File, an in-out port for communicating with the browser
 -- Output: Whatever the browser sends
@@ -2222,7 +2240,7 @@ end
 restart
 uninstallPackage"Visualize"
 restart
-path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/Visualize-M2/"}|path
 installPackage"Visualize"
 viewHelp Visualize
 viewHelp doc
@@ -2237,7 +2255,7 @@ viewHelp doc
 
 -- Graphs
 restart
-loadPackage "Graphs"
+path = {"~/GitHub/Visualize-M2/"}|path
 loadPackage"Visualize"
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visualize G
