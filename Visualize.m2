@@ -687,26 +687,6 @@ server = () -> (
 	
 	-- Begin handling requests from browser
 	---------------------------------------
-///
-restart
-makeVisualizeFun = method()
-makeVisualizeFun(Function) := g -> (
-    return g a == b;
-    )
-a = "Hello"; b=a;
-
-f := s -> s
-userFunction f
-
-m = method()
-m(ZZ) := z -> z+1
-userFunction m    
-
-restart
-path = {"~/GitHub/Visualize-M2/"}|path
-loadPackage"Visualize"
-
-///
 	
 	-- hasEulerianTrail
 	if match("^POST /hasEulerianTrail/(.*) ",r) then (
@@ -2586,7 +2566,7 @@ visualize (D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 -- Posets
 restart
-path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/Visualize-M2/"}|path
 loadPackage "Visualize"
 openPort "8081"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
@@ -2611,6 +2591,7 @@ visualize L
 -- Ideals
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
+visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = QQ[x,y,z]
