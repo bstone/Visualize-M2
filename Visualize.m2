@@ -2289,7 +2289,7 @@ visualize D2
 -- tom examples
 -- Posets
 restart
-path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/Visualize-M2/"}|path
 loadPackage "Visualize"
 openPort "8081"
 --P = poset {{abc,2}, {1,3}, {3,4}, {2,5}, {4,5}}
@@ -2301,6 +2301,9 @@ visualize(oo, Verbose=>true)
 
 closePort()
 -- ideals
+restart
+path = {"~/GitHub/Visualize-M2/"}|path
+loadPackage "Visualize"
 R=ZZ/101[x,y]
 I=ideal(x^5,x^2*y,y^4)
 visualize I
@@ -2471,9 +2474,9 @@ visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
 
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
-visIdeal I
-visIdeal( I, VisPath => "/Users/bstone/Desktop/Test/")
-
+visualize I
+visualize( I, VisPath => "/Users/bstone/Desktop/Test/")
+y
 
 copyJS "/Users/bstone/Desktop/Test/"
 yes
