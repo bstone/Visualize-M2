@@ -2577,7 +2577,7 @@ visualize oo
 -- Simplicial Complexes
 R = ZZ[a..f]
 D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
-visualize D
+visualize G
 
 R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
@@ -2593,6 +2593,8 @@ S = QQ[x,y]
 I = ideal"x4,xy3,y5"
 visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
+
+viewHelp EdgeIdeals
 
 R = QQ[x,y,z]
 J = ideal"x4,xyz3,yz2,xz3,z6,y5"
@@ -2613,5 +2615,24 @@ path ={"~/GitHub/Visualize-M2/"}|path
 installPackage"Visualize"
 viewHelp Visualize
 
+///
+restart
+makeVisualizeFun = method()
+makeVisualizeFun(Function) := g -> (
+    return g a == b;
+    )
+a = "Hello"; b=a;
+
+f := s -> s
+userFunction f
+
+m = method()
+m(ZZ) := z -> z+1
+userFunction m    
+
+restart
+path = {"~/GitHub/Visualize-M2/"}|path
+loadPackage"Visualize"
+///
 
 
