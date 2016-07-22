@@ -82,6 +82,18 @@
         }
       });
 
+    $("#pointsToggle").on("click", function(){
+        if(curPoints) {
+          $(this).html("Points not in ideal: on");
+          curPoints = !curPoints;
+            innerLattice.attr("opacity",1);
+        } else {
+          $(this).html("Points not in ideal: off");
+          curPoints = !curPoints;
+            innerLattice.attr("opacity",0);
+        }
+      });
+
 
     });
      
@@ -239,7 +251,7 @@
                         .attr("cy", function(d) { return Math.floor(yScale(d[0])); })
                         .attr("r", 4) 
                         .attr("fill", "#b3caf5");
-                        //.attr("opacity",1);
+                        //.attr("opacity",0);
 
         // shades all the generators
         gens = svg.selectAll("circle.lattice")
@@ -489,5 +501,5 @@
                         .attr("cy", function(d) { return Math.floor(yScale(d[1]-1)); })
                         .attr("r", 3) 
                         .attr("fill", "#002BF7")
-                        .attr("opacity", 1);
+                        .attr("opacity", 0);
 
