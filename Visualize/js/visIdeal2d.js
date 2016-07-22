@@ -45,11 +45,15 @@
           $(this).html("Grid Lines: on");
             gridLinesH.attr("opacity",1);
             gridLinesV.attr("opacity",1);
+            gridLinesT.attr("opacity",1);
+            gridLinesR.attr("opacity",1);
             curGrid = !curGrid;
         } else {
           $(this).html("Grid Lines: off");
             gridLinesH.attr("opacity",0);
             gridLinesV.attr("opacity",0);
+            gridLinesT.attr("opacity",0);
+            gridLinesR.attr("opacity",0);
             curGrid = !curGrid;
         }
       });
@@ -63,6 +67,18 @@
           $(this).html("Anti diagonal: off");
           curHilb = !curHilb;
             hilbLines.attr("opacity",0);
+        }
+      });
+
+    $("#shadeToggle").on("click", function(){
+        if(curShade) {
+          $(this).html("Shade region: on");
+          curShade = !curShade;
+            ideal.attr("opacity",1);
+        } else {
+          $(this).html("Shade region: off");
+          curShade = !curShade;
+            ideal.attr("opacity",0);
         }
       });
 
@@ -201,7 +217,8 @@
                         .attr("y", function(d) { return Math.ceil(yScale(d[0])); })
                         .attr("width", sq+1) // add 1 to get rid of potential line
                         .attr("height", sq+1) // add 1 to get rid of potential line
-                        .attr("fill", "#f5deb3");
+                        .attr("fill", "#f5deb3")
+                        .attr("opacity",0);
                                         
 
         // shades all the triangles. default is transparent
@@ -222,6 +239,7 @@
                         .attr("cy", function(d) { return Math.floor(yScale(d[0])); })
                         .attr("r", 4) 
                         .attr("fill", "#b3caf5");
+                        //.attr("opacity",1);
 
         // shades all the generators
         gens = svg.selectAll("circle.lattice")
@@ -260,6 +278,32 @@
                         .attr("stroke-width",2)
                         .attr("stroke", "#000000")
                         .attr("opacity", 0);
+
+        gridLinesT = svg.selectAll("line.lattice")
+                        .data(dataset)
+                        .enter()
+                        .append("line")
+                        .attr("x1", function(d) { return Math.floor(xScale(d[0])); })
+                        .attr("y1", function(d) { return Math.floor(yScale(d[1]-1)); })
+                        .attr("x2", function(d) { return Math.floor(xScale(d[0])+sq); })
+                        .attr("y2", function(d) { return Math.floor(yScale(d[1]-1)); })
+                        //.attr("r", 6) 
+                        .attr("stroke-width",2)
+                        .attr("stroke", "#000000")
+                        .attr("opacity", 0);
+
+        gridLinesR = svg.selectAll("line.lattice")
+                        .data(dataset)
+                        .enter()
+                        .append("line")
+                        .attr("x1", function(d) { return Math.floor(xScale(d[0])); })
+                        .attr("y1", function(d) { return Math.floor(yScale(d[1]-1)); })
+                        .attr("x2", function(d) { return Math.floor(xScale(d[0])); })
+                        .attr("y2", function(d) { return Math.floor(yScale(d[1]-1)-sq); })
+                        //.attr("r", 6) 
+                        .attr("stroke-width",2)
+                        .attr("stroke", "#000000")
+                        .attr("opacity", 0);                        
 
         hilbLines = svg.selectAll("line.lattice")
                         .data(dat)
@@ -434,16 +478,7 @@
                 		testPoints.push([j,k]);
                 	}
                 }
-                        /*
-                        newPointList = []
-                        for (a = 0; a < pointsUnder.length; a++) {
-                                for (b = 0; b < pointList.length; b++) {
-                                        if (comparePoints(pointsUnder[a], pointList[b])) 
-                                        	 { newPointList.push(pointsUnder[a]); }
-                                }
-                        }
-                        pointList = newPointList;*/
-                //}
+                   
         }
 
         innerLattice = svg.selectAll("circle.inner")
