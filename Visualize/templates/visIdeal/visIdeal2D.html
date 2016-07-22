@@ -194,6 +194,8 @@
       //global variables
       curConvex = true;
       curGens = true;
+      curGrid = true;
+      tikzGenerated = false;
       h = window.innerHeight-10;//600;
       w = window.innerWidth-10;//900;
       dataset = visArray;
@@ -208,6 +210,8 @@
             </div>
             <a id="convexToggle" href="#" class="list-group-item">Convex Hull: off</a>
             <a id="idealGens" href="#" class="list-group-item">Ideal Generators</a>
+            <a id="gridToggle" href="#" class="list-group-item">Grid Lines: off</a>
+            <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
             <!-- we can put these options in later
             <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
             <a id="endSession" href="#" class="list-group-item">End session</a>            

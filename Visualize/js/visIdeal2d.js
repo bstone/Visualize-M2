@@ -20,6 +20,10 @@
         }
       });
 
+    $("#exportTikz").on("click", function() {
+        exportTikz();
+      });
+
     // show the ideal generators when clicked
     $("#idealGens").on("click", function(){
     	if(curGens) {
@@ -34,6 +38,24 @@
             gens.attr("opacity",0);
         }
       });
+
+    // display convex hull when clicked
+    $("#gridToggle").on("click", function(){
+        if(curGrid) {
+          $(this).html("Grid Lines: on");
+          curConvex = !curConvex;
+            gridLinesH.attr("opacity",1);
+            gridLinesV.attr("opacity",1);
+            curGrid = !curGrid;
+        } else {
+          $(this).html("Grid Lines: off");
+          curConvex = !curConvex;
+            gridLinesH.attr("opacity",0);
+            gridLinesV.attr("opacity",0);
+            curGrid = !curGrid;
+        }
+      });
+
     });
      
         dataset.sort(function(a,b) {return a[0]-b[0]});
@@ -201,6 +223,32 @@
                         .attr("fill", "#FF3307")
                         .attr("opacity", 0);
 
+        // draw the grid lines
+        gridLinesH = svg.selectAll("line.lattice")
+                        .data(dat)
+                        .enter()
+                        .append("line")
+                        .attr("x1", function(d) { return Math.floor(xScale(d[1])); })
+                        .attr("y1", function(d) { return Math.floor(yScale(d[0]-1)); })
+                        .attr("x2", function(d) { return Math.floor(xScale(d[1]))+sq; })
+                        .attr("y2", function(d) { return Math.floor(yScale(d[0]-1)); })
+                        //.attr("r", 6) 
+                        .attr("stroke-width",2)
+                        .attr("stroke", "#000000")
+                        .attr("opacity", 0);
+
+        gridLinesV = svg.selectAll("line.lattice")
+                        .data(dat)
+                        .enter()
+                        .append("line")
+                        .attr("x1", function(d) { return Math.floor(xScale(d[1])); })
+                        .attr("y1", function(d) { return Math.floor(yScale(d[0]-1)); })
+                        .attr("x2", function(d) { return Math.floor(xScale(d[1])); })
+                        .attr("y2", function(d) { return Math.floor(yScale(d[0]-1)-sq); })
+                        //.attr("r", 6) 
+                        .attr("stroke-width",2)
+                        .attr("stroke", "#000000")
+                        .attr("opacity", 0);
 
         svg.append("g")
                 .attr("class", "axis")
@@ -383,3 +431,4 @@
                         .attr("r", 3) 
                         .attr("fill", "#002BF7")
                         .attr("opacity", 1);
+
