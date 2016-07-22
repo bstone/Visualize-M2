@@ -70,6 +70,18 @@
         }
       });
 
+    $("#latticeToggle").on("click", function(){
+        if(curLattice) {
+          $(this).html("Lattice points: on");
+          curLattice = !curLattice;
+            lattice.attr("opacity",1);
+        } else {
+          $(this).html("Lattice points: off");
+          curLattice = !curLattice;
+            lattice.attr("opacity",0);
+        }
+      });
+
     $("#shadeToggle").on("click", function(){
         if(curShade) {
           $(this).html("Shade region: on");
@@ -250,8 +262,8 @@
                         .attr("cx", function(d) { return Math.floor(xScale(d[1])); })
                         .attr("cy", function(d) { return Math.floor(yScale(d[0])); })
                         .attr("r", 4) 
-                        .attr("fill", "#b3caf5");
-                        //.attr("opacity",0);
+                        .attr("fill", "#b3caf5")
+                        .attr("opacity",0);
 
         // shades all the generators
         gens = svg.selectAll("circle.lattice")
