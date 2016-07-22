@@ -43,18 +43,29 @@
     $("#gridToggle").on("click", function(){
         if(curGrid) {
           $(this).html("Grid Lines: on");
-          curConvex = !curConvex;
             gridLinesH.attr("opacity",1);
             gridLinesV.attr("opacity",1);
             curGrid = !curGrid;
         } else {
           $(this).html("Grid Lines: off");
-          curConvex = !curConvex;
             gridLinesH.attr("opacity",0);
             gridLinesV.attr("opacity",0);
             curGrid = !curGrid;
         }
       });
+
+    $("#hilbToggle").on("click", function(){
+        if(curHilb) {
+          $(this).html("Anti diagonal: on");
+          curHilb = !curHilb;
+            hilbLines.attr("opacity",1);
+        } else {
+          $(this).html("Anti diagonal: off");
+          curHilb = !curHilb;
+            hilbLines.attr("opacity",0);
+        }
+      });
+
 
     });
      
@@ -245,6 +256,19 @@
                         .attr("y1", function(d) { return Math.floor(yScale(d[0]-1)); })
                         .attr("x2", function(d) { return Math.floor(xScale(d[1])); })
                         .attr("y2", function(d) { return Math.floor(yScale(d[0]-1)-sq); })
+                        //.attr("r", 6) 
+                        .attr("stroke-width",2)
+                        .attr("stroke", "#000000")
+                        .attr("opacity", 0);
+
+        hilbLines = svg.selectAll("line.lattice")
+                        .data(dat)
+                        .enter()
+                        .append("line")
+                        .attr("x1", function(d) { return Math.floor(xScale(d[1])); })
+                        .attr("y1", function(d) { return Math.floor(yScale(d[0])); })
+                        .attr("x2", function(d) { return Math.floor(xScale(d[1]+1)); })
+                        .attr("y2", function(d) { return Math.floor(yScale(d[0]-2)-sq); })
                         //.attr("r", 6) 
                         .attr("stroke-width",2)
                         .attr("stroke", "#000000")
