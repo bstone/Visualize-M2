@@ -108,6 +108,8 @@
 
 
     });
+
+
      
         dataset.sort(function(a,b) {return a[0]-b[0]});
 
@@ -241,6 +243,7 @@
                         .ticks(yMax)
                         .orient("left");
 
+        // for some reason coordinates of latticePoints are (y,x)????
         var latticePoints= [];
         for (i = 0; i <= yMax; i++) {
                 for (j = 1; j <= xMax+1; j++) {
@@ -257,7 +260,7 @@
                         .attr("y", function(d) { return Math.ceil(yScale(d[0])); })
                         .attr("width", sq+1) // add 1 to get rid of potential line
                         .attr("height", sq+1) // add 1 to get rid of potential line
-                        .attr("fill", "#f5deb3")
+                        .attr("fill", "#ffeead")
                         .attr("opacity",0);
                                         
 
@@ -278,7 +281,7 @@
                         .attr("cx", function(d) { return Math.floor(xScale(d[1])); })
                         .attr("cy", function(d) { return Math.floor(yScale(d[0])); })
                         .attr("r", 4) 
-                        .attr("fill", "#b3caf5")
+                        .attr("fill", "#e06000")
                         .attr("opacity",0);
 
         // shades all the generators
@@ -289,10 +292,10 @@
                         .attr("cx", function(d) { return Math.floor(xScale(d[0])); })
                         .attr("cy", function(d) { return Math.floor(yScale(d[1]-1)); })
                         .attr("r", 6) 
-                        .attr("fill", "#FF3307")
+                        .attr("fill", "#9900ac")
                         .attr("opacity", 0);
 
-        // draw the grid lines
+        // draw horizontal grid lines inside shaded region
         gridLinesH = svg.selectAll("line.lattice")
                         .data(dat)
                         .enter()
@@ -303,9 +306,10 @@
                         .attr("y2", function(d) { return Math.floor(yScale(d[0]-1)); })
                         //.attr("r", 6) 
                         .attr("stroke-width",2)
-                        .attr("stroke", "#000000")
+                        .attr("stroke", "#0d0018")
                         .attr("opacity", 0);
 
+        // draw vertical gridlines inside the region
         gridLinesV = svg.selectAll("line.lattice")
                         .data(dat)
                         .enter()
@@ -316,9 +320,10 @@
                         .attr("y2", function(d) { return Math.floor(yScale(d[0]-1)-sq); })
                         //.attr("r", 6) 
                         .attr("stroke-width",2)
-                        .attr("stroke", "#000000")
+                        .attr("stroke", "#0d0018")
                         .attr("opacity", 0);
 
+        // draw the top grid lines of the shaded region
         gridLinesT = svg.selectAll("line.lattice")
                         .data(topDataset)
                         .enter()
@@ -329,9 +334,10 @@
                         .attr("y2", function(d) { return Math.floor(yScale(d[1]-1)); })
                         //.attr("r", 6) 
                         .attr("stroke-width",2)
-                        .attr("stroke", "#000000")
+                        .attr("stroke", "#0d0018")
                         .attr("opacity", 0);
 
+        // draw the right grid lines of the shaded region
         gridLinesR = svg.selectAll("line.lattice")
                         .data(rightDataset)
                         .enter()
@@ -342,9 +348,10 @@
                         .attr("y2", function(d) { return Math.floor(yScale(d[1]-1)-sq); })
                         //.attr("r", 6) 
                         .attr("stroke-width",2)
-                        .attr("stroke", "#000000")
+                        .attr("stroke", "#0d0018")
                         .attr("opacity", 0);                        
 
+        // draw the anti diagonal lines inside the shaded region
         hilbLines = svg.selectAll("line.lattice")
                         .data(dat)
                         .enter()
@@ -497,8 +504,8 @@
                         .append("circle")
                         .attr("cx", function(d) { return Math.floor(xScale(d[0])); })
                         .attr("cy", function(d) { return Math.floor(yScale(d[1]-1)); })
-                        .attr("r", 3) 
-                        .attr("fill", "#002BF7")
+                        .attr("r", 4) 
+                        .attr("fill", "#00a053")
                         .attr("opacity", 0);
 
         pointList = []
@@ -530,7 +537,7 @@
                         .append("circle")
                         .attr("cx", function(d) { return Math.floor(xScale(d[0])); })
                         .attr("cy", function(d) { return Math.floor(yScale(d[1]-1)); })
-                        .attr("r", 3) 
-                        .attr("fill", "#002BF7")
+                        .attr("r", 4) 
+                        .attr("fill", "#00a053")
                         .attr("opacity", 0);
 
