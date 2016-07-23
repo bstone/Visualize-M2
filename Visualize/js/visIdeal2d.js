@@ -215,6 +215,22 @@
 
         console.log(tri);
 
+        // the lattice points on the top of the shaded region
+        topDataset = [];
+        for(i=0; i<dataset.length-1; i++) {
+        	for(j=dataset[i][0]; j < dataset[i+1][0]; j++) {
+        		topDataset.push([j,dataset[i][1]]);
+        	}
+        }
+
+        // the lattice points on the right of the shaded region
+        rightDataset = [];
+        for(i=0; i<dataset.length-1; i++) {
+        	for(j=dataset[i+1][1]; j < dataset[i][1]; j++) {
+        		rightDataset.push([dataset[i+1][0],j]);
+        	}
+        }
+
         var xAxis = d3.svg.axis()
                         .scale(xScale)
                         .ticks(xMax)
@@ -304,7 +320,7 @@
                         .attr("opacity", 0);
 
         gridLinesT = svg.selectAll("line.lattice")
-                        .data(dataset)
+                        .data(topDataset)
                         .enter()
                         .append("line")
                         .attr("x1", function(d) { return Math.floor(xScale(d[0])); })
@@ -317,7 +333,7 @@
                         .attr("opacity", 0);
 
         gridLinesR = svg.selectAll("line.lattice")
-                        .data(dataset)
+                        .data(rightDataset)
                         .enter()
                         .append("line")
                         .attr("x1", function(d) { return Math.floor(xScale(d[0])); })
@@ -341,6 +357,9 @@
                         .attr("stroke-width",2)
                         .attr("stroke", "#000000")
                         .attr("opacity", 0);
+
+        
+
 
         svg.append("g")
                 .attr("class", "axis")
