@@ -253,7 +253,7 @@
                         .ticks(yMax)
                         .orient("left");
 
-        // for some reason coordinates of latticePoints are (y,x)????
+        // lattice points of ideal
         var latticePoints= [];
         for (i = 0; i <= xMax+1; i++) {
                 for (j = -1; j <= yMax+1; j++) {
