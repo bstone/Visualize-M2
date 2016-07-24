@@ -146,6 +146,7 @@
 
         // datum will be a coordinate in the plane and blankout will 
         // put a 0 in every lattice point above and to the right
+        // not sure why this is its own function
         var blankOut = function(datum, chart) {
                 for (i = 0; i < chart.length; i++) {
                         if (i >= datum[1]) {
@@ -181,6 +182,15 @@
         // the coordinates of the points not in the ideal
         dat = makeDatFromChart(chart);
 
+        // the coordinates of the points in the ideal
+        idealDat = [];
+        for(i=0; i<chart.length; i++) {
+        	for (j = 0; j < chart[0].length; j++) {
+                                if (chart[i][j] === 0) {
+                                        idealDat.push([i, j]);
+                                }
+                        }
+        }
 
         
         // i'm not sure but i think the lines we get when switching
@@ -245,8 +255,8 @@
 
         // for some reason coordinates of latticePoints are (y,x)????
         var latticePoints= [];
-        for (i = 0; i <= yMax; i++) {
-                for (j = 1; j <= xMax+1; j++) {
+        for (i = 0; i <= xMax+1; i++) {
+                for (j = -1; j <= yMax+1; j++) {
                         latticePoints.push([i,j]);
                 }
         }
@@ -261,7 +271,7 @@
                         .attr("width", sq+1) // add 1 to get rid of potential line
                         .attr("height", sq+1) // add 1 to get rid of potential line
                         .attr("fill", "#ffeead")
-                        .attr("opacity",0);
+                        .attr("opacity",1);
                                         
 
         // shades all the triangles. default is transparent
@@ -278,11 +288,11 @@
                         .data(latticePoints)
                         .enter()
                         .append("circle")
-                        .attr("cx", function(d) { return Math.floor(xScale(d[1])); })
-                        .attr("cy", function(d) { return Math.floor(yScale(d[0])); })
+                        .attr("cx", function(d) { return Math.floor(xScale(d[0])); })
+                        .attr("cy", function(d) { return Math.floor(yScale(d[1])); })
                         .attr("r", 4) 
                         .attr("fill", "#e06000")
-                        .attr("opacity",0);
+                        .attr("opacity",1);
 
         // shades all the generators
         gens = svg.selectAll("circle.lattice")
@@ -430,12 +440,8 @@
                 return points;
         }
 
+        // don't think this is necessary
         var pointsBelow = function (point1, point2) {
-                /*if (point1[0] < point2[0]) {
-                        first = point1;
-                        second = point2;
-                }
-                else { first = point2; second = point1; }*/
                 xMin = Math.min(point1[0],point2[0]);
                 xMax = Math.max(point1[0],point2[0]);//second[0];
                 yMin = 0;
@@ -446,22 +452,9 @@
                 // this finds all lattice points below that line
                 for (x = xMin; x < xMax; x++) {
                         for (y = yMin; y < yMax; y++) {
-                                //t = (x - xMin)/(xMax - xMin);
-                                //l = first[1]*(1-t) + second[1]*(t);
-                                //if (y < yMax) { 
                                 	points.push([x,y]); //}
                         }
                 }
-                /*for (x = 0; x < xMin; x++) {
-                        for (y = 0; y <= extY; y++) {
-                                points.push([x,y]);
-                        }
-                }
-                for (x = xMax+1; x <= extX; x++) {
-                        for (y = 0; y <= extY; y++) {
-                                points.push([x,y]);
-                        }
-                }*/
                 return points;
         }
 
@@ -515,24 +508,22 @@
                 }
         }
 
-        testPoints = []
+        innerPoints = []
         for (i = 0; i < dataset.length-1; i++) {
-                //for (j = i+1; j < dataset.length; j++) {
-                        //pointsUnder = pointsBelow(dataset[i], dataset[i+1]);//, extX, extY);
                 xMin = Math.min(dataset[i][0],dataset[i+1][0]);
-                xMax = Math.max(dataset[i][0],dataset[i+1][0]);//second[0];
+                xMax = Math.max(dataset[i][0],dataset[i+1][0]);
                 yMin = 0;
                 yMax = Math.max(dataset[i][1], dataset[i+1][1]);
                 for (j = xMin; j < xMax; j++){
                 	for (k = yMin; k < yMax; k++){
-                		testPoints.push([j,k]);
+                		innerPoints.push([j,k]);
                 	}
                 }
-                   
         }
 
+        // highlight points not in ideal
         innerLattice = svg.selectAll("circle.inner")
-                        .data(testPoints)
+                        .data(innerPoints)
                         .enter()
                         .append("circle")
                         .attr("cx", function(d) { return Math.floor(xScale(d[0])); })
