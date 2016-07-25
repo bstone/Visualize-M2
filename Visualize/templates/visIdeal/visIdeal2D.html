@@ -194,11 +194,13 @@
       //global variables
       curConvex = true;
       curGens = true;
+      curBound = true;
       curGrid = true;
-      curPoints = true;
+      curPoints = false;
       curHilb = true;
       curLattice = false;
-      curShade = false;
+      curShadeOut = true;
+      curShadeIn = false;
       tikzGenerated = false;
       h = window.innerHeight-10;//600;
       w = window.innerWidth-10;//900;
@@ -214,9 +216,11 @@
             </div>
             <a id="latticeToggle" href="#" class="list-group-item">Lattice points: on</a>
             <a id="idealGens" href="#" class="list-group-item">Ideal Generators</a>
-            <a id="shadeToggle" href="#" class="list-group-item">Shade region: on</a>
+            <a id="shadeOutToggle" href="#" class="list-group-item">Shade non ideal: off</a>
+            <a id="shadeInToggle" href="#" class="list-group-item">Shade ideal: on</a>
             <a id="pointsToggle" href="#" class="list-group-item">Points not in ideal: off</a>
             <a id="hilbToggle" href="#" class="list-group-item">Anti diagonal: off</a>
+            <a id="boundaryToggle" href="#" class="list-group-item">Boundary lines: off</a>
             <a id="gridToggle" href="#" class="list-group-item">Grid Lines: off</a>
             <a id="convexToggle" href="#" class="list-group-item">Convex Hull: off</a>
             <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
