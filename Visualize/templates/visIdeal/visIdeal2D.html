@@ -192,18 +192,20 @@
         </style>
         <script type="text/javascript">
       //global variables
-      curConvex = true;
+      curConvexOut = true;
+      curConvexIn = true;
       curGens = true;
       curBound = true;
       curGrid = true;
       curPoints = false;
       curHilb = true;
       curLattice = false;
-      curShadeOut = true;
-      curShadeIn = false;
+      curShadeOut = false;
+      curShadeIn = true;
       tikzGenerated = false;
+      menuOpen = true;
       h = window.innerHeight-10;//600;
-      w = window.innerWidth-10;//900;
+      w = window.innerWidth-10;//-document.getElementById("side").clientWidth;//900;
       dataset = visArray;
     </script>
     </head>
@@ -216,13 +218,24 @@
             </div>
             <a id="latticeToggle" href="#" class="list-group-item">Lattice points: on</a>
             <a id="idealGens" href="#" class="list-group-item">Ideal Generators</a>
-            <a id="shadeOutToggle" href="#" class="list-group-item">Shade non ideal: off</a>
-            <a id="shadeInToggle" href="#" class="list-group-item">Shade ideal: on</a>
+            
+            <a href="#collapse2" data-toggle="collapse" class="list-group-item">Shade ideal &#9662;</a>
+                <div id="collapse2" class="panel-collapse collapse">
+                    <a id="shadeInToggle" href="#" class="list-group-item">Shade ideal: on</a>
+                    <a id="convexInToggle" href="#" class="list-group-item"> &nbsp;&nbsp; Convex hull: off</a>
+                </div>
+
+            <a href="#collapse1" data-toggle="collapse" class="list-group-item">Shade non ideal &#9662;</a>
+                <div id="collapse1" class="panel-collapse collapse">
+                    <a id="shadeOutToggle" href="#" class="list-group-item">Shade non ideal: off</a>
+                    <a id="convexOutToggle" href="#" class="list-group-item"> &nbsp;&nbsp; Convex hull: off</a>
+                </div>
+
             <a id="pointsToggle" href="#" class="list-group-item">Points not in ideal: off</a>
             <a id="hilbToggle" href="#" class="list-group-item">Anti diagonal: off</a>
             <a id="boundaryToggle" href="#" class="list-group-item">Boundary lines: off</a>
             <a id="gridToggle" href="#" class="list-group-item">Grid Lines: off</a>
-            <a id="convexToggle" href="#" class="list-group-item">Convex Hull: off</a>
+            <!--<a id="convexToggle" href="#" class="list-group-item">Convex Hull: off</a>-->
             <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>
             <!-- we can put these options in later
             <a id="exportTikz" href="#" class="list-group-item">Generate TikZ code</a>

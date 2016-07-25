@@ -3,23 +3,6 @@ $('#side').BootSideMenu({side:"right", autoClose: false});
 
 $(document).ready(function(){
 
-// display convex hull when clicked
-$("#convexToggle").on("click", function(){
-if(curConvex) {
-  $(this).html("Convex Hull: on");
-  curConvex = !curConvex;
-    hull.attr("opacity",1);
-    innerLattice.attr("opacity",0);
-    innerLatticeConvex.attr("opacity",1);
-} else {
-  $(this).html("Convex Hull: off");
-  curConvex = !curConvex;
-    hull.attr("opacity",0);
-    innerLattice.attr("opacity",1);
-    innerLatticeConvex.attr("opacity",0);
-}
-});
-
 $("#exportTikz").on("click", function() {
 exportTikz();
 });
@@ -120,6 +103,62 @@ if(curShadeIn) {
     inIdeal.attr("opacity",0);
 }
 });
+
+// display convex hull when clicked
+$("#convexOutToggle").on("click", function(){
+if(outIdeal.attr("opacity",1)){
+	if(curConvexOut) {
+  		$(this).html("&nbsp;&nbsp Convex hull: on");
+  		curConvexOut = !curConvexOut;
+    	hullOut.attr("opacity",1);
+    	innerLattice.attr("opacity",0);
+    	innerLatticeConvex.attr("opacity",1);
+	} else {
+  		$(this).html("&nbsp;&nbsp Convex hull: off");
+  		curConvexOut = !curConvexOut;
+    	hullOut.attr("opacity",0);
+    	innerLattice.attr("opacity",1);
+    	innerLatticeConvex.attr("opacity",0);
+	}
+
+}});
+
+$("#convexInToggle").on("click", function(){
+if(inIdeal.attr("opacity",1)){
+	if(curConvexIn) {
+  		$(this).html("&nbsp;&nbsp Convex hull: on");
+  		curConvexIn = !curConvexIn;
+    	hullIn.attr("opacity",1);
+    	innerLattice.attr("opacity",0);
+    	innerLatticeConvex.attr("opacity",1);
+	} else {
+  		$(this).html("&nbsp;&nbsp Convex hull: off");
+  		curConvexIn = !curConvexIn;
+    	hullIn.attr("opacity",0);
+    	innerLattice.attr("opacity",1);
+    	innerLatticeConvex.attr("opacity",0);
+	}
+
+}});
+
+ /*else {
+	if(inIdeal.attr("opacity",1)) {
+		if(curConvexIn) {
+  			$(this).html("Convex Hull: on");
+  			curConvexIn = !curConvexIn;
+    		hullIn.attr("opacity",1);
+    		innerLattice.attr("opacity",0);
+    		innerLatticeConvex.attr("opacity",1);
+		} else {
+  			$(this).html("Convex Hull: off");
+  			curConvexIn = !curConvexIn;
+    		hullIn.attr("opacity",0);
+    		innerLattice.attr("opacity",1);
+    		innerLatticeConvex.attr("opacity",0);
+		}
+}}
+
+});*/
 
 $("#pointsToggle").on("click", function(){
 if(curPoints) {
@@ -313,13 +352,22 @@ inIdeal = svg.selectAll("rect.lattice")
                                 
 
 // shades all the triangles. default is transparent
-hull = svg.selectAll("polygon")
+hullOut = svg.selectAll("polygon.lattice")
                 .data(tri)
                 .enter()
                 .append("polygon")
                 .attr("points", function(d) { return d; })
                 .attr("fill", "#FFFFFF")
                 .attr("opacity", 0);
+
+// shades all the triangles. default is transparent
+hullIn = svg.selectAll("polygon.lattice")
+                .data(tri)
+                .enter()
+                .append("polygon")
+                .attr("points", function(d) { return d; })
+                .attr("fill", "#ffeead")
+                .attr("opacity", 0);                
 
 // shades all the lattice points
 lattice = svg.selectAll("circle.lattice")
