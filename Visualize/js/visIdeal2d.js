@@ -141,25 +141,6 @@ if(inIdeal.attr("opacity",1)){
 
 }});
 
- /*else {
-	if(inIdeal.attr("opacity",1)) {
-		if(curConvexIn) {
-  			$(this).html("Convex Hull: on");
-  			curConvexIn = !curConvexIn;
-    		hullIn.attr("opacity",1);
-    		innerLattice.attr("opacity",0);
-    		innerLatticeConvex.attr("opacity",1);
-		} else {
-  			$(this).html("Convex Hull: off");
-  			curConvexIn = !curConvexIn;
-    		hullIn.attr("opacity",0);
-    		innerLattice.attr("opacity",1);
-    		innerLatticeConvex.attr("opacity",0);
-		}
-}}
-
-});*/
-
 $("#pointsToggle").on("click", function(){
 if(curPoints) {
   $(this).html("Points not in ideal: on");
@@ -596,6 +577,14 @@ for (i = 0; i <= extX; i++) {
 }
 
 innerPoints = []
+if(dataset[0][0]>0) {
+	for(i=0; i<dataset[0][0]; i++) {
+		for(j=0; j< chart.length+1; j++) {
+			innerPoints.push([i,j]);
+		}
+	}
+}
+
 for (i = 0; i < dataset.length-1; i++) {
         xMin = Math.min(dataset[i][0],dataset[i+1][0]);
         xMax = Math.max(dataset[i][0],dataset[i+1][0]);
@@ -606,6 +595,14 @@ for (i = 0; i < dataset.length-1; i++) {
         		innerPoints.push([j,k]);
         	}
         }
+}
+
+if(dataset[dataset.length-1][1]>0) {
+	for(i=dataset.length; i<chart[0].length+1; i++) {
+		for(j=0; j<dataset[dataset.length-1][1]; j++) {
+			innerPoints.push([i,j]);
+		}
+	}
 }
 
 // highlight points not in ideal
