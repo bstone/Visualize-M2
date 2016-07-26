@@ -440,7 +440,12 @@ hilbLines = svg.selectAll("line.lattice")
                 //.attr("r", 6) 
                 .attr("stroke-width",2)
                 .attr("stroke", "#000000")
-                .attr("opacity", 0);
+                .attr("opacity", 0)
+                .on("mouseover", function() {
+        			d3.select(this).enter().append("text")
+            		.text(function(d) {return d.x;})
+		            .attr("x", function(d) {return x(d.x);})
+        		    .attr("y", function (d) {return y(d.y);}); });
 
 
 
