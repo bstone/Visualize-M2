@@ -2635,3 +2635,26 @@ testvisualize(ZZ) := {VisPath => defaultPath, Warning => true, Verbose => false}
     return G;
     )
 testvisualize 5
+
+
+-- Demo For the paper
+
+restart
+-- Workflow
+loadPackage "Visualize"
+openPort "8080"
+openPort "8081"
+closePort()
+openPort "8081"
+
+-- Case Study: Graphs
+restart
+
+needsPackage"Graphs"
+G = graph({{1,2},{1,3},{2,3},{3,4}},Singletons=>{5})
+
+loadPackage "Visualize"
+openPort "8080"
+visualize G
+
+
