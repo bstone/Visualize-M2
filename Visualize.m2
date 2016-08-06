@@ -2566,7 +2566,7 @@ visualize (D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 -- Posets
 restart
-path = path|{"~/GitHub/Visualize-M2/"}
+path = {"~/GitHub/Visualize-M2/"}|path
 loadPackage "Visualize"
 openPort "8081"
 P2 = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
@@ -2577,7 +2577,7 @@ visualize oo
 -- Simplicial Complexes
 R = ZZ[a..f]
 D = simplicialComplex monomialIdeal(a*b*c,a*b*f,a*c*e,a*d*e,a*d*f,b*c*d,b*d*e,b*e*f,c*d*f,c*e*f)
-visualize D
+visualize G
 
 R = ZZ[a..g]
 D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
@@ -2591,7 +2591,10 @@ visualize L
 -- Ideals
 S = QQ[x,y]
 I = ideal"x4,xy3,y5"
+visualize I
 visualize( I, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
+
+viewHelp EdgeIdeals
 
 R = QQ[x,y,z]
 J = ideal"x4,xyz3,yz2,xz3,z6,y5"
@@ -2612,9 +2615,10 @@ path ={"~/GitHub/Visualize-M2/"}|path
 installPackage"Visualize"
 viewHelp Visualize
 
+///
 restart
-userFunction = method()
-userFunction(Function) := g -> (
+makeVisualizeFun = method()
+makeVisualizeFun(Function) := g -> (
     return g a == b;
     )
 a = "Hello"; b=a;
@@ -2626,15 +2630,15 @@ m = method()
 m(ZZ) := z -> z+1
 userFunction m    
 
+restart
+path = {"~/GitHub/Visualize-M2/"}|path
+loadPackage"Visualize"
+///
 
 
 
 
-testvisualize = method(Options => true)
-testvisualize(ZZ) := {VisPath => defaultPath, Warning => true, Verbose => false}|{VisTemplate => "basePath" | "Visualize/templates/visGraph/visGraph-template.html"} >> opts -> G -> (
-    return G;
-    )
-testvisualize 5
+
 
 
 -- Demo For the paper
@@ -2657,4 +2661,10 @@ loadPackage "Visualize"
 openPort "8080"
 visualize G
 
+
+testvisualize = method(Options => true)
+testvisualize(ZZ) := {VisPath => defaultPath, Warning => true, Verbose => false}|{VisTemplate => "basePath" | "Visualize/templates/visGraph/visGraph-template.html"} >> opts -> G -> (
+    return G;
+    )
+testvisualize 5
 
