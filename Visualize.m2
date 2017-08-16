@@ -2617,6 +2617,8 @@ viewHelp Visualize
 
 ///
 restart
+path ={"~/GitHub/Visualize-M2/"}|path
+needsPackage"Visualize"
 makeVisualizeFun = method()
 makeVisualizeFun(Function) := g -> (
     return g a == b;
@@ -2624,16 +2626,22 @@ makeVisualizeFun(Function) := g -> (
 a = "Hello"; b=a;
 
 f := s -> s
-userFunction f
+makeVisualizeFun f
 
 m = method()
 m(ZZ) := z -> z+1
-userFunction m    
+makeVisualizeFun m    
 
 restart
 path = {"~/GitHub/Visualize-M2/"}|path
 loadPackage"Visualize"
 ///
+
+testvisualize = method(Options => true)
+testvisualize(ZZ) := {VisPath => defaultPath, Warning => true, Verbose => false}|{VisTemplate => "basePath" | "Visualize/templates/visGraph/visGraph-template.html"} >> opts -> G -> (
+    return G;
+    )
+testvisualize 5
 
 
 
@@ -2662,9 +2670,4 @@ openPort "8080"
 visualize G
 
 
-testvisualize = method(Options => true)
-testvisualize(ZZ) := {VisPath => defaultPath, Warning => true, Verbose => false}|{VisTemplate => "basePath" | "Visualize/templates/visGraph/visGraph-template.html"} >> opts -> G -> (
-    return G;
-    )
-testvisualize 5
 
