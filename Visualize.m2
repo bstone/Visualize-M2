@@ -3,7 +3,7 @@
 -- visualize various algebraic objects in javascript using a 
 -- modern browser.
 --
--- Copyright (C) 2016 Brett Barwick, Thomas Enkosky, Branden Stone and Jim Vallandingham
+-- Copyright (C) 2017 Brett Barwick, Thomas Enkosky, Branden Stone and Jim Vallandingham
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License version 2
@@ -18,8 +18,8 @@
 
 newPackage(
 	"Visualize",
-    	Version => "0.8", 
-    	Date => "June 1, 2016",
+    	Version => "1.0", 
+    	Date => "August 31, 2017",
     	Authors => {       
      	     {Name => "Brett Barwick", Email => "bbarwick@uscupstate.edu", HomePage => "http://faculty.uscupstate.edu/bbarwick/"},	     
 	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu", HomePage => "http://math.bu.edu/people/tomenk/"},	     
