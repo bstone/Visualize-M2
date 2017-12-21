@@ -1,5 +1,5 @@
 Visualize.m2
-========
+=========
 
 A [Macaulay2](https://github.com/Macaulay2/M2) package to help visualize algebraic objects in the browser using javascript. This package is still in development. There are many great features that are not detailed below, but this should get you the idea of what we are doing. The goal (as of now) is to support the following packages: Graphs.m2; SimplicialComplexes.m2; Posets.m2; AlgebraicSplines.m2.  If you would like us to support other packages, please let us know.
 
