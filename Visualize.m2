@@ -2527,7 +2527,7 @@ uninstallPackage"Graphs"
 path = path|{"~/GitHub/Visualize-M2/"}
 path = {"~/GitHub/M2/M2/Macaulay2/packages/"}|path
 
-loadPackage "Visualize"
+needsPackage "Visualize"
 openPort "8080"
 closePort()
 -- Graphs
@@ -2535,7 +2535,8 @@ G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
 isRigid G
 
 visualize( G, Verbose => true )
-visualize(G, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
+visualize(G, VisPath => "/Users/bstone/Desktop/Test/", Warning => true)
+y
 
 cycleGraph 9
 visualize oo
@@ -2584,7 +2585,7 @@ D2 = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
 visualize( D2, VisPath => "/Users/bstone/Desktop/Test/", Warning => false)
 
 R = ZZ[a..f]
-L =simplicialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
+L =simplipcialComplex {d*e*f, b*e*f, c*d*f, b*c*f, a*d*e, a*b*e, a*c*d, a*b*c}
 visualize L
 
 
@@ -2668,3 +2669,28 @@ testvisualize(ZZ) := {VisPath => defaultPath, Warning => true, Verbose => false}
     )
 testvisualize 5
 
+-- fpsac paper
+
+restart
+
+path = path|{"~/GitHub/Visualize-M2/"}
+
+needsPackage "Visualize"
+openPort "8080"
+openPort "8081"
+
+P = partitionLattice 3
+visualize P
+
+H = hasseDiagram P
+visualize H
+
+H = K
+
+G = vertices H
+R = edges H
+
+Q = poset(G,R, AntisymmetryStrategy => "digraph") -- Correct poset, but ground set has changed. 
+visualize Q
+
+closePort()
