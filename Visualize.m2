@@ -1351,7 +1351,7 @@ document {
      
 --     PARA IMG ("src" => replace("PKG","Visualize",Layout#1#"package")|"images/Visualize/Visualize_Graph2.png", "alt" => "Original graph entered into M2"), 
 
-     
+    Caveat => {"When the graph is exported back to Macaulay2 after ending the visualization session, all vertices are represented as strings.  To recover the values of these labels (for example, if they have numeric values or represent ring variables), use the command ", TT "value first toString G", "."},
      
     SeeAlso => {
 	 "Basic Workflow for Visualize",
@@ -1490,7 +1490,7 @@ document {
 
 	 },
 	
-
+    Caveat => {"When the digraph is exported back to Macaulay2 after ending the visualization session, all vertices are represented as strings.  To recover the values of these labels (for example, if they have numeric values or represent ring variables), use the command ", TT "value first toString G", "."},
      
     SeeAlso => {
 	 "Basic Workflow for Visualize",
@@ -1593,9 +1593,8 @@ document {
 
 	 },
 	
+    Caveat => {"When the poset is exported back to Macaulay2 after ending the visualization session, all vertices are represented as strings.  To recover the values of these labels (for example, if they have numeric values or represent ring variables), use the command ", TT "poset(value toString vertices P,value toString coveringRelations P)", "."},
 
-     
-     
     SeeAlso => {
 	 "Basic Workflow for Visualize",
 	 (visualize,Graph),	 
@@ -2277,6 +2276,24 @@ G1 = barbellGraph 6
 visualize G1
 G3 = barycenter completeGraph 6
 visualize G3
+
+-- Converting graphs with String vertices back to their values.
+R = QQ[x]
+V = {"1","0100","1/2","a","x"}
+
+G = graph({{V#0,V#1},{V#1,V#0},{V#0,V#2},{V#1,V#3}},Singletons => {V#4})
+G2 = value first toString G
+
+D = digraph({{V#0,{V#0,V#1}},{V#1,{V#2,V#3}},{V#2,{V#3,V#4,V#2}}})
+class last vertices D
+D2 = value first toString D
+class last vertices D2
+
+P = poset({{V#0,V#1},{V#0,V#2},{V#0,V#3},{V#4,V#2},{V#2,V#3}})
+apply(vertices P, i -> class i)
+P2 = poset(value toString vertices P,value toString coveringRelations P)
+apply(vertices P2, i -> class i)
+areIsomorphic(P,P2)
 
 -- Digraphs
 restart
