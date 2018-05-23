@@ -30,7 +30,7 @@ newPackage(
 -- Contributing Author	     {Name => "Will Smith", Email => "smithw12321@gmail.com"},		
 -- Contributing Author	     {Name => "Julio Urenda", Email => "jcurenda@nmsu.edu"},	     
 	     },
-    	Headline => "Visualize",
+    	Headline => "Interactive visualization and manipulation of combinatorial objects in a browser",
     	DebuggingMode => true,
 	PackageExports => {"Graphs", "Posets", "SimplicialComplexes"},
 	AuxiliaryFiles => true,
@@ -1473,7 +1473,7 @@ document {
 	     being viewed. You will then have to copy this to the clipboard by clicking a new button. The TeX file will only need 
 	     '\\usepackage{tikz}' in the preamble. If you decide you want to modify the digraph, feel free. All you need do in 
 	     order to get a new TikZ code is click on 'Generate TikZ code' once more, and then click the button. This button will look
-	     the same, but it will be a new code. At this time loops, or reflexive edges, are not represented in the TikZ image", BR{}, BR{}}, 
+	     the same, but it will be a new code.", BR{}, BR{}}, 
 	     
 	 {BOLD "Boolean tests: ", "Clicking this will pull up a submenu of boolean tests supported by the ", TO "Graphs", " package. 
 	     Clicking on these tests will send a request to Macaulay2 to calculate the answer for the current digraph on the screen. ",
@@ -2262,11 +2262,16 @@ viewHelp doc
 -- Graphs
 restart
 path = {"~/GitHub/Visualize-M2/"}|path
+loadPackage"Graphs"
 loadPackage"Visualize"
+openPort"8080"
 G = graph({{x_0,x_1},{x_0,x_3},{x_0,x_4},{x_1,x_3},{x_2,x_3}},Singletons => {x_5})
 visualize G
 G2 = cocktailParty 10
 visualize G2
+
+G = graph({},Singletons => {x_1,x_2})
+visualize G
 
 G1 = barbellGraph 6
 visualize G1
@@ -2285,6 +2290,32 @@ D1 = digraph ({{a,{b,c,d,e}}, {b,{d,e}}, {e,{a}}}, EntryMode => "neighbors")
 visualize D1
 D2 = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
 visualize D2
+
+D = digraph({})
+visualize D
+
+-- Posets
+restart
+loadPackage"Posets"
+loadPackage"Visualize"
+openPort"8080"
+P = divisorPoset(258)
+visualize P
+
+P = poset({{"a","b"},{c,d},{"a",c}})
+visualize P
+
+-- Simplicial Complexes
+restart
+loadPackage"SimplicialComplexes"
+loadPackage"Visualize"
+openPort"8080"
+R=ZZ[x_0..x_5]
+C = simplicialComplex apply({{x_0, x_1, x_2}, {x_1, x_2, x_3}, {x_0, x_1, x_4}, {x_0, x_3, x_4}, {x_2, x_3, x_4}, {x_0, x_2, x_5}, {x_0, x_3, x_5}, {x_1, x_3, x_5}, {x_1, x_4, x_5}, {x_2, x_4, x_5}},face)
+visualize C
+
+R = ZZ[a..f]
+visualize simplicialComplex monomialIdeal(a*f, b*d, c*e)
 
 -- tom examples
 -- Posets
