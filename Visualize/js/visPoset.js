@@ -77,8 +77,8 @@ function initializeBuilder() {
     
   // Compute the maximum level of the nodes in the poset.
   maxGroup = d3.max(dataGroupList);
-  // Compute the distance between levels in the poset.
-  rowSep = (height-2*vPadding)/maxGroup;
+  // Compute the distance between levels in the poset.  Make sure the denominator is positive.
+  rowSep = (height-2*vPadding)/d3.max([maxGroup,1]);
       
   // Set up initial nodes and links
   //  - nodes are known by 'id', not by index in array.
@@ -432,7 +432,8 @@ function restart() {
             dataCovRel = minimalPosetRelations(dataRelMatrix);
             dataGroupList = computeNodeGroups(dataRelMatrix);
             maxGroup = d3.max(dataGroupList);
-            rowSep = (height-2*vPadding)/maxGroup;
+            // Make sure the denominator is positive.
+            rowSep = (height-2*vPadding)/d3.max([maxGroup,1]);
             
             // Running restart on empty arrays here clears out the circle and path groups so that they are rebuilt from scratch referring to the new node and links below.
             nodes = [];
@@ -448,9 +449,11 @@ function restart() {
             tick();
             resetMouseVars();
             menuDefaults();
+            // 'link' is the relation that was just added.
             link = links.filter(function(l) {
                 return (l.source.id == d3.min([sourceID,targetID]) && l.target.id == d3.max([sourceID,targetID]));
             })[0];
+                        
             // Update the side menu bar to reflect that all nodes are now fixed in their original positions.
             if(forceOn) toggleForce();
         }
@@ -638,7 +641,6 @@ function keydown() {
   if(!selected_node && !selected_link) return;
     
   // -----------------------------------------------------
-  // Brett: (EDITING To-do) Change this code to update the relevant data structures when a node or link has been deleted.
     
   switch(d3.event.keyCode) {
     case 8: // backspace
@@ -651,7 +653,8 @@ function keydown() {
         dataCovRel = minimalPosetRelations(dataRelMatrix);
         dataGroupList = computeNodeGroups(dataRelMatrix);
         maxGroup = d3.max(dataGroupList);
-        rowSep = (height-2*vPadding)/maxGroup;
+        // Make sure the denominator is positive.
+        rowSep = (height-2*vPadding)/d3.max([maxGroup,1]);
         
         nodes = [];
         links = [];
@@ -662,7 +665,7 @@ function keydown() {
         setAllNodesFixed();
         links = linksFromNodesRelations(nodes,dataCovRel);
         force.nodes(nodes)
-          .links(links)
+          .links(links);
         resetMouseVars();
 
         if(curHighlight) unHighlightAll();
@@ -673,11 +676,15 @@ function keydown() {
         // Delete the selected link and update the poset.
         var sourceID = selected_link.source.id;
         var targetID = selected_link.target.id;
+        // Make the nodes from the selected covering relation incomparable.
         dataRelMatrix[sourceID][targetID] = 0;
+        dataRelMatrix[targetID][sourceID] = 0;
+        // Update the minimal covering relation and node ranks.
         dataCovRel = minimalPosetRelations(dataRelMatrix);
         dataGroupList = computeNodeGroups(dataRelMatrix);
         maxGroup = d3.max(dataGroupList);
-        rowSep = (height-2*vPadding)/maxGroup;
+        // Make sure the denominator is positive.
+        rowSep = (height-2*vPadding)/d3.max([maxGroup,1]);
         
         nodes = [];
         links = [];
@@ -689,7 +696,7 @@ function keydown() {
         links = linksFromNodesRelations(nodes,dataCovRel);
         force.nodes(nodes)
           .links(links);
-        resetMouseVars();    
+        resetMouseVars();
         
         if(curHighlight) unHighlightAll();
         
@@ -883,7 +890,8 @@ function updateWindowSize2d() {
         width = window.innerWidth - document.getElementById("side").clientWidth;
     }
     height = window.innerHeight-10;
-    rowSep = (height-2*vPadding)/maxGroup;
+    // Make sure the denominator is positive.
+    rowSep = (height-2*vPadding)/d3.max([maxGroup,1]);
 
     // set attrs and 'resume' force 
     svg.attr('width', width);
@@ -947,20 +955,26 @@ function updateForceLinkDist(){
 
 // ----------- Functions for computations with posets ---------
 
-// Given the relation matrix for a poset, this function returns null if the poset is not ranked and otherwise returns a list of the ranks of the elements.  This algorithm is taken from Posets.m2, which was in turn taken from John Stembridge's Maple package for computations with posets.
+// Given the relation matrix for a poset, this function returns null if the poset is not ranked and otherwise returns a list of the ranks of the elements.  This algorithm is taken from Posets.m2.
 function posetRankFunction(relMatrix){
     var rk = [];
+    // Initialize rk with arrays of the form [node index,0].  The second entry will be updated in the next loop and will eventually be the rank that the node is assigned.
     for(var i=0; i < relMatrix.length; i++){
         rk.push([i,0]);
     }
-    //var covRel = minimalPosetRelations(relMatrix);
-    var covRel = dataCovRel;
+    var covRel = dataCovRel; // Current minimal covering relations.
     for(var i=0; i < covRel.length; i++){
+        // 
         var tmp = rk[covRel[i][1]][rk[covRel[i][1]].length-1] - rk[covRel[i][0]][rk[covRel[i][1]].length-1] - 1;
-        if(tmp == 0){continue;}
         var u = rk[covRel[i][0]][0];
         var v = rk[covRel[i][1]][0];
-        if(u == v){return null;};
+        if(u == v){
+            if(tmp == 0) {
+                continue;
+            } else {
+                return null;
+            }
+        }
         var temprk = [];
         if(tmp > 0){
             for(var j=0; j < rk.length; j++){
@@ -982,8 +996,8 @@ function posetRankFunction(relMatrix){
         rk = temprk;
     }
     var rkOutput = [];
-    for(var i=0; i < temprk.length; i++){
-        rkOutput.push(temprk[i][1]);
+    for(var i=0; i < rk.length; i++){
+        rkOutput.push(rk[i][1]);
     }
     return rkOutput;
 }
@@ -1039,7 +1053,7 @@ function posetFiltration(relMatrix){
     return ret;
 }
 
-// Given the relation matrix for a poset, compute the "height" of each element, which is simply the corresponding level of the filtration of the poset that contains it.  This is meant to be used in place of a rank function is the poset is not ranked.
+// Given the relation matrix for a poset, compute the "height" of each element, which is simply the corresponding level of the filtration of the poset that contains it.  This is meant to be used in place of a rank function if the poset is not ranked.
 function posetHeightFunction(relMatrix){
     var filt = posetFiltration(relMatrix);
     var ht = [];
@@ -1088,7 +1102,6 @@ function posetMaximalChains(relMatrix){
     for(var i=0; i < minElt.length; i++){
         nonMaximalChains.push([minElt[i]]);
     }
-    //var covRel = minimalPosetRelations(relMatrix);
     var covRel = dataCovRel;
     var cvrby = [];
     for(var i=0; i < relMatrix.length; i++){
