@@ -633,7 +633,7 @@ openPort String := F -> (
 	F = "$localhost:"|F;
 	inOutPort = openListener F;
 	print("--Port " | toString inOutPort | " is now open.");    
-	);  
+	);
 )
 
 --getCurrPath = method()
@@ -2317,9 +2317,19 @@ loadPackage"Posets"
 loadPackage"Visualize"
 openPort"8080"
 P = divisorPoset(258)
+P = divisorPoset(2)
 visualize P
 
-P = poset({{"a","b"},{c,d},{"a",c}})
+P = poset({1,2,3,4,5},{{1,2},{1,3},{2,4},{3,5},{4,5}})
+visualize P
+
+-- The following poset demonstrates a bug in the rankFunction method of the Posets package.
+-- Vertex 4 covers vertex 1, but they are assigned the same rank by rankFunction.  In fact the poset is not ranked.
+P = poset({0,1,2,3,4},{{0,2},{2,3},{1,4},{0,4},{1,3}})
+isRanked P
+vertices P
+rankFunction P -- Notice that 1 and 4 both have rank 1.
+coveringRelations P -- But 4 covers 1.
 visualize P
 
 -- Simplicial Complexes
