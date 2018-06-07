@@ -570,7 +570,7 @@ copyJS(String) := opts -> dst -> (
 	    )
 	then (
 		quest = concatenate(
-		    " -- Note: You can surpress this message with the 'Warning => false' option.\n",
+		    " -- Note: You can suppress this message with the 'Warning => false' option.\n",
 		    " -- The following folders on the path ",dst," have some files that will be overwritten: ",
 		    JS, ", ",
 		    CSS, ", ",
@@ -2752,3 +2752,39 @@ Q = poset(G,R, AntisymmetryStrategy => "digraph") -- Correct poset, but ground s
 visualize Q
 
 closePort()
+
+-- Examples for the M2 documentation --
+restart
+path = {"~/GitHub/Visualize-M2/"}|path
+loadPackage"Graphs"
+loadPackage"Visualize"
+openPort"8080"
+ExamplePath = "~/Desktop/vis_examples/"
+
+-- Graph example
+G = graph({{0,1},{0,3},{0,4},{1,3},{2,3}},Singletons => {5})
+visualize(G)
+
+-- Digraph example
+D = digraph {{1,{2,3}}, {2,{4,5}}, {3,{5,6}}, {4,{7}}, {5,{7}},{6,{7}},{7,{}}}
+visualize(D)
+
+-- Poset example
+P = poset {{1,2},{2,3},{3,4},{5,6},{6,7},{3,6}}
+visualize(P)
+
+-- Simplicial complex example
+R = ZZ[a..g]
+D = simplicialComplex {a*b*c,a*b*d,a*e*f,a*g}
+visualize(D)
+
+-- Monomial ideal staircase diagram 2d example
+S = QQ[x,y]
+I = ideal"x4,xy3,y5"
+visualize(I)
+
+
+-- Monomial ideal staircase diagram 3d example
+R = QQ[x,y,z]
+J = ideal"x4,xyz3,yz2,xz3,z6,y5"
+visualize(J)
