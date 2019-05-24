@@ -18,8 +18,8 @@
 
 newPackage(
 	"Visualize",
-    	Version => "1.0", 
-    	Date => "August 31, 2017",
+    	Version => "1.5", 
+    	Date => "May 24, 2019",
     	Authors => {       
      	     {Name => "Brett Barwick", Email => "bbarwick@uscupstate.edu", HomePage => "http://faculty.uscupstate.edu/bbarwick/"},	     
 	     {Name => "Thomas Enkosky", Email => "tomenk@bu.edu", HomePage => "http://math.bu.edu/people/tomenk/"},	     
@@ -488,7 +488,7 @@ visualize(SimplicialComplex) := commonVisOpts|{VisTemplate => basePath | "Visual
     return browserOutput; 
 )
 
-{*
+-*
 --input: A parameterized surface in RR^3
 --output: The surface in the browswer
 --
@@ -515,7 +515,7 @@ visualize(List) := {VisPath => defaultPath, VisTemplate => basePath | "Visualize
     
     return visTemp;
 )
-*}
+*-
 
 -- Input: A string of a path to a directory
 -- Output: Copies the needed files and libraries to path
@@ -1165,7 +1165,7 @@ document {
 
     }        
 
-{*
+-*
 document {
     Key => "Visualizing Graphs",	 
     
@@ -1235,7 +1235,7 @@ document {
 	}
     
     }
-*}
+*-
 
 document {
      Key => visualize,
