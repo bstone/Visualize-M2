@@ -734,7 +734,6 @@ server = () -> (
 	else if match("^POST /isConnected/(.*) ",r) then (
 	    -- testKey = "isConnected";
 	    fun = identity;
-	    print"isConnected else if in M2";
 	    u = toString( isConnected dataValue );
 	)	
 
